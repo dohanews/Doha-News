@@ -3,11 +3,11 @@
 // };
 // Create variable "win" to refer to current window
 
-var win = Ti.UI.createWindow({
-	backgroundColor:'#fff'
-});
+var win = Titanium.UI.currentWindow;
 
-var lorem = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+/*var win = Ti.UI.createWindow({
+	backgroundColor:'#fff'
+});*/
 
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
@@ -68,6 +68,9 @@ var make_content_view = function(content) {// create the content view - the one 
 
 };
 
+var allTitles = [];
+var allContent = [];
+
 function loadWordpress()
 {
 	var loader;
@@ -76,8 +79,7 @@ function loadWordpress()
 		
 		// Empty array "rowData" for our tableview
 		var rowData = [];
-		var allTitles = [];
-		var allContent = [];
+		
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
@@ -170,7 +172,7 @@ function loadWordpress()
 		if (e.source.is_action) {
 			alert(e.source.is_action);
 		} else {
-			alert('row clicked');
+			//alert('row clicked');
 			if (current_row) {
 				current_row.v2.animate({
 					opacity: 1,
@@ -180,6 +182,13 @@ function loadWordpress()
 			}
 	
 		}
+		var win = Ti.UI.createWindow({
+    			backgroundColor:'#fff',
+    			url: 'detail.js'
+    		})
+    		win.content = allContent[e.index];
+    	Ti.UI.currentTab.open(win,{animation:true});
+		
 	});
 	
 	win.add(tbl);
