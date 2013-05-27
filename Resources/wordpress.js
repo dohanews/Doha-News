@@ -116,29 +116,30 @@ function loadWordpress()
 			
 				var swipeAnimation = Ti.UI.createAnimation({
 					left: Titanium.Platform.displayCaps.platformWidth * -1,
-					duration: 500
+					duration: 250
 				});
 				
-				swipeAnimation.addEventListener('complete', function(){
-					current_row.v2.animate({
-						opacity:0,
-						duration:0
-					})
-				});
+				// swipeAnimation.addEventListener('complete', function(){
+					// current_row.v2.animate({
+						// opacity:0,
+						// duration:0
+					// })
+				// });
 				
 				// android behaves in a different way so we need to add the event to the row.
 				row.addEventListener('swipe', function(e) {
-					if (!!current_row) {
-						current_row.v2.animate({
-							left: 0,
-							opacity: 1,
-							duration: 0
-						});
-					}
+					if (e.direction == 'left'){
+						if (!!current_row) {
+							current_row.v2.animate({
+								left: 0,
+								duration: 0
+							});
+						}
+		
+						current_row = Ti.Platform.osname == 'android' ? this : e.row; // it looks like android does not have the e.row property for this event.
 	
-					current_row = Ti.Platform.osname == 'android' ? this : e.row; // it looks like android does not have the e.row property for this event.
-
-					current_row.v2.animate(swipeAnimation);
+						current_row.v2.animate(swipeAnimation);
+					}
 				});
 	
 				data.push(row);
@@ -166,7 +167,6 @@ function loadWordpress()
 	
 		if (!!current_row && (Ti.Platform.osname == 'android' ?  scrolled_times > 3 : true)) {
 			current_row.v2.animate({
-				opacity: 1,
 				left: 0,
 				duration: 0
 			});
@@ -183,7 +183,6 @@ function loadWordpress()
 			//alert('row clicked');
 			if (current_row) {
 				current_row.v2.animate({
-					opacity: 1,
 					left: 0,
 					duration: 0
 				});
