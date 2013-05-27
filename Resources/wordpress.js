@@ -3,6 +3,8 @@
 // };
 // Create variable "win" to refer to current window
 
+var osname = Ti.Platform.osname;
+
 var win = Titanium.UI.currentWindow;
 
 var tbl = Ti.UI.createTableView({
@@ -192,11 +194,12 @@ function loadWordpress()
 		}
 		var win = Ti.UI.createWindow({
     			backgroundColor:'#fff',
-    			url: 'detail.js'
+    			url: 'detail.js',
+    			modal: true
+    			
     		})
     		win.content = allContent[e.index];
-    	Ti.UI.currentTab.open(win,{animation:true});
-		
+    	win.open({animation:true});
 	});
 	
 	win.add(tbl);
