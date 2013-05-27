@@ -1,7 +1,9 @@
 var tabGroup = Titanium.UI.createTabGroup({bottom:-50});
 
 var mainWin = Titanium.UI.createWindow ({
-	   title: "Doha News",
+	   navBarHidden: false,
+	   barImage: 'images/Doha-News-Logo-Rect-450.png', 
+	   layout: "vertical",
 	   url: "wordpress.js"
 });
 
@@ -10,5 +12,5 @@ var news = Titanium.UI.createTab({
     window: mainWin
 });
 
-tabGroup.addTab(news);  
+tabGroup.addTab(news);
 tabGroup.open();
