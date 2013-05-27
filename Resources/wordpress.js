@@ -37,7 +37,9 @@ var make_content_view = function(content) {// create the content view - the one 
 
 	var view = Ti.UI.createView({
 		backgroundColor: '#fff',
-		height: Ti.UI.SIZE
+		height: Ti.UI.SIZE,
+		width: Titanium.Platform.displayCaps.platformWidth
+		
 	});
 
 	var img = Ti.UI.createImageView({
