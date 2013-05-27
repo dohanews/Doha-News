@@ -10,7 +10,10 @@ win.leftNavButton = button;
 var content = win.content;
 
 var localWebview = Titanium.UI.createWebView({
+	scalesPageToFit: true,
 	html:content,
+	backgroundColor:'white'
 });
+
 
 win.add(localWebview);
