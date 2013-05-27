@@ -12,7 +12,9 @@ var content = win.content;
 var localWebview = Titanium.UI.createWebView({
 	scalesPageToFit: true,
 	html:content,
-	backgroundColor:'white'
+	backgroundColor:'white',
+	loading: true,
+	width: Ti.Platform.displayCaps.platformWidth
 });
 
 
