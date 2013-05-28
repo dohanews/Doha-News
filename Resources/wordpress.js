@@ -6,6 +6,7 @@
 var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
+win.backgroundColor='white';
 
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
@@ -200,28 +201,28 @@ function loadWordpress()
 	});
 	
 	var style;
-	// if (Ti.Platform.name === 'iPhone OS'){
-		// style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	// }
-	// else {
-		// style = Ti.UI.ActivityIndicatorStyle.DARK;
-	// }
+	if (Ti.Platform.name === 'iPhone OS'){
+		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+	}
+	else {
+		style = Ti.UI.ActivityIndicatorStyle.DARK;
+	}
 
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: Ti.UI.ActivityIndicatorStyle.DARK ,
+		style: style,
 		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
 			y:Ti.Platform.displayCaps.platformHeight/2},
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
 	
-	win.add(tbl);
 	win.add(activityIndicator);		
 	activityIndicator.show();	
 	win.open();
 	loader.onreadystatechange = function(e){ 
 		if (this.readyState == 4) {
 			activityIndicator.hide();
+			win.add(tbl);
 		} 
 	};
 	loader.send();
