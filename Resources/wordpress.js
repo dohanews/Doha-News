@@ -7,9 +7,23 @@ var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
 
+function customHeader() {
+	var view = Ti.UI.createView({
+		height: (Ti.Platform.displayCaps.platformHeight)/10
+	});
+	
+	var img = Ti.UI.createImageView({
+		image: 'images/doha-news.png'
+	});
+			
+	view.add(img);
+	return view;
+};
+
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
 	minRowHeight: 70,
+	headerView:customHeader(),
 	selectionStyle: 'none'
 });
 
@@ -23,12 +37,13 @@ var create_sharing_options_view = function(where) {
 		width:Ti.UI.SIZE
 	});
 
-	for (var i = 0; i < 6; i++) {
+	var icons =['images/facebook.png', 'images/twitter.png', 'images/mail.png']
+	for (var i = 0; i < 3; i++) {
 		view.add(Ti.UI.createImageView({
-			width: '50dp',
-			left: (10 + (50 * i))+'dp',
-			height: '50dp',
-			image: 'KS_nav_ui.png',
+			width: '40dp',
+			left: (10 + (80 * i))+'dp',
+			height: '40dp',
+			image: icons[i],
 			is_action: 'action ' + i
 		}));
 	};
@@ -70,6 +85,7 @@ var make_content_view = function(content) {// create the content view - the one 
 
 var allTitles = [];
 var allContent = [];
+var allURL = [];
 
 function loadWordpress()
 {
@@ -95,10 +111,12 @@ function loadWordpress()
 				//var tweet = tweetOriginal.replace( /<[^>]+>/g, '' );
 				var articleTitle = wordpress.posts[i].title; // The screen name of the user
 				var avatar = wordpress.posts[i].user_avatar; // The profile image
+				var url = wordpress.posts[i].url;
 				// Create a row and set its height to auto
 						
 				allTitles[i]={title: wordpress.posts[i].title};
 				allContent[i]=tweet;
+				allURL[i]=url;
 				
 				var row = Ti.UI.createTableViewRow({
 					height: Ti.UI.SIZE,
@@ -174,7 +192,15 @@ function loadWordpress()
 	
 	tbl.addEventListener('click', function(e) {
 		if (e.source.is_action) {
-			alert(e.source.is_action);
+			if (e.source.is_action==='action 0') {alert('post to facebook'), console.log('facebook icon clicked')}
+			if (e.source.is_action==='action 1') {alert('tweet article'), console.log('twitter icon clicked')}
+			if (e.source.is_action==='action 2') {
+				var emailDialog = Ti.UI.createEmailDialog()
+				emailDialog.subject = allTitles[e.index].title;
+				emailDialog.messageBody = allURL[e.index];
+				emailDialog.open();
+				console.log(allTitles[e.index].title)
+			}
 		} else {
 			if (current_row) {
 				current_row.v2.animate({
@@ -183,16 +209,17 @@ function loadWordpress()
 				});
 				current_row = null;
 			}
-	
-		}
-		var win = Ti.UI.createWindow({
+			var win = Ti.UI.createWindow({
     			backgroundColor:'#fff',
     			url: 'detail.js',
     			modal: true
     			
     		})
     		win.content = allContent[e.index];
-    	win.open({animated:true});
+    		win.open({animated:true});
+			
+		}
+		
 	});
 	
 	win.add(tbl);
