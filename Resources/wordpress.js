@@ -6,6 +6,7 @@
 var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
+win.backgroundColor='white';
 
 function customHeader() {
 	var view = Ti.UI.createView({
@@ -99,8 +100,10 @@ function loadWordpress()
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
+
 		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
 		// Runs the function when the data is ready for us to process
+		
 		loader.onload = function() 
 		{
 			var wordpress = JSON.parse(this.responseText);
@@ -203,12 +206,14 @@ function loadWordpress()
 			}
 		} else {
 			if (current_row) {
+				
 				current_row.v2.animate({
 					left: 0,
 					duration: 0
 				});
 				current_row = null;
 			}
+			
 			var win = Ti.UI.createWindow({
     			backgroundColor:'#fff',
     			url: 'detail.js',
@@ -222,8 +227,31 @@ function loadWordpress()
 		
 	});
 	
-	win.add(tbl);
+	var style;
+	if (Ti.Platform.name === 'iPhone OS'){
+		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+	}
+	else {
+		style = Ti.UI.ActivityIndicatorStyle.DARK;
+	}
+
+	var activityIndicator = Ti.UI.createActivityIndicator({
+		style: style,
+		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
+			y:Ti.Platform.displayCaps.platformHeight/2},
+		height:Ti.UI.SIZE,
+		width:Ti.UI.SIZE
+	});
+	
+	win.add(activityIndicator);		
+	activityIndicator.show();	
 	win.open();
+	loader.onreadystatechange = function(e){ 
+		if (this.readyState == 4) {
+			activityIndicator.hide();
+			win.add(tbl);
+		} 
+	};
 	loader.send();
 }
 
