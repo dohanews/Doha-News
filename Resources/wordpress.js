@@ -8,13 +8,32 @@ var osname = Ti.Platform.osname;
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 
+function isToday(day, month, year){
+	var currentTime = new Date();
+	var currentDay = currentTime.getDate();
+	var currentMonth = currentTime.getMonth() + 1;
+	var currentYear = currentTime.getFullYear();
+	
+	if (year<currentYear){
+		return false;
+	}
+	else if (month<currentMonth){
+		return false;
+	}
+	else if (day<currentDay){
+		return false;
+	}
+	return true;
+}
+
 function customHeader() {
 	var view = Ti.UI.createView({
-		height: (Ti.Platform.displayCaps.platformHeight)/10
+		height: (Ti.Platform.displayCaps.platformHeight)/10,
+		top: '5px'
 	});
 	
 	var img = Ti.UI.createImageView({
-		image: 'images/doha-news.png'
+		image: 'images/Doha-News-Logo-Rect-450.png'
 	});
 			
 	view.add(img);
@@ -29,6 +48,17 @@ var tbl = Ti.UI.createTableView({
 });
 
 var current_row; // this will hold the current row we swiped over, so we can reset it's state when we do any other gesture (scroll the table, swipe another row, click on another row)
+
+
+var today = Titanium.UI.createTableViewSection({
+    headerTitle:"Today"
+});
+var old = Titanium.UI.createTableViewSection({
+    headerTitle:"Older"
+});
+
+
+
 
 // create the actions view - the one will be revealed on swipe
 var create_sharing_options_view = function(where) { 
@@ -87,12 +117,13 @@ var make_content_view = function(content, thumbnail) {// create the content view
 var allTitles = [];
 var allContent = [];
 var allURL = [];
+var allDates = [];
 
 function loadWordpress()
 {
 	var loader;
 	function make_data_rows() { // some stub data for the rows.
-		var data = [];
+		var data = [today, old];
 		
 		// Empty array "rowData" for our tableview
 		var rowData = [];
@@ -116,6 +147,9 @@ function loadWordpress()
 				var avatar = wordpress.posts[i].user_avatar; // The profile image
 				var url = wordpress.posts[i].url;
 				
+				var originalDate = wordpress.posts[i].date.split(' ');
+				var date = originalDate[0].split('-');
+				
 				var thumbail;
 				
 				if (wordpress.posts[i].attachments.length > 0)
@@ -124,10 +158,25 @@ function loadWordpress()
 					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
 				// Create a row and set its height to auto
+				
+				var articleYear = parseInt(date[0]);
+				var articleMonth = parseInt(date[1]);
+				var articleDay = parseInt(date[2]);
+				
+				
+				
+				//var dates = "Today: "+currentMonth+"/"+currentDay+"/"+currentYear+" Article: "+articleMonth+"/"+articleDay+"/"+articleYear
+				
+				//var today = currentYear+'-'+currentMonth+'-'+currentDay
+				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay
+				
+				
+				//console.log(isToday(articleDay, articleMonth, articleYear))
 						
 				allTitles[i]={title: wordpress.posts[i].title};
 				allContent[i]=tweet;
 				allURL[i]=url;
+				allDates[i]=date;
 				
 				var row = Ti.UI.createTableViewRow({
 					height: Ti.UI.SIZE,
@@ -167,7 +216,13 @@ function loadWordpress()
 					
 				});
 	
-				data.push(row);
+				if (isToday(articleDay, articleMonth, articleYear)){
+					today.add(row);
+				}
+				else{
+					old.add(row);
+				}
+
 			}
 			
 		tbl.setData(data);
