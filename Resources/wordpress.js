@@ -45,14 +45,14 @@ var create_sharing_options_view = function(where) {
 			left: (10 + (80 * i))+'dp',
 			height: '40dp',
 			image: icons[i],
-			is_action: 'action ' + i
+			is_action: i
 		}));
 	};
 
 	return view;
 };
 
-var make_content_view = function(content) {// create the content view - the one is displayed by default
+var make_content_view = function(content, thumbnail) {// create the content view - the one is displayed by default
 
 	var view = Ti.UI.createView({
 		backgroundColor: '#fff',
@@ -65,7 +65,7 @@ var make_content_view = function(content) {// create the content view - the one 
 		width: '40dp',
 		left: '5dp',
 		top: '5dp',
-		image: 'https://si0.twimg.com/profile_images/2179402304/appc-fb_normal.png'
+		image: thumbnail
 	});
 
 	var label = Ti.UI.createLabel({
@@ -115,6 +115,14 @@ function loadWordpress()
 				var articleTitle = wordpress.posts[i].title; // The screen name of the user
 				var avatar = wordpress.posts[i].user_avatar; // The profile image
 				var url = wordpress.posts[i].url;
+				
+				var thumbail;
+				
+				if (wordpress.posts[i].attachments.length > 0)
+					thumbnail = wordpress.posts[i].attachments[0].images.fifty.url
+				else 
+					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
+
 				// Create a row and set its height to auto
 						
 				allTitles[i]={title: wordpress.posts[i].title};
@@ -132,7 +140,7 @@ function loadWordpress()
 				});
 								
 				var sharing_options = create_sharing_options_view();
-				row.v2 = make_content_view(articleTitle);
+				row.v2 = make_content_view(articleTitle, thumbnail);
 				row.add(sharing_options);
 				row.add(row.v2);
 				row.className = "item"+i;
@@ -147,7 +155,7 @@ function loadWordpress()
 							});
 						}
 		
-						current_row = Ti.Platform.osname == 'android' ? this : e.row; // it looks like android does not have the e.row property for this event.
+						current_row = osname == 'android' ? this : e.row; // it looks like android does not have the e.row property for this event.
 	
 						current_row.v2.animate({
 							left: Titanium.Platform.displayCaps.platformWidth * -1,
@@ -166,6 +174,7 @@ function loadWordpress()
 
 		}
 	}
+
 	
 	make_data_rows();
 	
@@ -195,9 +204,9 @@ function loadWordpress()
 	
 	tbl.addEventListener('click', function(e) {
 		if (e.source.is_action) {
-			if (e.source.is_action==='action 0') {alert('post to facebook'), console.log('facebook icon clicked')}
-			if (e.source.is_action==='action 1') {alert('tweet article'), console.log('twitter icon clicked')}
-			if (e.source.is_action==='action 2') {
+			if (e.source.is_action == 0) {alert('post to facebook'), console.log('facebook icon clicked')}
+			if (e.source.is_action == 1) {alert('tweet article'), console.log('twitter icon clicked')}
+			if (e.source.is_action == 2) {
 				var emailDialog = Ti.UI.createEmailDialog()
 				emailDialog.subject = allTitles[e.index].title;
 				emailDialog.messageBody = allURL[e.index];
