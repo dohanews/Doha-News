@@ -27,9 +27,8 @@ var incText = Titanium.UI.createButton({
 	top:500});
 
 incText.addEventListener('click',function(e){
-	alert('incPressed');
 	localWebview.evalJS(
-		'var p = document.getElementsByTagName(\'p\');for(i=0;i<p.length;i++) { p[i].style.fontSize = 20"px"};'
+		'inc();'
 	);
 });
 
@@ -39,9 +38,8 @@ var decText = Titanium.UI.createButton({
 	top:600});
 	
 decText.addEventListener('click',function(e){
-	alert('decPressed');
 	localWebview.evalJS(
-		'var p = document.getElementsByTagName(\'p\');for(i=0;i<p.length;i++) { p[i].style.fontSize = 12"px"};'
+		'dec();'
 	);
 });
 
