@@ -3,6 +3,22 @@
 // };
 // Create variable "win" to refer to current window
 
+
+function inch(size)
+{
+    // default to 160 dpi if unavailable
+    var height = size * 160.0; 
+
+    try
+    { 
+        // compute header height based on screen density ... target .25" height
+        height = size * Ti.Platform.displayCaps.dpi; 
+    }
+    catch(e) { warn("Error accessing display caps for screen density calculation: " + e); }
+
+    return height;
+}
+
 var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
@@ -11,7 +27,7 @@ win.backgroundColor='white';
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: 'black',
-	height:'90',
+	height:inch(.35),
 	top: 0
 });
 
@@ -53,7 +69,7 @@ function customHeader() {
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
 	minRowHeight: '110dp',
-	top:90,
+	top: inch(.35),
 	selectionStyle: 'none',
 	zIndex:1
 });
@@ -79,11 +95,11 @@ var create_sharing_options_view = function(where) {
 		width:Ti.UI.SIZE
 	});
 
-	var icons =['images/facebook.png', 'images/twitter.png', 'images/mail.png']
-	for (var i = 0; i < 3; i++) {
+	var icons =['KS_nav_ui.png','images/facebook.png', 'images/twitter.png', 'images/mail.png']
+	for (var i = 1; i < 4; i++) {
 		view.add(Ti.UI.createImageView({
 			width: '40dp',
-			left: (10 + (80 * i))+'dp',
+			left: (10 + (80 * (i-1)))+'dp',
 			height: '40dp',
 			image: icons[i],
 			is_action: i
@@ -279,9 +295,9 @@ function loadWordpress()
 	
 	tbl.addEventListener('click', function(e) {
 		if (e.source.is_action) {
-			if (e.source.is_action == 0) {alert('post to facebook'), console.log('facebook icon clicked')}
-			if (e.source.is_action == 1) {alert('tweet article'), console.log('twitter icon clicked')}
-			if (e.source.is_action == 2) {
+			if (e.source.is_action == 1) {alert('post to facebook'), console.log('facebook icon clicked')}
+			if (e.source.is_action == 2) {alert('tweet article'), console.log('twitter icon clicked')}
+			if (e.source.is_action == 3) {
 				var emailDialog = Ti.UI.createEmailDialog()
 				emailDialog.subject = allTitles[e.index].title;
 				emailDialog.messageBody = allURL[e.index];
