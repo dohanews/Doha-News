@@ -147,4 +147,3 @@ topBar.add(medText);
 win.add(menuButton);
 win.add(topBar);
 win.add(localWebview);
-
