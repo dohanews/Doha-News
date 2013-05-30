@@ -114,7 +114,7 @@ var menu = Ti.UI.createTableView({
 	backgroundColor:'white',
 	zIndex: 10,
 	height: Ti.UI.SIZE,
-	
+	scrollable: false
 });
 
 
