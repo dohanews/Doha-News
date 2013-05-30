@@ -13,14 +13,15 @@ var localWebview = Titanium.UI.createWebView({
 	top:0,
     left:10,
     right:10,
-    height:Ti.UI.currentWindow.getHeight,
-    width:Ti.UI.currentWindow.getWidth,
+    borderColor: 'black',
+    borderWidth: '2px', 
     backgroundColor:'transparent',
-	scalesPageToFit: true,
 	html:content,
 	enableZoomControls: false,
 });
 
+
+Ti.Platform.displayCaps.getPlatformWidth
 var incText = Titanium.UI.createButton({
 	title:'+',
 	left:500,
@@ -43,7 +44,6 @@ decText.addEventListener('click',function(e){
 	);
 });
 
-alert('opened');
 win.add(localWebview);
 win.add(decText);
 win.add(incText);

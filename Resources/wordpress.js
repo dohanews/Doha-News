@@ -8,6 +8,15 @@ var osname = Ti.Platform.osname;
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 
+
+var topBar = Titanium.UI.createView({
+	backgroundColor: 'black',
+	height:'90',
+	top: 0
+});
+
+win.add(topBar);
+
 function isToday(day, month, year){
 	var currentTime = new Date();
 	var currentDay = currentTime.getDate();
@@ -29,7 +38,8 @@ function isToday(day, month, year){
 function customHeader() {
 	var view = Ti.UI.createView({
 		height: (Ti.Platform.displayCaps.platformHeight)/10,
-		top: '5px'
+		top: '5px',
+		zIndex: 0
 	});
 	
 	var img = Ti.UI.createImageView({
@@ -42,9 +52,10 @@ function customHeader() {
 
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
-	minRowHeight: 70,
-	headerView:customHeader(),
-	selectionStyle: 'none'
+	minRowHeight: '110dp',
+	top:90,
+	selectionStyle: 'none',
+	zIndex:1
 });
 
 var current_row; // this will hold the current row we swiped over, so we can reset it's state when we do any other gesture (scroll the table, swipe another row, click on another row)
@@ -91,20 +102,25 @@ var make_content_view = function(content, thumbnail) {// create the content view
 	});
 
 	var img = Ti.UI.createImageView({
-		height: '40dp',
-		width: '40dp',
-		left: '5dp',
-		top: '5dp',
+		height: '80dp',
+		width: '80dp',
+		left: '15dp',
+		borderColor: '#E3E3E3',
+		borderWidth: '1dp',
 		image: thumbnail
 	});
 
 	var label = Ti.UI.createLabel({
 		text: content,
-		color:'#000',
+		color:'#4A4A4A',
 		top: 0,
-		left: '50dp',
-		right: '5dp',
-		height: Ti.UI.SIZE
+		left: '110dp',
+		right: '20dp',
+		height: Ti.UI.SIZE,
+		font: {
+			            fontWeight: 'bold',
+			            fontSize: '25px'
+			        },
 	});
 
 	view.add(img);
@@ -132,7 +148,7 @@ function loadWordpress()
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
 
-		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+		loader.open("GET","http://dev.dohanews.co/?json=1&count=20&dev=1");
 		// Runs the function when the data is ready for us to process
 		
 		loader.onload = function() 
@@ -153,7 +169,7 @@ function loadWordpress()
 				var thumbail;
 				
 				if (wordpress.posts[i].attachments.length > 0)
-					thumbnail = wordpress.posts[i].attachments[0].images.fifty.url
+					thumbnail = wordpress.posts[i].attachments[0].images.small.url
 				else 
 					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
@@ -182,9 +198,8 @@ function loadWordpress()
 					height: Ti.UI.SIZE,
 					backgroundColor:'#fff',
 					font: {
-			            fontSize: 10,
+			            fontSize: '30px',
 			            fontWeight: 'bold',
-			            fontFamily: 'Arial'
 			        },
 				});
 								
