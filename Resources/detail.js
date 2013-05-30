@@ -1,17 +1,4 @@
-function inch(size)
-{
-    // default to 160 dpi if unavailable
-    var height = size * 160.0; 
-
-    try
-    { 
-        // compute header height based on screen density ... target .25" height
-        height = size * Ti.Platform.displayCaps.dpi; 
-    }
-    catch(e) { warn("Error accessing display caps for screen density calculation: " + e); }
-
-    return height;
-}
+var osname = Ti.Platform.osname;
 
 var win = Ti.UI.currentWindow;
 
@@ -24,7 +11,7 @@ win.leftNavButton = button;
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
-	height:inch(.35),
+	height:'.75cm',
 	top: 0
 });
 
@@ -32,7 +19,7 @@ var topBar = Titanium.UI.createView({
 var content = win.content;
 
 var localWebview = Titanium.UI.createWebView({
-	top:inch(.35),
+	top:'.75cm',
     left:10,
     right:10, 
     backgroundColor:'transparent',
@@ -84,6 +71,13 @@ var data = [];
 
 var opt = ['settings1','settings2','settings3','settings4','settings5']
 
+
+var fontSize;
+if (osname == 'android')
+	fontSize = (Titanium.Platform.displayCaps.platformHeight)/50;
+else
+	fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
+
 for (i = 0; i <5;i++)
 {
 	var row = Ti.UI.createTableViewRow({
@@ -95,8 +89,9 @@ for (i = 0; i <5;i++)
 		text: opt[i],
 		backgroundColor:'black',
 		color: 'white',
-		font: {fontSize:'6pt'},
-		width: '100dp',
+		font: {fontSize:fontSize},
+		width: '2cm',
+		height:'.5cm',
 	});
 	row.add(label);
 	data.push(row);				
@@ -111,14 +106,15 @@ menuButton.addEventListener('click', function(e){
 });
 
 var menu = Ti.UI.createTableView({
-	width:'100dp',
-	top:inch(.35),
+	width:'2cm',
+	top:'.75cm',
 	right: '5dp',
-	rowHeight: '50dp',
+	rowHeight: '.5cm',
 	separatorColor: '#70193c',
 	backgroundColor:'white',
 	zIndex: 10,
-	height:'250dp'
+	height: Ti.UI.SIZE,
+	
 });
 
 

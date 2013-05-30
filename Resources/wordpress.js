@@ -1,24 +1,3 @@
-// var console = {
-  // log: function(str) { return Ti.API.info(str); }
-// };
-// Create variable "win" to refer to current window
-
-
-function inch(size)
-{
-    // default to 160 dpi if unavailable
-    var height = size * 160.0; 
-
-    try
-    { 
-        // compute header height based on screen density ... target .25" height
-        height = size * Ti.Platform.displayCaps.dpi; 
-    }
-    catch(e) { warn("Error accessing display caps for screen density calculation: " + e); }
-
-    return height;
-}
-
 var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
@@ -26,8 +5,8 @@ win.backgroundColor='white';
 
 
 var topBar = Titanium.UI.createView({
-	backgroundColor: '#823262',
-	height:inch(.35),
+	backgroundColor: '#70193c',
+	height: '0.75cm',
 	top: 0
 });
 
@@ -51,25 +30,11 @@ function isToday(day, month, year){
 	return true;
 }
 
-function customHeader() {
-	var view = Ti.UI.createView({
-		height: (Ti.Platform.displayCaps.platformHeight)/10,
-		top: '5px',
-		zIndex: 0
-	});
-	
-	var img = Ti.UI.createImageView({
-		image: 'images/Doha-News-Logo-Rect-450.png'
-	});
-			
-	view.add(img);
-	return view;
-};
 
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'#fff',
 	minRowHeight: '110dp',
-	top: inch(.35),
+	top: '.75cm',
 	selectionStyle: 'none',
 	zIndex:1
 });
