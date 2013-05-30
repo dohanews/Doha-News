@@ -119,7 +119,7 @@ var make_content_view = function(content, thumbnail) {// create the content view
 		height: Ti.UI.SIZE,
 		font: {
 			fontWeight: 'bold',
-			fontSize: '6pt'
+			fontSize: (Titanium.Platform.displayCaps.platformHeight)/60,
 		},
 	});
 
