@@ -118,9 +118,9 @@ var make_content_view = function(content, thumbnail) {// create the content view
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		font: {
-			            fontWeight: 'bold',
-			            fontSize: '25px'
-			        },
+			fontWeight: 'bold',
+			fontSize: '6pt'
+		},
 	});
 
 	view.add(img);
