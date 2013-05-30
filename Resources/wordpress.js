@@ -121,11 +121,14 @@ var allContent = [];
 var allURL = [];
 var allDates = [];
 
+var countToday = 0;
+
 function loadWordpress()
 {
 	var loader;
 	function make_data_rows() { // some stub data for the rows.
 		var data = [today, old];
+		var dataTemp = [];
 		
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
@@ -216,15 +219,20 @@ function loadWordpress()
 	
 				if (isToday(articleDay, articleMonth, articleYear)){
 					today.add(row);
+					countToday++;
 				}
 				else{
 					old.add(row);
 				}
-
+				dataTemp.push(row);
 			}
-			
+		
+		if (countToday == 0){
+			data = dataTemp;
+		}
+		
 		tbl.setData(data);
-
+		console.log(countToday)
 		}
 	}
 
