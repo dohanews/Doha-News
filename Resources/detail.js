@@ -12,6 +12,7 @@ win.leftNavButton = button;
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height:'.75cm',
+	zIndex: 2,
 	top: 0
 });
 
@@ -24,6 +25,7 @@ var localWebview = Titanium.UI.createWebView({
     right:10, 
     backgroundColor:'transparent',
 	html:content,
+	zIndex: 0,
 	enableZoomControls: false,
 });
 
@@ -32,6 +34,7 @@ Ti.Platform.displayCaps.getPlatformWidth
 var incText = Titanium.UI.createButton({
 	title:'+',
 	right:'40dp',
+	zIndex: 2,
 });
 
 incText.addEventListener('click',function(e){
@@ -43,6 +46,7 @@ incText.addEventListener('click',function(e){
 var decText = Titanium.UI.createButton({
 	title:'-',
 	right:'70dp',
+	zIndex: 2,
 });
 	
 decText.addEventListener('click',function(e){
@@ -54,6 +58,7 @@ decText.addEventListener('click',function(e){
 var medText = Titanium.UI.createButton({
 	title:'o',
 	right:'100dp',
+	zIndex: 2,
 });
 	
 medText.addEventListener('click',function(e){
@@ -66,13 +71,12 @@ var menuButton = Titanium.UI.createButton({
 	title:'m',
 	right:'10dp',
 	top: '5dp',
-	zIndex: 11
+	zIndex: 3
 });
 
 var data = [];
 
-var opt = ['settings1','settings2','settings3','settings4','settings5'];
-
+var opt = ['images/settings.png'];
 
 var fontSize;
 if (osname == 'android')
@@ -80,56 +84,64 @@ if (osname == 'android')
 else
 	fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
 
-for (i = 0; i <5;i++)
+for (i = 0; i < opt.length; i++)
 {
 	var row = Ti.UI.createTableViewRow({
 				height: Ti.UI.SIZE,
 				backgroundColor:'#black',
+				zIndex: 1,
 			});
 	
-	var label = Ti.UI.createLabel({
-		text: opt[i],
-		backgroundColor:'black',
-		color: 'white',
-		font: {fontSize:fontSize},
-		width: '2cm',
-		height:'.5cm',
+	var img = Ti.UI.createImageView({
+		image: opt[i],
+		width: '50dp',
+		height: '50dp',
+		zIndex: 1,
 	});
+
 	
 	row.addEventListener('click',function(){
 		alert(opt[i]);
 	});
-	row.add(label);
+	row.add(img);
 	data.push(row);				
 }
 
 menuButton.addEventListener('click', function(e){
 
-	if (menu.getVisible() == true)
-		menu.setVisible(false);
-	else
-		menu.setVisible(true);
+	if (menu.isVisible == true){
+		menu.animate({
+			top: Ti.Platform.displayCaps.platformWidth * -1, 
+			duration: 1000,
+		});
+		menu.isVisible = false;
+	}
+	else{
+		menu.animate({
+			top: '.75cm', 
+			duration: 1000,
+		});
+		menu.isVisible = true;
+	}
 });
 
 var menu = Ti.UI.createTableView({
-	width:'2cm',
-	top:'.75cm',
-	right: '5dp',
-	rowHeight: '.5cm',
+	width: '50dp',
+	top: Ti.Platform.displayCaps.platformWidth * -1,
+	right: '0dp',
+	rowHeight: Ti.UI.SIZE,
 	separatorColor: '#70193c',
 	backgroundColor:'white',
-	zIndex: 10,
+	zIndex: 1,
 	height: Ti.UI.SIZE,
+	isVisible : false,
 	scrollable: false,
 });
 
 
 menu.setData(data);
 
-menu.setVisible(false);
-
 win.add(menu);
-
 
 topBar.add(decText);
 topBar.addEventListener('click',function(){

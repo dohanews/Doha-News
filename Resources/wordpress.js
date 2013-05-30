@@ -60,12 +60,12 @@ var create_sharing_options_view = function(where) {
 		width:Ti.UI.SIZE
 	});
 
-	var icons =['KS_nav_ui.png','images/facebook.png', 'images/twitter.png', 'images/mail.png']
+	var icons =['KS_nav_ui.png','images/facebook.png', 'images/twitter.png', 'images/mail.png'];
 	for (var i = 1; i < 4; i++) {
 		view.add(Ti.UI.createImageView({
-			width: '40dp',
+			width: '50dp',
 			left: (10 + (80 * (i-1)))+'dp',
-			height: '40dp',
+			height: '50dp',
 			image: icons[i],
 			is_action: i
 		}));
@@ -121,11 +121,14 @@ var allContent = [];
 var allURL = [];
 var allDates = [];
 
+var countToday = 0;
+
 function loadWordpress()
 {
 	var loader;
 	function make_data_rows() { // some stub data for the rows.
 		var data = [today, old];
+		var dataTemp = [];
 		
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
@@ -216,15 +219,20 @@ function loadWordpress()
 	
 				if (isToday(articleDay, articleMonth, articleYear)){
 					today.add(row);
+					countToday++;
 				}
 				else{
 					old.add(row);
 				}
-
+				dataTemp.push(row);
 			}
-			
+		
+		if (countToday == 0){
+			data = dataTemp;
+		}
+		
 		tbl.setData(data);
-
+		console.log(countToday)
 		}
 	}
 
