@@ -26,7 +26,7 @@ win.backgroundColor='white';
 
 
 var topBar = Titanium.UI.createView({
-	backgroundColor: 'black',
+	backgroundColor: '#823262',
 	height:inch(.35),
 	top: 0
 });
