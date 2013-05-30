@@ -110,6 +110,12 @@ var make_content_view = function(content, thumbnail) {// create the content view
 		image: thumbnail
 	});
 
+	var fontSize;
+	if (osname == 'android')
+		fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
+	else
+		fontSize = (Titanium.Platform.displayCaps.platformHeight)/30;
+		
 	var label = Ti.UI.createLabel({
 		text: content,
 		color:'#4A4A4A',
@@ -118,8 +124,7 @@ var make_content_view = function(content, thumbnail) {// create the content view
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		font: {
-			fontWeight: 'bold',
-			fontSize: (Titanium.Platform.displayCaps.platformHeight)/60,
+			fontSize: fontSize,
 		},
 	});
 
