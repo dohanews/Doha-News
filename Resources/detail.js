@@ -25,6 +25,7 @@ var localWebview = Titanium.UI.createWebView({
     backgroundColor:'transparent',
 	html:content,
 	enableZoomControls: false,
+	disableBounce: true
 });
 
 
