@@ -65,11 +65,13 @@ medText.addEventListener('click',function(e){
 var menuButton = Titanium.UI.createButton({
 	title:'m',
 	right:'10dp',
+	top: '5dp',
+	zIndex: 11
 });
 
 var data = [];
 
-var opt = ['settings1','settings2','settings3','settings4','settings5']
+var opt = ['settings1','settings2','settings3','settings4','settings5'];
 
 
 var fontSize;
@@ -93,6 +95,10 @@ for (i = 0; i <5;i++)
 		width: '2cm',
 		height:'.5cm',
 	});
+	
+	row.addEventListener('click',function(){
+		alert(opt[i]);
+	});
 	row.add(label);
 	data.push(row);				
 }
@@ -114,7 +120,7 @@ var menu = Ti.UI.createTableView({
 	backgroundColor:'white',
 	zIndex: 10,
 	height: Ti.UI.SIZE,
-	
+	scrollable: false,
 });
 
 
@@ -126,9 +132,19 @@ win.add(menu);
 
 
 topBar.add(decText);
+topBar.addEventListener('click',function(){
+	if(menu.getVisible() == true)
+		menu.setVisible(false);
+});
+
+localWebview.addEventListener('click',function(){
+	if(menu.getVisible() == true)
+		menu.setVisible(false);
+});
+
 topBar.add(incText);
 topBar.add(medText);
-topBar.add(menuButton);
+win.add(menuButton);
 win.add(topBar);
 win.add(localWebview);
 
