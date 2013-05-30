@@ -162,9 +162,6 @@ function loadWordpress()
 	function make_data_rows() { // some stub data for the rows.
 		var data = [today, old];
 		
-		// Empty array "rowData" for our tableview
-		var rowData = [];
-		
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
