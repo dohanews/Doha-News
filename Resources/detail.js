@@ -27,33 +27,32 @@ var localWebview = Titanium.UI.createWebView({
 	html:content,
 	zIndex: 0,
 	enableZoomControls: false,
+	textSize: 1,
 });
 
-
-Ti.Platform.displayCaps.getPlatformWidth
-var incText = Titanium.UI.createButton({
-	title:'+',
-	right:'40dp',
-	zIndex: 2,
-});
-
-incText.addEventListener('click',function(e){
-	localWebview.evalJS(
-		'inc();'
-	);
-});
-
-var decText = Titanium.UI.createButton({
-	title:'-',
-	right:'70dp',
-	zIndex: 2,
-});
-	
-decText.addEventListener('click',function(e){
-	localWebview.evalJS(
-		'dec();'
-	);
-});
+// var incText = Titanium.UI.createButton({
+	// title:'+',
+	// right:'40dp',
+	// zIndex: 2,
+// });
+// 
+// incText.addEventListener('click',function(e){
+	// localWebview.evalJS(
+		// 'inc();'
+	// );
+// });
+// 
+// var decText = Titanium.UI.createButton({
+	// title:'-',
+	// right:'70dp',
+	// zIndex: 2,
+// });
+// 	
+// decText.addEventListener('click',function(e){
+	// localWebview.evalJS(
+		// 'dec();'
+	// );
+// });
 
 var medText = Titanium.UI.createButton({
 	title:'o',
@@ -62,33 +61,44 @@ var medText = Titanium.UI.createButton({
 });
 	
 medText.addEventListener('click',function(e){
-	localWebview.evalJS(
-		'med();'
-	);
+	if (localWebview.textSize == 0){
+		localWebview.evalJS('med();');
+		localWebview.textSize = 1;
+	}
+	else if (localWebview.textSize == 1){
+		localWebview.evalJS('inc();');
+		localWebview.textSize = 2;
+	}
+	else if (localWebview.textSize == 2){
+		localWebview.evalJS('dec();');
+		localWebview.textSize = 0;
+	}
 });
 
-var menuButton = Titanium.UI.createButton({
-	title:'m',
-	right:'10dp',
-	top: '5dp',
+var menuButton = Titanium.UI.createImageView({
+	image:'images/menu.png',
+	width: '50dp',
+	height: '50dp',
+	top: 0,
+	right: 0,
 	zIndex: 3
 });
 
-var data = [];
-
-var opt = ['images/settings.png'];
 
 var fontSize;
 if (osname == 'android')
 	fontSize = (Titanium.Platform.displayCaps.platformHeight)/50;
 else
 	fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
+	
+var data = [];
+
+var opt = ['images/settings.png','images/settings.png','images/settings.png','images/settings.png','images/settings.png'];
 
 for (i = 0; i < opt.length; i++)
 {
 	var row = Ti.UI.createTableViewRow({
 				height: Ti.UI.SIZE,
-				backgroundColor:'#black',
 				zIndex: 1,
 			});
 	
@@ -111,15 +121,15 @@ menuButton.addEventListener('click', function(e){
 
 	if (menu.isVisible == true){
 		menu.animate({
-			top: Ti.Platform.displayCaps.platformWidth * -1, 
-			duration: 1000,
+			top: '-210dp', 
+			duration: 500,
 		});
 		menu.isVisible = false;
 	}
 	else{
 		menu.animate({
 			top: '.75cm', 
-			duration: 1000,
+			duration: 500,
 		});
 		menu.isVisible = true;
 	}
@@ -127,10 +137,10 @@ menuButton.addEventListener('click', function(e){
 
 var menu = Ti.UI.createTableView({
 	width: '50dp',
-	top: Ti.Platform.displayCaps.platformWidth * -1,
+	top: '-210dp', 
 	right: '0dp',
 	rowHeight: Ti.UI.SIZE,
-	separatorColor: '#70193c',
+	separatorColor: 'black',
 	backgroundColor:'white',
 	zIndex: 1,
 	height: Ti.UI.SIZE,
@@ -143,18 +153,26 @@ menu.setData(data);
 
 win.add(menu);
 
-topBar.add(decText);
 topBar.addEventListener('click',function(){
-	if(menu.getVisible() == true)
-		menu.setVisible(false);
+	if (menu.isVisible == true){
+		menu.animate({
+			top: '-210dp', 
+			duration: 500,
+		});
+		menu.isVisible = false;
+	}	
 });
 
 localWebview.addEventListener('click',function(){
-	if(menu.getVisible() == true)
-		menu.setVisible(false);
+	if (menu.isVisible == true){
+		menu.animate({
+			top: '-210dp', 
+			duration: 500,
+		});
+		menu.isVisible = false;
+	}
 });
 
-topBar.add(incText);
 topBar.add(medText);
 win.add(menuButton);
 win.add(topBar);

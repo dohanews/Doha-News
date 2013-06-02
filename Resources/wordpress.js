@@ -1,3 +1,4 @@
+var rotate90 = Ti.UI.create2DMatrix({ rotate: 90 });
 var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
@@ -10,7 +11,105 @@ var topBar = Titanium.UI.createView({
 	top: 0
 });
 
-win.add(topBar);
+
+var textViewButton = Titanium.UI.createImageView({
+	image:'images/text-view.png',
+	right: '98dp', 
+	width: '30dp',
+	height: '30dp',
+	top: '10dp',
+	zIndex: 3
+});
+
+var photoViewButton = Titanium.UI.createImageView({
+	image:'images/photo-view(phone).png',
+	right: '60dp', 
+	width: '30dp',
+	height: '30dp',
+	top: '10dp',
+	zIndex: 3
+});
+
+var menuButton = Titanium.UI.createImageView({
+	image:'images/menu.png',
+	width: '50dp',
+	height: '50dp',
+	top: 0,
+	right: 0,
+	zIndex: 3
+});
+
+var data = [];
+
+var opt = ['images/settings.png','images/settings.png','images/settings.png','images/settings.png','images/settings.png'];
+
+for (i = 0; i < opt.length; i++)
+{
+	var row = Ti.UI.createTableViewRow({
+				height: Ti.UI.SIZE,
+				zIndex: 1,
+			});
+	
+	var img = Ti.UI.createImageView({
+		image: opt[i],
+		width: '50dp',
+		height: '50dp',
+		zIndex: 1,
+	});
+
+	
+	row.addEventListener('click',function(){
+		alert(opt[i]);
+	});
+	row.add(img);
+	data.push(row);				
+}
+
+menuButton.addEventListener('click', function(e){
+
+	if (menu.isVisible == true){
+		menu.animate({
+			top: '-210dp', 
+			duration: 500,
+		});
+		menu.isVisible = false;
+	}
+	else{
+		menu.animate({
+			top: '.75cm', 
+			duration: 500,
+		});
+		menu.isVisible = true;
+	}
+});
+
+var menu = Ti.UI.createTableView({
+	width: '50dp',
+	top: '-210dp', 
+	right: '0dp',
+	rowHeight: Ti.UI.SIZE,
+	separatorColor: 'black',
+	backgroundColor:'white',
+	zIndex: 2,
+	height: Ti.UI.SIZE,
+	isVisible : false,
+	scrollable: false,
+});
+
+
+menu.setData(data);
+
+topBar.addEventListener('click',function(){
+	if (menu.isVisible == true){
+		menu.animate({
+			top: '-210dp', 
+			duration: 500,
+		});
+		menu.isVisible = false;
+	}	
+});
+
+
 
 function isToday(day, month, year){
 	var currentTime = new Date();
@@ -32,10 +131,13 @@ function isToday(day, month, year){
 
 
 var tbl = Ti.UI.createTableView({
-	backgroundColor:'#fff',
-	minRowHeight: '110dp',
+	backgroundColor:'white',
+	minRowHeight: '95dp',
 	top: '.75cm',
+	left: '5dp',
+	right: '5dp',
 	selectionStyle: 'none',
+	separatorColor: '#d3d3d3',
 	zIndex:1
 });
 
@@ -50,8 +152,6 @@ var old = Titanium.UI.createTableViewSection({
 });
 
 
-
-
 // create the actions view - the one will be revealed on swipe
 var create_sharing_options_view = function(where) { 
 
@@ -60,32 +160,32 @@ var create_sharing_options_view = function(where) {
 		width:Ti.UI.SIZE
 	});
 
-	var icons =['KS_nav_ui.png','images/facebook.png', 'images/twitter.png', 'images/mail.png'];
-	for (var i = 1; i < 4; i++) {
+	var icons =['images/facebook.png', 'images/twitter.png', 'images/mail.png'];
+	for (var i = 0; i < 3; i++) {
 		view.add(Ti.UI.createImageView({
 			width: '50dp',
-			left: (10 + (80 * (i-1)))+'dp',
+			left: (10 + (80 * (i)))+'dp',
 			height: '50dp',
 			image: icons[i],
-			is_action: i
+			is_action: i+1
 		}));
 	};
 
 	return view;
-};
+}
 
-var make_content_view = function(content, thumbnail) {// create the content view - the one is displayed by default
+var make_content_view = function(title, content, thumbnail) {// create the content view - the one is displayed by default
 
 	var view = Ti.UI.createView({
-		backgroundColor: '#fff',
-		height: Ti.UI.SIZE,
-		width: Titanium.Platform.displayCaps.platformWidth	
-	});
+		backgroundColor: '#fdfcf8',
+		height: '95dp',
+		width: Titanium.Platform.displayCaps.platformWidth,
+	}); 
 
-	var img = Ti.UI.createImageView({
+	var thumbnail = Ti.UI.createImageView({
 		height: '80dp',
 		width: '80dp',
-		left: '15dp',
+		left: '7.5dp',
 		borderColor: '#E3E3E3',
 		borderWidth: '1dp',
 		image: thumbnail
@@ -97,24 +197,56 @@ var make_content_view = function(content, thumbnail) {// create the content view
 	else
 		fontSize = (Titanium.Platform.displayCaps.platformHeight)/30;
 		
-	var label = Ti.UI.createLabel({
-		text: content,
+	var title = Ti.UI.createLabel({
+		text: title,
 		color:'#4A4A4A',
-		top: 0,
-		left: '110dp',
+		top: '10dp',
+		left: '100dp',
 		right: '20dp',
+		width: '200dp',
 		height: Ti.UI.SIZE,
 		font: {
 			fontSize: fontSize,
 		},
+		backgroundColor:'transparent'
+	});
+	
+	var time = Ti.UI.createLabel({
+		text: '30-MAY',
+		color:'#D6D6D6',
+		
+		backgroundColor: 'white',
+		borderColor: '#E3E3E3',
+		borderWidth: 1,
+		left: '305dp',
+		height: '70dp',
+		width: '40dp',
+		transform: rotate90,
+		font: {
+			fontSize: fontSize,
+			fontWeight: 'bold',
+		},
+		backgroundColor:'transparent',
+		zIndex:11
 	});
 
-	view.add(img);
-	view.add(label);
-
+	view.add(thumbnail);
+	view.add(title);
+	view.add(time);
+	view.addEventListener ('click', function(e){
+					var win = Ti.UI.createWindow({
+		    			backgroundColor:'#fff',
+		    			url: 'detail.js',
+		    			modal: true
+		    		})
+		    		win.content = content;
+		    		win.open({
+		    			animated:true,
+		    		});
+    			});
 	return view;
 
-};
+}
 
 var allTitles = [];
 var allContent = [];
@@ -134,7 +266,7 @@ function loadWordpress()
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
 
-		loader.open("GET","http://dev.dohanews.co/?json=1&count=20&dev=1");
+		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
 		// Runs the function when the data is ready for us to process
 		
 		loader.onload = function() 
@@ -183,6 +315,7 @@ function loadWordpress()
 				var row = Ti.UI.createTableViewRow({
 					height: Ti.UI.SIZE,
 					backgroundColor:'#fff',
+					selectedBackgroundColor: 'white',
 					font: {
 			            fontSize: '30px',
 			            fontWeight: 'bold',
@@ -190,17 +323,27 @@ function loadWordpress()
 				});
 								
 				var sharing_options = create_sharing_options_view();
-				row.v2 = make_content_view(articleTitle, thumbnail);
+				row.v2 = make_content_view(articleTitle, tweet, thumbnail);
+				
+				
+    			
 				row.add(sharing_options);
 				row.add(row.v2);
 				row.className = "item"+i;
 				
 				// android behaves in a different way so we need to add the event to the row.
 				row.addEventListener('swipe', function(e) {
+					if (menu.isVisible == true){
+						menu.animate({
+							top: '-210dp', 
+							duration: 500,
+						});
+						menu.isVisible = false;
+					}	
 					if (e.direction == 'left') {
 						if (!!current_row) {
 							current_row.v2.animate({
-								left: 0,
+								left: '-5dp',
 								duration: 0
 							});
 						}
@@ -209,10 +352,18 @@ function loadWordpress()
 	
 						current_row.v2.animate({
 							left: Titanium.Platform.displayCaps.platformWidth * -1,
-							duration: 250});
+							duration: 500});
 					}
 					else if (e.direction == 'right') {
 						alert('swiped right');
+						if (!!current_row) {
+							current_row.v2.animate({
+								left: '-5dp',
+								duration: 0
+							});
+						}
+						
+						current_row = null;
 					}
 					
 				});
@@ -251,10 +402,17 @@ function loadWordpress()
 	}
 	
 	tbl.addEventListener('scroll', function(e) {
+		if (menu.isVisible == true && (Ti.Platform.osname == 'android' ?  scrolled_times > 3 : true)){
+				menu.animate({
+					top: '-210dp', 
+					duration: 500,
+				});
+				menu.isVisible = false;
+			}	
 	
 		if (!!current_row && (Ti.Platform.osname == 'android' ?  scrolled_times > 3 : true)) {
 			current_row.v2.animate({
-				left: 0,
+				left: '-5dp',
 				duration: 0
 			});
 			current_row = null;
@@ -264,10 +422,17 @@ function loadWordpress()
 	});
 	
 	tbl.addEventListener('click', function(e) {
+		if (menu.isVisible == true){
+			menu.animate({
+				top: '-210dp', 
+				duration: 1000,
+			});
+			menu.isVisible = false;
+		}	
 		if (e.source.is_action) {
 			if (e.source.is_action == 1) {alert('post to facebook'), console.log('facebook icon clicked')}
-			if (e.source.is_action == 2) {alert('tweet article'), console.log('twitter icon clicked')}
-			if (e.source.is_action == 3) {
+			else if (e.source.is_action == 2) {alert('tweet article'), console.log('twitter icon clicked')}
+			else if (e.source.is_action == 3) {
 				var emailDialog = Ti.UI.createEmailDialog()
 				emailDialog.subject = allTitles[e.index].title;
 				emailDialog.messageBody = allURL[e.index];
@@ -278,21 +443,11 @@ function loadWordpress()
 			if (current_row) {
 				
 				current_row.v2.animate({
-					left: 0,
+					left: '-5dp',
 					duration: 0
 				});
 				current_row = null;
 			}
-			
-			var win = Ti.UI.createWindow({
-    			backgroundColor:'#fff',
-    			url: 'detail.js',
-    			modal: true
-    			
-    		})
-    		win.content = allContent[e.index];
-    		win.open({animated:true});
-			
 		}
 		
 	});
@@ -319,10 +474,26 @@ function loadWordpress()
 	loader.onreadystatechange = function(e){ 
 		if (this.readyState == 4) {
 			activityIndicator.hide();
+
 			win.add(tbl);
 		} 
 	};
 	loader.send();
 }
 
+menuButton.addEventListener('click',function(){
+	if (current_row) {
+		current_row.v2.animate({
+			left: '-5dp',
+			duration: 0
+		});
+		current_row = null;
+	}
+})
+
+win.add(topBar);
+win.add(menu);
+win.add(menuButton);
+win.add(photoViewButton);
+win.add(textViewButton);
 loadWordpress();
