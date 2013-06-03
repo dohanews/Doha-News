@@ -3,6 +3,7 @@ var osname = Ti.Platform.osname;
 
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
+win.navBarHidden = true;
 
 
 var topBar = Titanium.UI.createView({
@@ -14,7 +15,16 @@ var topBar = Titanium.UI.createView({
 
 var textViewButton = Titanium.UI.createImageView({
 	image:'images/text-view.png',
-	right: '98dp', 
+	right: '95dp', 
+	width: '30dp',
+	height: '30dp',
+	top: '10dp',
+	zIndex: 3
+});
+
+var searchButton = Titanium.UI.createImageView({
+	image:'images/search.png',
+	right: '135dp', 
 	width: '30dp',
 	height: '30dp',
 	top: '10dp',
@@ -22,8 +32,8 @@ var textViewButton = Titanium.UI.createImageView({
 });
 
 var photoViewButton = Titanium.UI.createImageView({
-	image:'images/photo-view(phone).png',
-	right: '60dp', 
+	image:'images/photoview-ipad.png',
+	right: '55dp', 
 	width: '30dp',
 	height: '30dp',
 	top: '10dp',
@@ -39,9 +49,18 @@ var menuButton = Titanium.UI.createImageView({
 	zIndex: 3
 });
 
+var topLogo = Titanium.UI.createImageView({
+	image:'images/logo.png',
+	width: '50dp',
+	height: '50dp',
+	top: 0,
+	left: 0,
+	zIndex: 3
+});
+
 var data = [];
 
-var opt = ['images/settings.png','images/settings.png','images/settings.png','images/settings.png','images/settings.png'];
+var opt = ['images/settings.png','images/photos.png','images/videos.png','images/articles.png'];
 
 for (i = 0; i < opt.length; i++)
 {
@@ -212,21 +231,19 @@ var make_content_view = function(title, content, thumbnail) {// create the conte
 	});
 	
 	var time = Ti.UI.createLabel({
-		text: '30-MAY',
+		text: '30-MAY 05:30PM',
 		color:'#D6D6D6',
-		
 		backgroundColor: 'white',
 		borderColor: '#E3E3E3',
 		borderWidth: 1,
 		left: '305dp',
-		height: '70dp',
-		width: '40dp',
+		height: '75dp',
+		width: '65dp',
 		transform: rotate90,
 		font: {
 			fontSize: fontSize,
 			fontWeight: 'bold',
 		},
-		backgroundColor:'transparent',
 		zIndex:11
 	});
 
@@ -494,6 +511,8 @@ menuButton.addEventListener('click',function(){
 win.add(topBar);
 win.add(menu);
 win.add(menuButton);
-win.add(photoViewButton);
-win.add(textViewButton);
+topBar.add(photoViewButton);
+topBar.add(textViewButton);
+topBar.add(searchButton);
+topBar.add(topLogo);
 loadWordpress();

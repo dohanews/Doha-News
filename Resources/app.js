@@ -1,5 +1,5 @@
 var mainWin = Titanium.UI.createWindow ({
-   url: "wordpress.js"
+   url: "wordpress.js",
 });
 
 mainWin.orientationModes = [
