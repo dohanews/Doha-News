@@ -2,8 +2,8 @@ var osname = Ti.Platform.osname;
 
 var win = Ti.UI.currentWindow;
 win.navBarHidden = true;
-// var button = Titanium.UI.createButton({title:'Close'});
-// win.leftNavButton = button;
+var button = Titanium.UI.createButton({title:'Close'});
+win.leftNavButton = button;
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
@@ -22,15 +22,10 @@ var localWebview = Titanium.UI.createWebView({
     backgroundColor:'transparent',
 	html:content,
 	enableZoomControls: false,
-	textSize: 1,
+	textSize: 1
 });
 
-var scrollView = Ti.UI.createScrollView({
-    contentWidth:'auto',
-    contentHeight:'auto',
-    showVerticalScrollIndicator:true,
-    showHorizontalScrollIndicator:true
-});
+//var scrollView = Ti.UI.createScrollView();
 
 // var incText = Titanium.UI.createButton({
 	// title:'+',
@@ -178,21 +173,21 @@ topBar.addEventListener('click',function(){
 	}	
 });
 
-localWebview.addEventListener('click',function(){
-	if (menu.isVisible == true){
-		menu.animate({
-			top: '-210dp', 
-			duration: 500,
-		});
-		menu.isVisible = false;
-	}
-});
+// localWebview.addEventListener('click',function(){
+	// if (menu.isVisible == true){
+		// menu.animate({
+			// top: '-210dp', 
+			// duration: 500,
+		// });
+		// menu.isVisible = false;
+	// }
+// });
 
 topBar.add(textsize);
 topBar.add(topLogo);
 win.add(menuButton);
 win.add(topBar);
-//win.add(localWebview);
+win.add(localWebview);
 
-scrollView.add(localWebview);
-win.add(scrollView);
+//scrollView.add(localWebview);
+//win.add(scrollView);
