@@ -4,10 +4,6 @@ var win = Ti.UI.currentWindow;
 win.navBarHidden = true;
 var button = Titanium.UI.createButton({title:'Close'});
 win.leftNavButton = button;
-	button.addEventListener('click', function()
-        {
-        win.close();
-});
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
@@ -25,10 +21,11 @@ var localWebview = Titanium.UI.createWebView({
     right:10, 
     backgroundColor:'transparent',
 	html:content,
-	zIndex: 0,
 	enableZoomControls: false,
-	textSize: 1,
+	textSize: 1
 });
+
+//var scrollView = Ti.UI.createScrollView();
 
 // var incText = Titanium.UI.createButton({
 	// title:'+',
@@ -78,8 +75,8 @@ textsize.addEventListener('click',function(e){
 
 var menuButton = Titanium.UI.createImageView({
 	image:'images/menu.png',
-	width: '50dp',
-	height: '50dp',
+	width: '0.75cm',
+	height: '0.75cm',
 	top: 0,
 	right: 0,
 	zIndex: 3
@@ -157,6 +154,10 @@ var topLogo = Titanium.UI.createImageView({
 	left: 0,
 	zIndex: 3
 });
+topLogo.addEventListener('click', function()
+        {
+        win.close();
+});
 
 menu.setData(data);
 
@@ -172,18 +173,21 @@ topBar.addEventListener('click',function(){
 	}	
 });
 
-localWebview.addEventListener('click',function(){
-	if (menu.isVisible == true){
-		menu.animate({
-			top: '-210dp', 
-			duration: 500,
-		});
-		menu.isVisible = false;
-	}
-});
+// localWebview.addEventListener('click',function(){
+	// if (menu.isVisible == true){
+		// menu.animate({
+			// top: '-210dp', 
+			// duration: 500,
+		// });
+		// menu.isVisible = false;
+	// }
+// });
 
 topBar.add(textsize);
 topBar.add(topLogo);
 win.add(menuButton);
 win.add(topBar);
 win.add(localWebview);
+
+//scrollView.add(localWebview);
+//win.add(scrollView);
