@@ -5,13 +5,78 @@ var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 win.navBarHidden = true;
 
+var create_facebook_share = function(title, url){
+	
+	var facebook_icon = Ti.UI.createImageView({
+		width: '50dp',
+		left: '10dp',
+		height: '50dp',
+		image: 'images/facebook.png',
+		is_action: i+1,
+		url: url,
+		opacity: 1,
+		bubbleParent: false,
+		zIndex:15,
+	});
+	
+	facebook_icon.addEventListener('click',function(e){	
+		alert('post to facebook'), console.log('facebook icon clicked')
+	});
+	
+	return facebook_icon;
+};
+
+var create_twitter_share = function(title, url){
+	
+	var twitter_icon = Ti.UI.createImageView({
+		width: '50dp',
+		left: '90dp',
+		height: '50dp',
+		image: 'images/twitter.png',
+		is_action: i+1,
+		url: url,
+		opacity: 1,
+		bubbleParent: false,
+		zIndex:15,
+	});
+	
+	twitter_icon.addEventListener('click',function(e){	
+		alert('tweet article'), console.log('twitter icon clicked')
+	});
+	
+	return twitter_icon;
+};
+
+var create_email_share = function(title, url){
+	
+	var email_icon = Ti.UI.createImageView({
+		width: '50dp',
+		left: '170dp',
+		height: '50dp',
+		image: 'images/mail.png',
+		is_action: i+1,
+		url: url,
+		opacity: 1,
+		bubbleParent: false,
+		zIndex:15,
+	});
+	
+	email_icon.addEventListener('click',function(e){	
+		var emailDialog = Ti.UI.createEmailDialog({
+			subject: title,
+			messageBody: url,
+		});
+		emailDialog.open();
+	});
+	
+	return email_icon;
+};
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height: '0.75cm',
 	top: 0
 });
-
 
 var textViewButton = Titanium.UI.createImageView({
 	image:'images/text-view.png',
@@ -160,9 +225,6 @@ var tbl = Ti.UI.createTableView({
 	zIndex:1
 });
 
-var current_row; // this will hold the current row we swiped over, so we can reset it's state when we do any other gesture (scroll the table, swipe another row, click on another row)
-
-
 var today = Titanium.UI.createTableViewSection({
     headerTitle:"Today"
 });
@@ -172,34 +234,41 @@ var old = Titanium.UI.createTableViewSection({
 
 
 // create the actions view - the one will be revealed on swipe
-var create_sharing_options_view = function(where) { 
+var create_sharing_options_view = function(url, title) { 
 
+	var icons = Ti.UI.createView({
+		backgroundColor: 'transparent',
+		zIndex: 15,
+		bubbleParent: false,
+	});
+	
+	icons.add(create_facebook_share(title,url));
+	icons.add(create_twitter_share(title,url));
+	icons.add(create_email_share(title,url));
+	
 	var view = Ti.UI.createView({
-		height:Ti.UI.SIZE,
-		width:Ti.UI.SIZE
+		top: '0.75cm',
+		width: Ti.Platform.displayCaps.platformWidth,
+		backgroundColor: 'gray',
+		opacity: 0.7,
+		zIndex: 14,
+		bubbleParent: false,
+		icons: icons
 	});
 
-	var icons =['images/facebook.png', 'images/twitter.png', 'images/mail.png'];
-	for (var i = 0; i < 3; i++) {
-		view.add(Ti.UI.createImageView({
-			width: '50dp',
-			left: (10 + (80 * (i)))+'dp',
-			height: '50dp',
-			image: icons[i],
-			is_action: i+1
-		}));
-	};
-
 	return view;
-}
+};
 
-var make_content_view = function(title, content, thumbnail) {// create the content view - the one is displayed by default
-
-	var view = Ti.UI.createView({
-		backgroundColor: '#fdfcf8',
-		height: '95dp',
-		width: Titanium.Platform.displayCaps.platformWidth,
-	}); 
+var make_content_view = function(title, content, thumbnail, url) {// create the content view - the one is displayed by default
+		
+	var row = Ti.UI.createTableViewRow({
+		height: Ti.UI.SIZE,
+		backgroundColor:'#fdfcf8',
+		//backgroundColor: 'red',
+		url: url,
+		content: content,
+		bubbleParent: false,
+	});
 
 	var thumbnail = Ti.UI.createImageView({
 		height: '80dp',
@@ -207,8 +276,10 @@ var make_content_view = function(title, content, thumbnail) {// create the conte
 		left: '7.5dp',
 		borderColor: '#E3E3E3',
 		borderWidth: '1dp',
-		image: thumbnail
+		image: thumbnail,
+		touchEnabled: false,
 	});
+	
 
 	var fontSize;
 	if (osname == 'android')
@@ -216,53 +287,52 @@ var make_content_view = function(title, content, thumbnail) {// create the conte
 	else
 		fontSize = (Titanium.Platform.displayCaps.platformHeight)/30;
 		
-	var title = Ti.UI.createLabel({
+	var titleLabel = Ti.UI.createLabel({
 		text: title,
 		color:'#4A4A4A',
 		top: '10dp',
 		left: '100dp',
 		right: '20dp',
-		width: '200dp',
 		height: Ti.UI.SIZE,
+		touchEnabled: false,
 		font: {
 			fontSize: fontSize,
 		},
-		backgroundColor:'transparent'
+		backgroundColor:'transparent',
 	});
 	
-	var time = Ti.UI.createLabel({
-		text: '30-MAY 05:30PM',
-		color:'#D6D6D6',
-		backgroundColor: 'white',
-		borderColor: '#E3E3E3',
-		borderWidth: 1,
-		left: '305dp',
-		height: '75dp',
-		width: '65dp',
-		transform: rotate90,
-		font: {
-			fontSize: fontSize,
-			fontWeight: 'bold',
-		},
-		zIndex:11
+	row.addEventListener('longclick', function(e){
+		alert (e.source.url);
+		win.sharing_options = create_sharing_options_view(url, title);
+		win.sharing_options.isVisible = true;
+		win.add(win.sharing_options);
+		win.add(win.sharing_options.icons);
+		
+		win.sharing_options.addEventListener('click',function(){
+			win.remove(win.sharing_options);
+			win.remove(win.sharing_options.icons);
+		});
+		win.sharing_options.icons.addEventListener('click',function(){
+			win.remove(win.sharing_options);
+			win.remove(win.sharing_options.icons);
+		});
 	});
-
-	view.add(thumbnail);
-	view.add(title);
-	view.add(time);
-	view.addEventListener ('click', function(e){
-					var win = Ti.UI.createWindow({
-		    			backgroundColor:'#fff',
-		    			url: 'detail.js',
-		    			modal: true
-		    		})
-		    		win.content = content;
-		    		win.open({
-		    			animated:true,
-		    		});
-    			});
-	return view;
-
+	
+	row.addEventListener('click', function(e){
+		if (menu.isVisible == true){
+			menu.animate({
+				top: '-210dp', 
+				duration: 500,
+			});
+			menu.isVisible = false;
+		}
+		if (win.sharing_options)
+			win.remove(win.sharing_options);		
+	});
+	
+	row.add(thumbnail);
+	row.add(titleLabel);
+	return row;
 }
 
 var allTitles = [];
@@ -313,86 +383,24 @@ function loadWordpress()
 				var articleYear = parseInt(date[0]);
 				var articleMonth = parseInt(date[1]);
 				var articleDay = parseInt(date[2]);
-				
-				
-				
-				//var dates = "Today: "+currentMonth+"/"+currentDay+"/"+currentYear+" Article: "+articleMonth+"/"+articleDay+"/"+articleYear
-				
-				//var today = currentYear+'-'+currentMonth+'-'+currentDay
-				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay
-				
-				
-				//console.log(isToday(articleDay, articleMonth, articleYear))
+
+				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay;
 						
 				allTitles[i]={title: wordpress.posts[i].title};
 				allContent[i]=tweet;
 				allURL[i]=url;
 				allDates[i]=date;
 				
-				var row = Ti.UI.createTableViewRow({
-					height: Ti.UI.SIZE,
-					backgroundColor:'#fff',
-					selectedBackgroundColor: 'white',
-					font: {
-			            fontSize: '30px',
-			            fontWeight: 'bold',
-			        },
-				});
-								
-				var sharing_options = create_sharing_options_view();
-				row.v2 = make_content_view(articleTitle, tweet, thumbnail);
-				
-				
-    			
-				row.add(sharing_options);
-				row.add(row.v2);
-				row.className = "item"+i;
-				
-				// android behaves in a different way so we need to add the event to the row.
-				row.addEventListener('swipe', function(e) {
-					if (menu.isVisible == true){
-						menu.animate({
-							top: '-210dp', 
-							duration: 500,
-						});
-						menu.isVisible = false;
-					}	
-					if (e.direction == 'left') {
-						if (!!current_row) {
-							current_row.v2.animate({
-								left: '-5dp',
-								duration: 0
-							});
-						}
-		
-						current_row = osname == 'android' ? this : e.row; // it looks like android does not have the e.row property for this event.
-	
-						current_row.v2.animate({
-							left: Titanium.Platform.displayCaps.platformWidth * -1,
-							duration: 500});
-					}
-					else if (e.direction == 'right') {
-						alert('swiped right');
-						if (!!current_row) {
-							current_row.v2.animate({
-								left: '-5dp',
-								duration: 0
-							});
-						}
-						
-						current_row = null;
-					}
-					
-				});
-	
+				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
+
 				if (isToday(articleDay, articleMonth, articleYear)){
-					today.add(row);
+					today.add(articleRow);
 					countToday++;
 				}
 				else{
-					old.add(row);
+					old.add(articleRow);
 				}
-				dataTemp.push(row);
+				dataTemp.push(articleRow);
 			}
 		
 		if (countToday == 0){
@@ -404,9 +412,7 @@ function loadWordpress()
 		}
 	}
 
-	
 	make_data_rows();
-	
 	
 	if (Ti.Platform.osname == 'android') {
 	
@@ -426,15 +432,6 @@ function loadWordpress()
 				});
 				menu.isVisible = false;
 			}	
-	
-		if (!!current_row && (Ti.Platform.osname == 'android' ?  scrolled_times > 3 : true)) {
-			current_row.v2.animate({
-				left: '-5dp',
-				duration: 0
-			});
-			current_row = null;
-		}
-	
 		scrolled_times++;
 	});
 	
@@ -446,27 +443,19 @@ function loadWordpress()
 			});
 			menu.isVisible = false;
 		}	
-		if (e.source.is_action) {
-			if (e.source.is_action == 1) {alert('post to facebook'), console.log('facebook icon clicked')}
-			else if (e.source.is_action == 2) {alert('tweet article'), console.log('twitter icon clicked')}
-			else if (e.source.is_action == 3) {
-				var emailDialog = Ti.UI.createEmailDialog()
-				emailDialog.subject = allTitles[e.index].title;
-				emailDialog.messageBody = allURL[e.index];
-				emailDialog.open();
-				console.log(allTitles[e.index].title)
-			}
-		} else {
-			if (current_row) {
-				
-				current_row.v2.animate({
-					left: '-5dp',
-					duration: 0
-				});
-				current_row = null;
-			}
-		}
-		
+	
+	});
+	
+	tbl.addEventListener ('singletap', function(e){
+		var win = Ti.UI.createWindow({
+			backgroundColor:'#fff',
+			url: 'detail.js',
+			modal: true
+		})
+		win.content = e.source.content;
+		win.open({
+			animated:true,
+		});
 	});
 	
 	var style;
@@ -485,28 +474,20 @@ function loadWordpress()
 		width:Ti.UI.SIZE
 	});
 	
-	win.add(activityIndicator);		
-	activityIndicator.show();	
+	win.add(activityIndicator);
+			
+	activityIndicator.show();
+		
 	win.open();
+	
 	loader.onreadystatechange = function(e){ 
 		if (this.readyState == 4) {
 			activityIndicator.hide();
-
 			win.add(tbl);
 		} 
 	};
 	loader.send();
 }
-
-menuButton.addEventListener('click',function(){
-	if (current_row) {
-		current_row.v2.animate({
-			left: '-5dp',
-			duration: 0
-		});
-		current_row = null;
-	}
-})
 
 win.add(topBar);
 win.add(menu);
