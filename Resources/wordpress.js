@@ -72,6 +72,7 @@ var create_email_share = function(title, url){
 	return email_icon;
 };
 
+
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height: '0.75cm',
@@ -265,6 +266,7 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		height: Ti.UI.SIZE,
 		backgroundColor:'#fdfcf8',
 		//backgroundColor: 'red',
+		className: 'article',
 		url: url,
 		content: content,
 		bubbleParent: false,
@@ -341,19 +343,20 @@ var allURL = [];
 var allDates = [];
 
 var countToday = 0;
+var data = [today, old];
 
 function loadWordpress()
 {
 	var loader;
+
 	function make_data_rows() { // some stub data for the rows.
-		var data = [today, old];
 		var dataTemp = [];
 		
 		// Create our HTTP Client and name it "loader"
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
 
-		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+		loader.open("GET","http://dev.dohanews.co/?json=1&count=20&dev=1");
 		// Runs the function when the data is ready for us to process
 		
 		loader.onload = function() 
@@ -380,9 +383,9 @@ function loadWordpress()
 
 				// Create a row and set its height to auto
 				
-				var articleYear = parseInt(date[0]);
-				var articleMonth = parseInt(date[1]);
-				var articleDay = parseInt(date[2]);
+				var articleYear = parseInt(date[0],10);
+				var articleMonth = parseInt(date[1],10);
+				var articleDay = parseInt(date[2],10);
 
 				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay;
 						
@@ -392,8 +395,9 @@ function loadWordpress()
 				allDates[i]=date;
 				
 				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
-
+				alert(articleDay + ' ' + articleMonth+' '+articleYear);
 				if (isToday(articleDay, articleMonth, articleYear)){
+					alert('yes!');
 					today.add(articleRow);
 					countToday++;
 				}
@@ -488,6 +492,60 @@ function loadWordpress()
 	};
 	loader.send();
 }
+
+
+
+var lastRow = 0, loadData = true;
+setTimeout(function checkSync() {
+    // has someone asked us to load data?
+    if (loadData == false) {
+        // no, return and we'll check again later
+        setTimeout(checkSync, 200);
+        return;
+    }
+    Ti.API.warn('LOAD DATA TRIGGERED!');
+    // simulate an asynchronous HTTP request loading data after 500 ms
+    setTimeout(function() {
+        // we got our data; push some new rows
+        
+        for (var i = lastRow, c = lastRow + 20; i < c; i++) {
+        	var articleRow = make_content_view('title'+i, 'tweet'+1, 'http://www.the-brights.net/images/icons/brights_icon_50x50.gif', 'url'+1);
+            var day = 8;
+            var month = 6;
+            var year = 2013;
+            
+            if (isToday(8,6,2013))
+            {
+            	
+            }            
+        }
+        lastRow = c;
+        // and push this into our table.
+        //tbl.setData(data);
+        // now we're done; reset the loadData flag and start the interval up again
+        loadData = false;
+        setTimeout(checkSync, 200);
+        Ti.API.warn('DATA LOADED!');
+    }, 500);
+}, 200);
+
+var isAndroid = Ti.Platform.osname === 'android';
+
+tbl.addEventListener('scroll', function(evt) {
+    // If we're on android: our total number of rows is less than the first visible row plus the total number of visible
+    // rows plus 3 buffer rows, we need to load more rows!
+    // ---OR---
+    // If we're on ios: how far we're scrolled down + the size of our visible area + 100 pixels of buffer space
+    // is greater than the total height of our table, we need to load more rows!
+    if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
+            || (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
+        // tell our interval (above) to load more rows
+        loadData = true;
+    }
+ 
+});
+
+
 
 win.add(topBar);
 win.add(menu);
