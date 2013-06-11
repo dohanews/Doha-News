@@ -1,5 +1,86 @@
-var rotate90 = Ti.UI.create2DMatrix({ rotate: 90 });
+var admob = require('ti.admob');
+
+// then create an adMob view
+var adMobView = Admob.createView({
+    publisherId:"<<YOUR PUBLISHER ID HERE>>",
+    testing:false, // default is false
+    //top: 10, //optional
+    //left: 0, // optional
+    //right: 0, // optional
+    bottom: 0, // optional
+    adBackgroundColor:"FF8855", // optional
+    backgroundColorTop: "738000", //optional - Gradient background color at top
+    borderColor: "#000000", // optional - Border color
+    textColor: "#000000", // optional - Text color
+    urlColor: "#00FF00", // optional - URL color
+    linkColor: "#0000FF" //optional -  Link text color
+    //primaryTextColor: "blue", // deprecated -- now maps to textColor
+    //secondaryTextColor: "green" // deprecated -- now maps to linkColor
+    
+});
+
+
+//listener for adReceived
+adMobView.addEventListener(Admob.AD_RECEIVED,function(){
+   // alert("ad received");
+   Ti.API.info("ad received");
+});
+
+//listener for adNotReceived
+adMobView.addEventListener(Admob.AD_NOT_RECEIVED,function(){
+    //alert("ad not received");
+     Ti.API.info("ad not received");
+});
+
+
+var adRequestBtn = Ti.UI.createButton({
+    title:"Request an ad",
+    top:"10%",
+    height: "10%",
+    width: "80%"
+});
+
+adRequestBtn.addEventListener("click",function(){
+    adMobView.requestAd();
+});
+
+var adRequestBtn2 = Ti.UI.createButton({
+    title: "Request a test ad",
+    top: "25%",
+    height: "10%",
+    width: "80%"
+});
+
+adRequestBtn2.addEventListener("click",function(){
+    adMobView.requestTestAd();
+});
+
+
+//----------------------//
+
 var osname = Ti.Platform.osname;
+
+var isAndroid = Ti.Platform.osname === 'android';
+
+var countToday = 0;
+var data = [today, old];
+
+var lastID = 0;
+var recentID = 0;
+
+var loadData = false;
+var refreshing = false;
+
+var scrollingFunction = function(evt) {			    
+			    if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
+			            || (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
+			        // tell our interval (above) to load more rows
+			       tbl.removeEventListener('scroll', scrollingFunction);
+			       //alert('syncing');
+			       loadData = true;
+			       
+			    }
+		};
 
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
@@ -221,6 +302,7 @@ var tbl = Ti.UI.createTableView({
 	top: '.75cm',
 	left: '5dp',
 	right: '5dp',
+	bubbleParent: false,
 	selectionStyle: 'none',
 	separatorColor: '#d3d3d3',
 	zIndex:1
@@ -269,6 +351,7 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		className: 'article',
 		url: url,
 		content: content,
+		width: Ti.Platform.displayCaps.platformWidth,
 		bubbleParent: false,
 	});
 
@@ -342,9 +425,6 @@ var allContent = [];
 var allURL = [];
 var allDates = [];
 
-var countToday = 0;
-var data = [today, old];
-
 function loadWordpress()
 {
 	var loader;
@@ -356,13 +436,16 @@ function loadWordpress()
 		loader = Titanium.Network.createHTTPClient();
 		// Sets the HTTP request method, and the URL to get data from
 
-		loader.open("GET","http://dev.dohanews.co/?json=1&count=20&dev=1");
+		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
 		// Runs the function when the data is ready for us to process
 		
 		loader.onload = function() 
 		{
 			var wordpress = JSON.parse(this.responseText);
 			
+			if (wordpress.posts.length > 0)
+				recentID = wordpress.posts[0].id;
+				
 			for (var i = 0; i < wordpress.posts.length; i++)
 			{
 				var tweet = wordpress.posts[i].content; // The tweet message
@@ -370,6 +453,7 @@ function loadWordpress()
 				var articleTitle = wordpress.posts[i].title; // The screen name of the user
 				var avatar = wordpress.posts[i].user_avatar; // The profile image
 				var url = wordpress.posts[i].url;
+				lastID = wordpress.posts[i].id;
 				
 				var originalDate = wordpress.posts[i].date.split(' ');
 				var date = originalDate[0].split('-');
@@ -395,9 +479,8 @@ function loadWordpress()
 				allDates[i]=date;
 				
 				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
-				alert(articleDay + ' ' + articleMonth+' '+articleYear);
+
 				if (isToday(articleDay, articleMonth, articleYear)){
-					alert('yes!');
 					today.add(articleRow);
 					countToday++;
 				}
@@ -407,9 +490,9 @@ function loadWordpress()
 				dataTemp.push(articleRow);
 			}
 		
-		if (countToday == 0){
+		//if (countToday == 0){
 			data = dataTemp;
-		}
+		//}
 		
 		tbl.setData(data);
 		console.log(countToday)
@@ -488,70 +571,131 @@ function loadWordpress()
 		if (this.readyState == 4) {
 			activityIndicator.hide();
 			win.add(tbl);
+			tbl.addEventListener('scroll', scrollingFunction);
 		} 
 	};
 	loader.send();
 }
 
-
-
-var lastRow = 0, loadData = true;
 setTimeout(function checkSync() {
-    // has someone asked us to load data?
+
     if (loadData == false) {
-        // no, return and we'll check again later
-        setTimeout(checkSync, 200);
+        setTimeout(checkSync, 500);
         return;
     }
-    Ti.API.warn('LOAD DATA TRIGGERED!');
-    // simulate an asynchronous HTTP request loading data after 500 ms
-    setTimeout(function() {
-        // we got our data; push some new rows
-        
-        for (var i = lastRow, c = lastRow + 20; i < c; i++) {
-        	var articleRow = make_content_view('title'+i, 'tweet'+1, 'http://www.the-brights.net/images/icons/brights_icon_50x50.gif', 'url'+1);
-            var day = 8;
-            var month = 6;
-            var year = 2013;
-            
-            if (isToday(8,6,2013))
-            {
-            	
-            }            
-        }
-        lastRow = c;
-        // and push this into our table.
-        //tbl.setData(data);
-        // now we're done; reset the loadData flag and start the interval up again
-        loadData = false;
-        setTimeout(checkSync, 200);
-        Ti.API.warn('DATA LOADED!');
-    }, 500);
+    
+    loadData = false;
+	
+	tbl.removeEventListener('scroll',scrollingFunction);
+    
+	var loader = Titanium.Network.createHTTPClient();
+
+	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
+	
+	loader.onload = function() 
+	{
+		var wordpress = JSON.parse(this.responseText);
+		for (var i = 0; i < wordpress.posts.length; i++)
+		{
+			var tweet = wordpress.posts[i].content; // The tweet message
+			var articleTitle = wordpress.posts[i].title; // The screen name of the user
+			var avatar = wordpress.posts[i].user_avatar; // The profile image
+			var url = wordpress.posts[i].url;
+			lastID = wordpress.posts[i].id;
+			
+			var thumbail;
+
+			if (wordpress.posts[i].attachments.length > 0)
+				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+			else 
+				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
+
+
+			// Create a row and set its height to auto
+			
+			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
+			tbl.appendRow(articleRow);
+		}
+		
+		tbl.addEventListener('scroll',scrollingFunction);
+	}
+
+	loader.send();
+    
+    // and push this into our table.
+    // now we're done; reset the loadData flag and start the interval up again
+    setTimeout(checkSync, 200);
 }, 200);
 
-var isAndroid = Ti.Platform.osname === 'android';
+var refresh = function(e){
+	
+	if (refreshing){
+		alert ('still refreshing!');
+		return;
+	}
+	  
+	refreshing = true;
+	
+	var loader = Titanium.Network.createHTTPClient();
 
-tbl.addEventListener('scroll', function(evt) {
-    // If we're on android: our total number of rows is less than the first visible row plus the total number of visible
-    // rows plus 3 buffer rows, we need to load more rows!
-    // ---OR---
-    // If we're on ios: how far we're scrolled down + the size of our visible area + 100 pixels of buffer space
-    // is greater than the total height of our table, we need to load more rows!
-    if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
-            || (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-        // tell our interval (above) to load more rows
-        loadData = true;
-    }
- 
+	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_next_posts/?dev=1&id="+parseInt(recentID,10));
+	
+	loader.onload = function() 
+	{
+
+		var wordpress = JSON.parse(this.responseText);
+		
+		var wp_length = wordpress.posts.length;
+		alert('old id: '+ recentID); 
+		if (wp_length > 0)
+			recentID = wordpress.posts[wp_length-1].id;
+		alert('new id: '+ recentID);			
+		for (var i = 0; i < wp_length; i++)
+		{
+			var tweet = wordpress.posts[i].content; // The tweet message
+			var articleTitle = wordpress.posts[i].title; // The screen name of the user
+			var url = wordpress.posts[i].url;
+			
+			var thumbail;
+
+			if (wordpress.posts[i].attachments.length > 0)
+				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+			else 
+				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
+
+			// Create a row and set its height to auto
+			
+			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
+			tbl.insertRowBefore(0, articleRow);
+		}
+		refreshing = false;		
+	}
+	
+	loader.send();
+    
+    // and push this into our table.
+    // now we're done; reset the loadData flag and start the interval up again
+};
+
+var refreshButton = Ti.UI.createButton({
+	title: 'R',
+	width: '40dp',
+	height: '40dp',
 });
 
-
+refreshButton.addEventListener('click', refresh);
 
 win.add(topBar);
 win.add(menu);
 win.add(menuButton);
+topBar.add(refreshButton);
 topBar.add(photoViewButton);
 topBar.add(textViewButton);
 topBar.add(searchButton);
 topBar.add(topLogo);
+
+win.add(adMobView);
+win.add(adRequestBtn);
+win.add(adRequestBtn2);
+
 loadWordpress();
