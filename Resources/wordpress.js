@@ -1,3 +1,8 @@
+Ti.include('admob-android.js');
+
+var firstAd = 0;
+var lastAd = 0;
+
 var osname = Ti.Platform.osname;
 
 var isAndroid = Ti.Platform.osname === 'android';
@@ -33,7 +38,6 @@ var create_facebook_share = function(title, url){
 		left: '10dp',
 		height: '50dp',
 		image: 'images/facebook.png',
-		is_action: i+1,
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -54,7 +58,6 @@ var create_twitter_share = function(title, url){
 		left: '90dp',
 		height: '50dp',
 		image: 'images/twitter.png',
-		is_action: i+1,
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -75,7 +78,6 @@ var create_email_share = function(title, url){
 		left: '170dp',
 		height: '50dp',
 		image: 'images/mail.png',
-		is_action: i+1,
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -97,7 +99,7 @@ var create_email_share = function(title, url){
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height: '0.75cm',
-	top: 0
+	top: 0,
 });
 
 var textViewButton = Titanium.UI.createImageView({
@@ -216,7 +218,6 @@ topBar.addEventListener('click',function(){
 });
 
 
-
 function isToday(day, month, year){
 	var currentTime = new Date();
 	var currentDay = currentTime.getDate();
@@ -245,14 +246,16 @@ var tbl = Ti.UI.createTableView({
 	bubbleParent: false,
 	selectionStyle: 'none',
 	separatorColor: '#d3d3d3',
-	zIndex:1
+	zIndex:1,
 });
 
+
 var today = Titanium.UI.createTableViewSection({
-    headerTitle:"Today"
+	headerTitle: 'Today',
 });
+
 var old = Titanium.UI.createTableViewSection({
-    headerTitle:"Older"
+	headerTitle: 'Old',
 });
 
 
@@ -387,13 +390,13 @@ function loadWordpress()
 				recentID = wordpress.posts[0].id;
 				
 			for (var i = 0; i < wordpress.posts.length; i++)
-			{
+			{	
+				lastAd++;
 				var tweet = wordpress.posts[i].content; // The tweet message
-				//var tweet = tweetOriginal.replace( /<[^>]+>/g, '' );
 				var articleTitle = wordpress.posts[i].title; // The screen name of the user
 				var avatar = wordpress.posts[i].user_avatar; // The profile image
 				var url = wordpress.posts[i].url;
-				lastID = wordpress.posts[i].id;
+				lastID = wordpress.posts[i].id;				
 				
 				var originalDate = wordpress.posts[i].date.split(' ');
 				var date = originalDate[0].split('-');
@@ -413,10 +416,10 @@ function loadWordpress()
 
 				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay;
 						
-				allTitles[i]={title: wordpress.posts[i].title};
-				allContent[i]=tweet;
-				allURL[i]=url;
-				allDates[i]=date;
+				allTitles[i] = {title: wordpress.posts[i].title};
+				allContent[i] = tweet;
+				allURL[i] = url;
+				allDates[i] = date;
 				
 				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
 
@@ -428,6 +431,11 @@ function loadWordpress()
 					old.add(articleRow);
 				}
 				dataTemp.push(articleRow);
+				
+				if (lastAd%10 == 0 && lastAd != 0) {
+					var adMobRow = createAdMobView();
+					dataTemp.push(adMobRow);
+				}
 			}
 		
 		//if (countToday == 0){
@@ -474,15 +482,17 @@ function loadWordpress()
 	});
 	
 	tbl.addEventListener ('singletap', function(e){
-		var win = Ti.UI.createWindow({
-			backgroundColor:'#fff',
-			url: 'detail.js',
-			modal: true
-		})
-		win.content = e.source.content;
-		win.open({
-			animated:true,
-		});
+		if (e.source.className == 'article'){
+			var win = Ti.UI.createWindow({
+				backgroundColor:'#fff',
+				url: 'detail.js',
+				modal: true
+			})
+			win.content = e.source.content;
+			win.open({
+				animated:true,
+			});
+		}
 	});
 	
 	var style;
@@ -537,6 +547,7 @@ setTimeout(function checkSync() {
 		var wordpress = JSON.parse(this.responseText);
 		for (var i = 0; i < wordpress.posts.length; i++)
 		{
+			lastAd++;
 			var tweet = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
 			var avatar = wordpress.posts[i].user_avatar; // The profile image
@@ -544,17 +555,20 @@ setTimeout(function checkSync() {
 			lastID = wordpress.posts[i].id;
 			
 			var thumbail;
-
+	
 			if (wordpress.posts[i].attachments.length > 0)
 				thumbnail = wordpress.posts[i].attachments[0].images.small.url
 			else 
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
-
-
+	
 			// Create a row and set its height to auto
-			
 			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
 			tbl.appendRow(articleRow);
+			
+			if (lastAd%10 == 0 && lastAd != 0) {
+				var adMobRow = createAdMobView();
+				tbl.appendRow(adMobRow);
+			}
 		}
 		
 		tbl.addEventListener('scroll',scrollingFunction);
@@ -568,7 +582,6 @@ setTimeout(function checkSync() {
 }, 200);
 
 var refresh = function(e){
-	
 	if (refreshing){
 		alert ('still refreshing!');
 		return;
@@ -582,7 +595,6 @@ var refresh = function(e){
 	
 	loader.onload = function() 
 	{
-
 		var wordpress = JSON.parse(this.responseText);
 		
 		var wp_length = wordpress.posts.length;
@@ -590,8 +602,15 @@ var refresh = function(e){
 		if (wp_length > 0)
 			recentID = wordpress.posts[wp_length-1].id;
 		alert('new id: '+ recentID);			
-		for (var i = 0; i < wp_length; i++)
+		for (i = 0; i < wp_length; i++)
 		{
+			if (firstAd == 0) {
+				var adMobRow = createAdMobView();
+				tbl.insertRowBefore(0, adMobRow);
+				firstAd = 10;
+			}
+		
+			firstAd--;
 			var tweet = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
 			var url = wordpress.posts[i].url;
@@ -604,7 +623,6 @@ var refresh = function(e){
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 
 			// Create a row and set its height to auto
-			
 			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
 			tbl.insertRowBefore(0, articleRow);
 		}
@@ -612,7 +630,6 @@ var refresh = function(e){
 	}
 	
 	loader.send();
-    
     // and push this into our table.
     // now we're done; reset the loadData flag and start the interval up again
 };
@@ -624,28 +641,31 @@ var refreshButton = Ti.UI.createButton({
 });
 
 refreshButton.addEventListener('click', refresh);
-
 // var admobbutt = Ti.UI.createButton({
 	// title: 'admob',
+	// left: 50,
 // });
 // 
 // admobbutt.addEventListener ('singletap', function(e){
 		// var win = Ti.UI.createWindow({
 			// backgroundColor:'#fff',
-			// url: 'admobtest.js',
+			// url: 'admob-android.js',
 			// modal: true
 		// })
 		// win.open();
 	// });
 
+var searchBar = Titanium.UI.createSearchBar();
+searchBar.value = 'Enter Search textt';
 win.add(topBar);
 win.add(menu);
-win.add(menuButton);
-// topBar.add(admobbutt);
-topBar.add(refreshButton);
-topBar.add(photoViewButton);
-topBar.add(textViewButton);
-topBar.add(searchButton);
-topBar.add(topLogo);
+//win.add(menuButton);
+//topBar.add(admobbutt);
+ topBar.add(searchBar);
+// topBar.add(refreshButton);
+// topBar.add(photoViewButton);
+// topBar.add(textViewButton);
+// topBar.add(searchButton);
+// topBar.add(topLogo);
 
 loadWordpress();
