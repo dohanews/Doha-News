@@ -1,4 +1,5 @@
 Ti.include('admob-android.js');
+Ti.include('search.js');
 
 var firstAd = 0;
 var lastAd = 0;
@@ -16,20 +17,21 @@ var recentID = 0;
 var loadData = false;
 var refreshing = false;
 
-var scrollingFunction = function(evt) {			    
-			    if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
-			            || (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-			        // tell our interval (above) to load more rows
-			       tbl.removeEventListener('scroll', scrollingFunction);
-			       //alert('syncing');
-			       loadData = true;
-			       
-			    }
-		};
-
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 win.navBarHidden = true;
+
+var scrollingFunction = function(evt) {
+				    
+	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
+	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
+		// tell our interval (above) to load more rows
+		tbl.removeEventListener('scroll', scrollingFunction);
+		//alert('syncing');
+		loadData = true;       
+	}
+};
+
 
 var create_facebook_share = function(title, url){
 	
@@ -111,14 +113,14 @@ var textViewButton = Titanium.UI.createImageView({
 	zIndex: 3
 });
 
-var searchButton = Titanium.UI.createImageView({
-	image:'images/search.png',
-	right: '135dp', 
-	width: '30dp',
-	height: '30dp',
-	top: '10dp',
-	zIndex: 3
-});
+// var searchButton = Titanium.UI.createImageView({
+	// image:'images/search.png',
+	// right: '135dp', 
+	// width: '30dp',
+	// height: '30dp',
+	// top: '10dp',
+	// zIndex: 3
+// });
 
 var photoViewButton = Titanium.UI.createImageView({
 	image:'images/photoview-ipad.png',
@@ -169,6 +171,7 @@ for (i = 0; i < opt.length; i++)
 	row.addEventListener('click',function(){
 		alert(opt[i]);
 	});
+	
 	row.add(img);
 	data.push(row);				
 }
@@ -218,23 +221,23 @@ topBar.addEventListener('click',function(){
 });
 
 
-function isToday(day, month, year){
-	var currentTime = new Date();
-	var currentDay = currentTime.getDate();
-	var currentMonth = currentTime.getMonth() + 1;
-	var currentYear = currentTime.getFullYear();
-	
-	if (year<currentYear){
-		return false;
-	}
-	else if (month<currentMonth){
-		return false;
-	}
-	else if (day<currentDay){
-		return false;
-	}
-	return true;
-}
+// function isToday(day, month, year){
+	// var currentTime = new Date();
+	// var currentDay = currentTime.getDate();
+	// var currentMonth = currentTime.getMonth() + 1;
+	// var currentYear = currentTime.getFullYear();
+// 	
+	// if (year<currentYear){
+		// return false;
+	// }
+	// else if (month<currentMonth){
+		// return false;
+	// }
+	// else if (day<currentDay){
+		// return false;
+	// }
+	// return true;
+// }
 
 
 var tbl = Ti.UI.createTableView({
@@ -250,16 +253,6 @@ var tbl = Ti.UI.createTableView({
 });
 
 
-var today = Titanium.UI.createTableViewSection({
-	headerTitle: 'Today',
-});
-
-var old = Titanium.UI.createTableViewSection({
-	headerTitle: 'Old',
-});
-
-
-// create the actions view - the one will be revealed on swipe
 var create_sharing_options_view = function(url, title) { 
 
 	var icons = Ti.UI.createView({
@@ -363,11 +356,6 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 	return row;
 }
 
-var allTitles = [];
-var allContent = [];
-var allURL = [];
-var allDates = [];
-
 function loadWordpress()
 {
 	var loader;
@@ -415,21 +403,9 @@ function loadWordpress()
 				var articleDay = parseInt(date[2],10);
 
 				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay;
-						
-				allTitles[i] = {title: wordpress.posts[i].title};
-				allContent[i] = tweet;
-				allURL[i] = url;
-				allDates[i] = date;
 				
 				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
 
-				if (isToday(articleDay, articleMonth, articleYear)){
-					today.add(articleRow);
-					countToday++;
-				}
-				else{
-					old.add(articleRow);
-				}
 				dataTemp.push(articleRow);
 				
 				if (lastAd%10 == 0 && lastAd != 0) {
@@ -438,7 +414,6 @@ function loadWordpress()
 				}
 			}
 		
-		//if (countToday == 0){
 			data = dataTemp;
 		//}
 		
@@ -655,13 +630,12 @@ refreshButton.addEventListener('click', refresh);
 		// win.open();
 	// });
 
-var searchBar = Titanium.UI.createSearchBar();
-searchBar.value = 'Enter Search textt';
 win.add(topBar);
 win.add(menu);
 //win.add(menuButton);
 //topBar.add(admobbutt);
- topBar.add(searchBar);
+topBar.add(searchButton);
+topBar.add(searchParent);
 // topBar.add(refreshButton);
 // topBar.add(photoViewButton);
 // topBar.add(textViewButton);
