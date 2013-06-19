@@ -1,3 +1,21 @@
+Ti.include('share_facebook.js');
+var fb = require('facebook');
+fb.appid = "520290184684825";
+fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
+facebookToken = fb.accessToken;
+
+Ti.include('twitter.js');
+Ti.include('jsOAuth-1.3.1.js');
+
+var client = Twitter({
+  consumerKey: "dA16PByC2iPsc30GgFh1ng",
+  consumerSecret: "XQcDIrp5wBte8esPbCvJhX830vf3ut4NV4ucwgSRs"
+});
+
+var accessTokenKey = Ti.App.Properties.getString('twitterAccessTokenKey')
+var accessTokenSecret = Ti.App.Properties.getString('twitterAccessTokenSecret') 
+
+
 Ti.include('admob-android.js');
 Ti.include('search.js');
 
@@ -79,7 +97,9 @@ var create_facebook_share = function(title, url){
 	});
 	
 	facebook_icon.addEventListener('click',function(e){	
-		alert('post to facebook'), console.log('facebook icon clicked')
+		postToFacebook(facebookToken, title, url, ' ', ' '),
+				alert('Article posted to Facebook'), 
+				console.log('facebook icon clicked')
 	});
 	
 	return facebook_icon;
@@ -165,8 +185,8 @@ var photoViewButton = Titanium.UI.createImageView({
 
 var menuButton = Titanium.UI.createImageView({
 	image:'images/menu.png',
-	width: '50dp',
-	height: '50dp',
+	width: '0.75cm',
+	height: '0.75cm',
 	top: 0,
 	right: 0,
 	zIndex: 3
@@ -197,8 +217,28 @@ for (i = 0; i < opt.length; i++)
 		width: '50dp',
 		height: '50dp',
 		zIndex: 1,
+		menu_action: i
 	});
 	
+	row.addEventListener('click',function(e){
+			if (e.source.menu_action == 0) {
+				var win = Ti.UI.createWindow({
+		    			backgroundColor:'#fff',
+		    			url: 'settings.js',
+		    			modal: true
+			    })
+		    	win.open({
+		    		animated:true,
+		    	});
+			}
+			else if (e.source.menu_action == 1) {
+			}
+			else
+			{
+				alert('');
+				console.log(fb.accessToken);
+			}
+	});
 	row.add(img);
 	menuData.push(row);				
 }
