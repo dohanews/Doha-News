@@ -96,11 +96,17 @@ var create_facebook_share = function(title, url){
 		zIndex:15,
 	});
 	
-	facebook_icon.addEventListener('click',function(e){	
-		postToFacebook(facebookToken, title, url, ' ', ' '),
-				alert('Article posted to Facebook'), 
-				console.log('facebook icon clicked')
+	facebook_icon.addEventListener('click',function(e){
+		fb.dialog('feed', 
+			{
+				link: url,
+				name: title
+			},
+			function(){
+				alert('posted');
+			});
 	});
+		
 	
 	return facebook_icon;
 };

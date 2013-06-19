@@ -39,7 +39,7 @@ function postToFacebook(fb_access_token,title,link_url,caption,description){
 	});
 	xhr.onreadystatechange = function(){
 		alert('changed');
-		alert(this.responseText);
+		console.log('mine ' + this.responseText);
 	};
 
 }
