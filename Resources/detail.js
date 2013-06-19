@@ -83,7 +83,12 @@ for (i = 0; i < opt.length; i++)
 
 	
 	row.addEventListener('click',function(){
-		alert(opt[i]);
+		var win = Ti.UI.createWindow({
+			backgroundColor: '#fff',
+			url: 'settings.js',
+			modal: true,
+		});
+		win.open();
 	});
 	row.add(img);
 	data.push(row);				

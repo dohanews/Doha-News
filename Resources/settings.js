@@ -20,7 +20,7 @@ facebookLogin.addEventListener('click', function(e) {
 	
 	fb.addEventListener('login', function(e) {
 	    if (e.success) {
-	        alert('Logged In');
+			alert('Logged In');
 	    } else if (e.error) {
 	        alert(e.error);
 	    } else if (e.cancelled) {
@@ -34,7 +34,10 @@ facebookLogin.addEventListener('click', function(e) {
 var logout = Titanium.UI.createButton({title:'Log out'});
 	logout.addEventListener('click', function()
         {
-        	fb.addEventListener('logout', function(e) {alert('Logged out');
+        	fb.addEventListener('logout', function(e) {
+        		alert('Logged out');
+        		var client = Titanium.Network.createHTTPClient();
+				client.clearCookies('https://login.facebook.com');
 });
 	fb.logout();
 
