@@ -24,7 +24,7 @@ facebookLogin.addEventListener('click', function(e) {
 	        alert("Cancelled");
 	    }
 	});
-	fb.authorize();
+	fb.authorize();c
 	console.log(fb.accessToken);
 })
 
