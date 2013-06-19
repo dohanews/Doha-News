@@ -21,7 +21,7 @@ var field = Ti.UI.createTextField({
 });
 
 var xButton = Ti.UI.createImageView({
-	image: Ti.Android.R.drawable.ic_menu_close_clear_cancel,
+	image: 'images/search.png',
 	width: '50px',
 	height: '50px',
 	left: '630px',

@@ -2,8 +2,11 @@ var osname = Ti.Platform.osname;
 
 var win = Ti.UI.currentWindow;
 win.navBarHidden = true;
-var button = Titanium.UI.createButton({title:'Close'});
-win.leftNavButton = button;
+
+var content = win.content;
+
+var closeButton = Titanium.UI.createButton({title:'Close'});
+win.leftNavButton = closeButton;
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
@@ -11,9 +14,6 @@ var topBar = Titanium.UI.createView({
 	zIndex: 2,
 	top: 0
 });
-
-
-var content = win.content;
 
 var localWebview = Titanium.UI.createWebView({
 	top:'.75cm',
@@ -24,32 +24,6 @@ var localWebview = Titanium.UI.createWebView({
 	enableZoomControls: false,
 	textSize: 1
 });
-
-//var scrollView = Ti.UI.createScrollView();
-
-// var incText = Titanium.UI.createButton({
-	// title:'+',
-	// right:'40dp',
-	// zIndex: 2,
-// });
-// 
-// incText.addEventListener('click',function(e){
-	// localWebview.evalJS(
-		// 'inc();'
-	// );
-// });
-// 
-// var decText = Titanium.UI.createButton({
-	// title:'-',
-	// right:'70dp',
-	// zIndex: 2,
-// });
-// 	
-// decText.addEventListener('click',function(e){
-	// localWebview.evalJS(
-		// 'dec();'
-	// );
-// });
 
 var textsize = Titanium.UI.createImageView({
 	title:'o',
@@ -154,9 +128,9 @@ var topLogo = Titanium.UI.createImageView({
 	left: 0,
 	zIndex: 3
 });
-topLogo.addEventListener('click', function()
-        {
-        win.close();
+
+topLogo.addEventListener('click', function(){
+	win.close();
 });
 
 menu.setData(data);

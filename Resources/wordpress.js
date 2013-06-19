@@ -8,9 +8,6 @@ var osname = Ti.Platform.osname;
 
 var isAndroid = Ti.Platform.osname === 'android';
 
-var countToday = 0;
-var data = [today, old];
-
 var lastID = 0;
 var recentID = 0;
 
@@ -27,11 +24,46 @@ var scrollingFunction = function(evt) {
 	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
 		// tell our interval (above) to load more rows
 		tbl.removeEventListener('scroll', scrollingFunction);
-		//alert('syncing');
 		loadData = true;       
 	}
 };
 
+var create_activity_indicator = function(){
+	var style;
+	if (Ti.Platform.name === 'iPhone OS'){
+		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+	}
+	else {
+		style = Ti.UI.ActivityIndicatorStyle.DARK;
+	}
+
+	var activityIndicator = Ti.UI.createActivityIndicator({
+		style: style,
+		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
+			y:Ti.Platform.displayCaps.platformHeight/2},
+		height:Ti.UI.SIZE,
+		width:Ti.UI.SIZE
+	});
+	
+	return activityIndicator;
+};
+
+
+var create_loading_row = function(){
+	var loading_row = Ti.UI.createTableViewRow({
+		height: Ti.UI.SIZE,
+		backgroundColor:'transparent',
+		width: Ti.Platform.displayCaps.platformWidth,
+	});
+
+	var loading_indicator = create_activity_indicator();
+	loading_indicator.top = '40dp';
+	
+	loading_row.add(loading_indicator);
+	loading_indicator.show();
+	
+	return loading_row;
+};
 
 var create_facebook_share = function(title, url){
 	
@@ -149,7 +181,7 @@ var topLogo = Titanium.UI.createImageView({
 	zIndex: 3
 });
 
-var data = [];
+var menuData = [];
 
 var opt = ['images/settings.png','images/photos.png','images/videos.png','images/articles.png'];
 
@@ -166,14 +198,9 @@ for (i = 0; i < opt.length; i++)
 		height: '50dp',
 		zIndex: 1,
 	});
-
-	
-	row.addEventListener('click',function(){
-		alert(opt[i]);
-	});
 	
 	row.add(img);
-	data.push(row);				
+	menuData.push(row);				
 }
 
 menuButton.addEventListener('click', function(e){
@@ -208,7 +235,7 @@ var menu = Ti.UI.createTableView({
 });
 
 
-menu.setData(data);
+menu.setData(menuData);
 
 topBar.addEventListener('click',function(){
 	if (menu.isVisible == true){
@@ -241,7 +268,7 @@ topBar.addEventListener('click',function(){
 
 
 var tbl = Ti.UI.createTableView({
-	backgroundColor:'white',
+	backgroundColor:'transparent',
 	minRowHeight: '95dp',
 	top: '.75cm',
 	left: '5dp',
@@ -283,12 +310,11 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 	var row = Ti.UI.createTableViewRow({
 		height: Ti.UI.SIZE,
 		backgroundColor:'#fdfcf8',
-		//backgroundColor: 'red',
 		className: 'article',
 		url: url,
 		content: content,
+		articleTitle: title,
 		width: Ti.Platform.displayCaps.platformWidth,
-		bubbleParent: false,
 	});
 
 	var thumbnail = Ti.UI.createImageView({
@@ -322,23 +348,6 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		backgroundColor:'transparent',
 	});
 	
-	row.addEventListener('longclick', function(e){
-		alert (e.source.url);
-		win.sharing_options = create_sharing_options_view(url, title);
-		win.sharing_options.isVisible = true;
-		win.add(win.sharing_options);
-		win.add(win.sharing_options.icons);
-		
-		win.sharing_options.addEventListener('click',function(){
-			win.remove(win.sharing_options);
-			win.remove(win.sharing_options.icons);
-		});
-		win.sharing_options.icons.addEventListener('click',function(){
-			win.remove(win.sharing_options);
-			win.remove(win.sharing_options.icons);
-		});
-	});
-	
 	row.addEventListener('click', function(e){
 		if (menu.isVisible == true){
 			menu.animate({
@@ -347,8 +356,6 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 			});
 			menu.isVisible = false;
 		}
-		if (win.sharing_options)
-			win.remove(win.sharing_options);		
 	});
 	
 	row.add(thumbnail);
@@ -359,70 +366,52 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 function loadWordpress()
 {
 	var loader;
+	var articleData = [];
+	// Create our HTTP Client and name it "loader"
+	loader = Titanium.Network.createHTTPClient();
+	// Sets the HTTP request method, and the URL to get data from
 
-	function make_data_rows() { // some stub data for the rows.
-		var dataTemp = [];
+	loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+	// Runs the function when the data is ready for us to process
+	
+	loader.onload = function() 
+	{
+		var wordpress = JSON.parse(this.responseText);
 		
-		// Create our HTTP Client and name it "loader"
-		loader = Titanium.Network.createHTTPClient();
-		// Sets the HTTP request method, and the URL to get data from
-
-		loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
-		// Runs the function when the data is ready for us to process
-		
-		loader.onload = function() 
-		{
-			var wordpress = JSON.parse(this.responseText);
+		if (wordpress.posts.length > 0)
+			recentID = wordpress.posts[0].id;
 			
-			if (wordpress.posts.length > 0)
-				recentID = wordpress.posts[0].id;
-				
-			for (var i = 0; i < wordpress.posts.length; i++)
-			{	
-				lastAd++;
-				var tweet = wordpress.posts[i].content; // The tweet message
-				var articleTitle = wordpress.posts[i].title; // The screen name of the user
-				var avatar = wordpress.posts[i].user_avatar; // The profile image
-				var url = wordpress.posts[i].url;
-				lastID = wordpress.posts[i].id;				
-				
-				var originalDate = wordpress.posts[i].date.split(' ');
-				var date = originalDate[0].split('-');
-				
-				var thumbail;
-				
-				if (wordpress.posts[i].attachments.length > 0)
-					thumbnail = wordpress.posts[i].attachments[0].images.small.url
-				else 
-					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
+		for (var i = 0; i < wordpress.posts.length; i++)
+		{	
+			lastAd++;
+			var articleContent = wordpress.posts[i].content; // The tweet message
+			var articleTitle = wordpress.posts[i].title; // The screen name of the user
+			var url = wordpress.posts[i].url;
+			lastID = wordpress.posts[i].id;				
+			
+			var originalDate = wordpress.posts[i].date.split(' ');
+			var date = originalDate[0].split('-');
+			
+			var thumbail;
+			
+			if (wordpress.posts[i].attachments.length > 0)
+				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+			else 
+				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
-				// Create a row and set its height to auto
-				
-				var articleYear = parseInt(date[0],10);
-				var articleMonth = parseInt(date[1],10);
-				var articleDay = parseInt(date[2],10);
+			
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
 
-				var articleToday = articleYear+'-'+articleMonth+'-'+articleDay;
-				
-				var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
-
-				dataTemp.push(articleRow);
-				
-				if (lastAd%10 == 0 && lastAd != 0) {
-					var adMobRow = createAdMobView();
-					dataTemp.push(adMobRow);
-				}
+			articleData.push(articleRow);
+			
+			if (lastAd%10 == 0 && lastAd != 0) {
+				var adMobRow = createAdMobView();
+				articleData.push(adMobRow);
 			}
-		
-			data = dataTemp;
-		//}
-		
-		tbl.setData(data);
-		console.log(countToday)
 		}
+	
+		tbl.setData(articleData);
 	}
-
-	make_data_rows();
 	
 	if (Ti.Platform.osname == 'android') {
 	
@@ -456,7 +445,21 @@ function loadWordpress()
 	
 	});
 	
-	tbl.addEventListener ('singletap', function(e){
+	tbl.addEventListener('longpress', function(e){
+		alert (e.source.url);
+		win.sharing_options = create_sharing_options_view(e.source.url, e.source.articleTitle);
+		win.sharing_options.isVisible = true;
+		win.add(win.sharing_options);
+		win.add(win.sharing_options.icons);
+		
+
+		win.sharing_options.icons.addEventListener('click',function(){
+			win.remove(win.sharing_options);
+			win.remove(win.sharing_options.icons);
+		});
+	});
+	
+	tbl.addEventListener ('click', function(e){
 		if (e.source.className == 'article'){
 			var win = Ti.UI.createWindow({
 				backgroundColor:'#fff',
@@ -470,31 +473,16 @@ function loadWordpress()
 		}
 	});
 	
-	var style;
-	if (Ti.Platform.name === 'iPhone OS'){
-		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	}
-	else {
-		style = Ti.UI.ActivityIndicatorStyle.DARK;
-	}
-
-	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: style,
-		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
-			y:Ti.Platform.displayCaps.platformHeight/2},
-		height:Ti.UI.SIZE,
-		width:Ti.UI.SIZE
-	});
-	
-	win.add(activityIndicator);
+	var loading_indicator = create_activity_indicator();	
+	win.add(loading_indicator);
 			
-	activityIndicator.show();
+	loading_indicator.show();
 		
 	win.open();
 	
 	loader.onreadystatechange = function(e){ 
 		if (this.readyState == 4) {
-			activityIndicator.hide();
+			loading_indicator.hide();
 			win.add(tbl);
 			tbl.addEventListener('scroll', scrollingFunction);
 		} 
@@ -509,6 +497,8 @@ setTimeout(function checkSync() {
         return;
     }
     
+	tbl.appendRow(create_loading_row());
+
     loadData = false;
 	
 	tbl.removeEventListener('scroll',scrollingFunction);
@@ -519,13 +509,13 @@ setTimeout(function checkSync() {
 	
 	loader.onload = function() 
 	{
+		tbl.deleteRow(tbl.data[0].rows.length-1);
 		var wordpress = JSON.parse(this.responseText);
 		for (var i = 0; i < wordpress.posts.length; i++)
 		{
 			lastAd++;
-			var tweet = wordpress.posts[i].content; // The tweet message
+			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
-			var avatar = wordpress.posts[i].user_avatar; // The profile image
 			var url = wordpress.posts[i].url;
 			lastID = wordpress.posts[i].id;
 			
@@ -537,7 +527,7 @@ setTimeout(function checkSync() {
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 	
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
 			tbl.appendRow(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {
@@ -548,17 +538,14 @@ setTimeout(function checkSync() {
 		
 		tbl.addEventListener('scroll',scrollingFunction);
 	}
-
+	
 	loader.send();
-    
-    // and push this into our table.
-    // now we're done; reset the loadData flag and start the interval up again
+
     setTimeout(checkSync, 200);
 }, 200);
 
 var refresh = function(e){
 	if (refreshing){
-		alert ('still refreshing!');
 		return;
 	}
 	  
@@ -573,10 +560,10 @@ var refresh = function(e){
 		var wordpress = JSON.parse(this.responseText);
 		
 		var wp_length = wordpress.posts.length;
-		alert('old id: '+ recentID); 
+
 		if (wp_length > 0)
 			recentID = wordpress.posts[wp_length-1].id;
-		alert('new id: '+ recentID);			
+
 		for (i = 0; i < wp_length; i++)
 		{
 			if (firstAd == 0) {
@@ -586,7 +573,7 @@ var refresh = function(e){
 			}
 		
 			firstAd--;
-			var tweet = wordpress.posts[i].content; // The tweet message
+			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
 			var url = wordpress.posts[i].url;
 			
@@ -598,7 +585,7 @@ var refresh = function(e){
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, tweet, thumbnail, url);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
 			tbl.insertRowBefore(0, articleRow);
 		}
 		refreshing = false;		
