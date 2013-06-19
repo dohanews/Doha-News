@@ -3,7 +3,10 @@
 // To get an access_token which never expires, you need to ask for the 'offline_access' permission too.
 
 // May 2011 : @Kosso
-
+var fb = require('facebook');
+	fb.appid = "520290184684825";
+	fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
+	fb.forceDialogAuth = true;
 function postToFacebook(fb_access_token,title,link_url,caption,description){
 
 	if(Titanium.Facebook.loggedIn===false && Ti.Facebook.uid===null){

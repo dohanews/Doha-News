@@ -1,12 +1,9 @@
 Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
+Ti.include('share_facebook.js');
 
 var win = Ti.UI.currentWindow;
 
-var fb = require('facebook');
-	fb.appid = "520290184684825";
-	fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
-	fb.forceDialogAuth = true;
 
 var button = Titanium.UI.createButton({title:'Close'});
 win.leftNavButton = button;
@@ -33,12 +30,12 @@ facebookLogin.addEventListener('click', function(e) {
 
 var logout = Titanium.UI.createButton({title:'Log out'});
 	logout.addEventListener('click', function()
-        {
-        	fb.addEventListener('logout', function(e) {
-        		alert('Logged out');
-        		var client = Titanium.Network.createHTTPClient();
-				client.clearCookies('https://login.facebook.com');
-});
+    {
+		fb.addEventListener('logout', function(e) {
+			alert('Logged out');
+			var client = Titanium.Network.createHTTPClient();
+			client.clearCookies('https://login.facebook.com');
+		});
 	fb.logout();
 
 });

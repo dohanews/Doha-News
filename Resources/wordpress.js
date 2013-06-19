@@ -1,8 +1,6 @@
 Ti.include('share_facebook.js');
-var fb = require('facebook');
-fb.appid = "520290184684825";
-fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
 facebookToken = fb.accessToken;
+
 
 Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
@@ -97,14 +95,38 @@ var create_facebook_share = function(title, url){
 	});
 	
 	facebook_icon.addEventListener('click',function(e){
-		fb.dialog('feed', 
-			{
-				link: url,
-				name: title
-			},
-			function(){
-				alert('posted');
+	
+		if (fb.accessToken == null)
+		{
+			fb.addEventListener('login', function(e) {
+			    if (e.success) {
+					alert('Logged In');
+					fb.dialog('feed', 
+					{
+						link: url,
+						name: title
+					},
+					function(){
+						alert('posted');
+					});
+			    } else if (e.error) {
+			        alert(e.error);
+			    } else if (e.cancelled) {
+			        alert("Cancelled");
+			    }
 			});
+			fb.authorize();	
+		}
+		else{
+			fb.dialog('feed', 
+					{
+						link: url,
+						name: title
+					},
+					function(){
+						alert('posted');
+					});
+		}
 	});
 		
 	
