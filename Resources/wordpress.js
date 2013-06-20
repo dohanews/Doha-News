@@ -409,7 +409,6 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		content: content,
 		articleTitle: title,
 		width: Ti.Platform.displayCaps.platformWidth,
-		bubbleParent: (isAndroid? false : true),
 	});
 
 	var thumbnail = Ti.UI.createImageView({
@@ -571,7 +570,9 @@ function loadWordpress()
 		});
 	}
 	
-	tbl.addEventListener ('singletap', function(e){
+	var clickEvent = isAndroid? 'singletap':'click';
+	
+	tbl.addEventListener (clickEvent, function(e){
 		if (e.source.className == 'article'){
 			var win = Ti.UI.createWindow({
 				backgroundColor:'#fff',
@@ -596,7 +597,7 @@ function loadWordpress()
 		if (this.readyState == 4) {
 			loading_indicator.hide();
 			win.add(tbl);
-			tbl.addEventListener('scroll', scrollingFunction);
+			tbl.addEventListener('scroll', scrollingFunction);	
 		} 
 	};
 	loader.send();
