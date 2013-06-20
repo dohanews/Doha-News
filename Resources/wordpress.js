@@ -39,7 +39,9 @@ var scrollingFunction = function(evt) {
 	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
 	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
 
-		//tbl.removeEventListener('scroll', scrollingFunction);
+		if (isAndroid)
+			tbl.removeEventListener('scroll', scrollingFunction);
+			
 		loadData = true;       
 	}
 };
