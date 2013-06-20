@@ -35,16 +35,11 @@ win.navBarHidden = true;
 
 
 var scrollingFunction = function(evt) {
-		console.log('offset '+evt.contentOffset.y);
-		console.log('size.height ' + evt.size.height);
-		console.log('contentsiz.height ' + evt.contentOffset.y);		    
+	    
 	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
 	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-		console.log('offset '+evt.contentOffset.y);
-		console.log('size.height ' + evt.size.height);
-		console.log('contentsiz.height ' + evt.contentOffset.y);
 
-		tbl.removeEventListener('scroll', scrollingFunction);
+		//tbl.removeEventListener('scroll', scrollingFunction);
 		loadData = true;       
 	}
 };
@@ -610,11 +605,11 @@ setTimeout(function checkSync() {
         return;
     }
     
+    tbl.removeEventListener('scroll',scrollingFunction);
+	
 	tbl.appendRow(create_loading_row());
 
-    loadData = false;
-	
-	tbl.removeEventListener('scroll',scrollingFunction);
+    loadData = false;	
     
 	var loader = Titanium.Network.createHTTPClient();
 
