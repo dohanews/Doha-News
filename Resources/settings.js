@@ -69,7 +69,11 @@ twitterLogin.addEventListener('click', function(e) {
 	client.authorize();
 	client.addEventListener('login', function(e) {
 	  if (e.success) {
-	    // Your app code goes here... you'll likely want to save the access tokens passed in the event.
+	    client.request("1.1/statuses/mentions_timeline.json?screen_name=dohanews", {count: 100}, 'GET', 
+	    	function(e) {
+	    		var timeline = JSON.parse(e.result.text);
+	    		console.log(timeline[0].text);
+	    	});
 	    currentTwitterKey = e.accessTokenKey,
 	    currentTwitterSecret = e.accessTokenSecret,
 	    console.log(currentTwitterKey),

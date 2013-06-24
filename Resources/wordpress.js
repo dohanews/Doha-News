@@ -18,7 +18,7 @@ var accessTokenKey = Ti.App.Properties.getString('twitterAccessTokenKey')
 var accessTokenSecret = Ti.App.Properties.getString('twitterAccessTokenSecret') 
 
 var firstAd = 0;
-var lastAd = 0;
+var lastAd = 3;
 
 var osname = Ti.Platform.osname;
 var isAndroid = Ti.Platform.osname === 'android';
@@ -33,6 +33,18 @@ var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 win.navBarHidden = true;
 
+
+var scrollingFunction = function(evt) {
+	    
+	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
+	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
+
+		if (isAndroid)
+			tbl.removeEventListener('scroll', scrollingFunction);
+			
+		loadData = true;       
+	}
+};
 
 var scrollingFunction = function(evt) {
 	    
