@@ -16,12 +16,25 @@ var opengallery = Ti.UI.createOptionDialog({
 var textField = Ti.UI.createTextField({
   borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
   color: '#336699',
-  top: 10,
+  top: 50,
   width: 250, height: 50,
   hintText : 'Description'
 });
 
-var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, "savedImage.jpg");
+
+var currentTime = new Date();
+var hours = currentTime.getHours();
+var minutes = currentTime.getMinutes();
+var seconds = currentTime.getSeconds();
+var month = currentTime.getMonth() + 1;
+var day = currentTime.getDate();
+var year = currentTime.getFullYear();
+
+var fileName = day+"-"+month+"-"+year+" "+hours+"."+minutes+"."+seconds+".jpg"
+console.log(fileName)
+
+
+var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, fileName);
 
 opengallery.addEventListener('click', function(e) {
 	if (e.index == 0) {
@@ -86,17 +99,45 @@ opengallery.addEventListener('click', function(e) {
    }
 });
 
-var send = Titanium.UI.createButton({title:'Send'});
+var longitude;
+var latitude;
+ 
+Titanium.Geolocation.accuracy = Titanium.Geolocation.ACCURACY_BEST;
+Titanium.Geolocation.distanceFilter = 10;
+Titanium.Geolocation.getCurrentPosition(function(e)
+{
+    if (!e.success || e.error)
+    {
+        alert('error ' + JSON.stringify(e.error));
+        return;
+    }
+    longitude = e.coords.longitude;
+    latitude = e.coords.latitude;
+    var altitude = e.coords.altitude;
+    var heading = e.coords.heading;
+    var accuracy = e.coords.accuracy;
+    var speed = e.coords.speed;
+    var timestamp = e.coords.timestamp;
+    var altitudeAccuracy = e.coords.altitudeAccuracy;
+});
 
-win.rightNavButton = send;
+var send = Titanium.UI.createButton({title:'Send', top: 100});
+
+//win.rightNavButton = send;
+
+win.add(send);
+
 send.addEventListener('click', function(){
 	var emailDialog = Ti.UI.createEmailDialog({
 			subject: 'Photo Submission',
 			toRecipients: ['test@email.com'],
-			messageBody: textField.value
+			messageBody: textField.value +'\n\n'+'http://maps.google.com/maps?q='+latitude + ',' + longitude
 		});
 		emailDialog.addAttachment(f);
 		emailDialog.open();
+		win.close();
 });
+
+console.log(latitude + ',' + longitude);
 
 opengallery.show();
