@@ -3,33 +3,36 @@ Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 Ti.include('search.js');
 
+var db = require('database');
+var current_row = null;
+var osname = Ti.Platform.osname;
+var isAndroid = Ti.Platform.osname === 'android';
+
 var fb = require('facebook');
 fb.appid = "520290184684825";
 fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
 fb.forceDialogAuth = true;
 facebookToken = fb.accessToken;
 
-var client = Twitter({
-  consumerKey: "dA16PByC2iPsc30GgFh1ng",
-  consumerSecret: "XQcDIrp5wBte8esPbCvJhX830vf3ut4NV4ucwgSRs"
+var twitter_client = Twitter({
+  consumerKey: "FDgfEjNPwqLnZq7xlJuA",
+  consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
+  accessTokenKey: Ti.App.Properties.getString('twitterAccessTokenKey'),
+  accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
 });
 
-var accessTokenKey = Ti.App.Properties.getString('twitterAccessTokenKey')
-var accessTokenSecret = Ti.App.Properties.getString('twitterAccessTokenSecret') 
+var win = Titanium.UI.currentWindow;
 
 var firstAd = 0;
 var lastAd = 3;
-
-var osname = Ti.Platform.osname;
-var isAndroid = Ti.Platform.osname === 'android';
 
 var lastID = 0;
 var recentID = 0;
 
 var loadData = false;
 var refreshing = false;
+var tblOffset = 0;
 
-var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 win.navBarHidden = true;
 
@@ -129,12 +132,10 @@ var create_facebook_share = function(title, url){
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
-		zIndex:15,
 	});
 	
 	facebook_icon.addEventListener('click',function(e){
 		
-		alert('wp.js: ' + Ti.App.fbLoggedIn );
 		if (!Ti.App.fbLoggedIn)
 		{
 			if(fb.getLoggedIn())
@@ -179,11 +180,34 @@ var create_twitter_share = function(title, url){
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
-		zIndex:15,
 	});
 	
-	twitter_icon.addEventListener('click',function(e){	
-		alert('tweet article'), console.log('twitter icon clicked')
+	twitter_icon.addEventListener('click',function(e){
+		if (!Ti.App.Properties.getString('twitterAccessTokenKey')){
+			sharing_client = Twitter({
+				consumerKey: "FDgfEjNPwqLnZq7xlJuA",
+  				consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
+			});
+			
+			sharing_client.addEventListener('login', function(e){
+				if (e.success){
+					Ti.App.Properties.setString('twitterAccessTokenKey', e.accessTokenKey);
+					Ti.App.Properties.setString('twitterAccessTokenSecret', e.accessTokenSecret);
+					console.log('logged in!');
+					console.log(Ti.App.Properties.getString('twitterAccessTokenKey'));
+					console.log(Ti.App.Properties.getString('twitterAccessTokenSecret'));
+				}
+				else{
+					console.log('error logging in');
+				}
+			});
+			
+			sharing_client.authorize();
+		}
+		else{
+			console.log(Ti.App.Properties.getString('twitterAccessTokenKey'));
+			console.log(Ti.App.Properties.getString('twitterAccessTokenSecret'));
+		}
 	});
 	
 	return twitter_icon;
@@ -199,7 +223,6 @@ var create_email_share = function(title, url){
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
-		zIndex:15,
 	});
 	
 	email_icon.addEventListener('click',function(e){	
@@ -211,6 +234,26 @@ var create_email_share = function(title, url){
 	});
 	
 	return email_icon;
+};
+
+var create_bookmarks = function(title, url, author, content, date, id){
+	
+	var bookmark = Ti.UI.createImageView({
+		width: '50dp',
+		left: '250dp',
+		height: '50dp',
+		image: 'KS_nav_ui.png',
+		url: url,
+		opacity: 1,
+		bubbleParent: false,
+	});
+	
+	bookmark.addEventListener('click',function(e){	
+		console.log('New Bookmark ' + title);
+		db.insert(id, title, content, url, author, date);
+	});
+	
+	return bookmark;
 };
 
 
@@ -379,47 +422,42 @@ var tbl = Ti.UI.createTableView({
 	bubbleParent: false,
 	selectionStyle: 'none',
 	separatorColor: '#d3d3d3',
-	zIndex:1,
 });
 
 
-var create_sharing_options_view = function(url, title) { 
+var create_sharing_options_view = function(url, title, content, thumbnail, id, date, author) { 
 
 	var icons = Ti.UI.createView({
-		backgroundColor: 'transparent',
-		zIndex: 15,
+		backgroundColor: 'blue',
 		bubbleParent: false,
+		hieght: Ti.UI.SIZE,
 	});
 	
 	icons.add(create_facebook_share(title,url));
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
+	icons.add(create_bookmarks(title, url, author, content, date, id));
 	
-	var view = Ti.UI.createView({
-		top: '0.75cm',
-		width: Ti.Platform.displayCaps.platformWidth,
-		backgroundColor: 'gray',
-		opacity: 0.7,
-		zIndex: 14,
-		bubbleParent: false,
-		icons: icons
-	});
+	// var view = Ti.UI.createView({
+		// top: '0.75cm',
+		// width: Ti.Platform.displayCaps.platformWidth,
+		// backgroundColor: 'gray',
+		// opacity: 0.7,
+		// zIndex: 14,
+		// bubbleParent: false,
+		// icons: icons
+	// });
 
-	return view;
+	return icons;
 };
 
-var make_content_view = function(title, content, thumbnail, url) {// create the content view - the one is displayed by default
-	
-	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.SIZE,
-		backgroundColor:'#fdfcf8',
-		className: 'article',
-		url: url,
-		content: content,
-		articleTitle: title,
-		width: Ti.Platform.displayCaps.platformWidth,
-	});
+var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
+	var content_view = Ti.UI.createView({
+		height: Ti.UI.FILL,
+		backgroundColor: 'red',
+	})
+	
 	var thumbnail = Ti.UI.createImageView({
 		height: '80dp',
 		width: '80dp',
@@ -427,9 +465,7 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		borderColor: '#E3E3E3',
 		borderWidth: '1dp',
 		image: thumbnail,
-		touchEnabled: false,
 	});
-	
 
 	var fontSize;
 	if (isAndroid)
@@ -444,40 +480,50 @@ var make_content_view = function(title, content, thumbnail, url) {// create the 
 		left: '100dp',
 		right: '20dp',
 		height: Ti.UI.SIZE,
-		touchEnabled: false,
 		font: {
 			fontSize: fontSize,
 		},
 		backgroundColor:'transparent',
 	});
 	
-	row.addEventListener('click', function(e){
-		if (menu.isVisible == true){
-			menu.animate({
-				top: '-210dp', 
-				duration: 500,
+	content_view.add(thumbnail);
+	content_view.add(titleLabel);
+	
+	var row = Ti.UI.createTableViewRow({
+		height: Ti.UI.FILL,
+		width: Ti.Platform.displayCaps.platformWidth,
+		backgroundColor:'#fff',
+		className: 'article',
+		url: url,
+		content: content,
+		articleTitle: title,
+		id: id,
+		author: author,
+		date: date,
+	});
+
+	row.articleRow = content_view;
+	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
+	row.add(sharing);
+	row.add(row.articleRow);
+	
+	row.addEventListener('swipe', function(e) {
+		if (!!current_row) {
+			current_row.articleRow.animate({
+				left: 0,
+				duration: 500
 			});
-			menu.isVisible = false;
-		}
+		};
+
+		current_row = isAndroid? this : e.row; // it looks like android does not have the e.row property for this event.
+
+		current_row.articleRow.animate({
+			left: -Ti.Platform.displayCaps.platformWidth,
+			duration: 500
+		});
 	});
 	
-	if (isAndroid){
-		row.addEventListener('longclick', function(e){
-			win.sharing_options = create_sharing_options_view(url, title);
-			win.sharing_options.isVisible = true;
-			win.add(win.sharing_options);
-			win.add(win.sharing_options.icons);
-			
 	
-			win.sharing_options.icons.addEventListener('click',function(){
-				win.remove(win.sharing_options);
-				win.remove(win.sharing_options.icons);
-			});
-		});
-	}
-	
-	row.add(thumbnail);
-	row.add(titleLabel);
 	return row;
 }
 
@@ -504,11 +550,14 @@ function loadWordpress()
 			lastAd++;
 			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
+			var author = wordpress.posts[i].author.name;
+			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
-			lastID = wordpress.posts[i].id;				
+			var date = wordpress.posts[i].date;
+			lastID = id;		
 			
 			var originalDate = wordpress.posts[i].date.split(' ');
-			var date = originalDate[0].split('-');
+			var dateArray = originalDate[0].split('-');
 			
 			var thumbail;
 			
@@ -518,7 +567,7 @@ function loadWordpress()
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
 			
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 
 			articleData.push(articleRow);
 			
@@ -539,6 +588,26 @@ function loadWordpress()
 			scrolled_times = 0;
 		});
 	
+	}
+	
+	if (!isAndroid){
+		tbl.addEventListener('scroll', function(e){
+			
+			if(e.contentOffset.y > offset && e.contentOffset.y > 0){
+				offset = e.contentOffset.y;
+				if (Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
+					Ti.App.tabgroupVisible = false;
+				}
+			}
+			else if (e.contentOffset.y < offset && e.contentOffset.y > 0){
+				offset = e.contentOffset.y;
+				if (!Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+					Ti.App.tabgroupVisible = true;
+				}
+			}
+		});
 	}
 	
 	tbl.addEventListener('scroll', function(e) {
@@ -562,38 +631,47 @@ function loadWordpress()
 		}	
 	
 	});
-	
-	if (!isAndroid){
-		tbl.addEventListener('longpress', function(e){
-			alert (e.source.url);
-			win.sharing_options = create_sharing_options_view(e.source.url, e.source.articleTitle);
-			win.sharing_options.isVisible = true;
-			win.add(win.sharing_options);
-			win.add(win.sharing_options.icons);
-			
-	
-			win.sharing_options.icons.addEventListener('click',function(){
-				win.remove(win.sharing_options);
-				win.remove(win.sharing_options.icons);
-			});
-		});
-	}
+
+	// if (!isAndroid){
+		// tbl.addEventListener('longpress', function(e){
+			// alert (e.source.url);
+			// win.sharing_options = create_sharing_options_view(e.source.url, e.source.articleTitle, e.source.content, e.source.thumbnail, e.source.id, e.source.date, e.source.author);
+			// win.sharing_options.isVisible = true;
+			// win.add(win.sharing_options);
+			// win.add(win.sharing_options.icons);
+// 			
+// 	
+			// win.sharing_options.icons.addEventListener('click',function(){
+				// win.remove(win.sharing_options);
+				// win.remove(win.sharing_options.icons);
+			// });
+		// });
+	// }
 	
 	var clickEvent = isAndroid? 'singletap':'click';
 	
 	tbl.addEventListener (clickEvent, function(e){
-		if (e.source.className == 'article'){
+
+		if (e.rowData.className == 'article'){
 			var win = Ti.UI.createWindow({
 				backgroundColor:'#fff',
 				url: 'detail.js',
 				modal: true
 			})
-			win.content = e.source.content;
+			win.content = e.rowData.content;
 			win.open({
 				animated:true,
 			});
 		}
 	});
+	
+	if (isAndroid){
+		Ti.include('refresh_android.js');
+	}
+	else{
+		Ti.include('refresh_ios.js');
+		tbl.headerPullView = tableHeader;
+	}
 	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
@@ -638,8 +716,12 @@ setTimeout(function checkSync() {
 			lastAd++;
 			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
+			var author = wordpress.posts[i].author.name;
+			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
-			lastID = wordpress.posts[i].id;
+			var date = wordpress.posts[i].date;
+			
+			lastID = id;
 			
 			var thumbail;
 	
@@ -649,7 +731,7 @@ setTimeout(function checkSync() {
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 	
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.appendRow(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {
@@ -663,68 +745,10 @@ setTimeout(function checkSync() {
 	
 	loader.send();
 
-    setTimeout(checkSync, 200);
-}, 200);
+    setTimeout(checkSync, 500);
+}, 500);
 
-var refresh = function(e){
-	if (refreshing){
-		return;
-	}
-	  
-	refreshing = true;
-	
-	var loader = Titanium.Network.createHTTPClient();
 
-	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_next_posts/?dev=1&id="+parseInt(recentID,10));
-	
-	loader.onload = function() 
-	{
-		var wordpress = JSON.parse(this.responseText);
-		
-		var wp_length = wordpress.posts.length;
-
-		if (wp_length > 0)
-			recentID = wordpress.posts[wp_length-1].id;
-
-		for (i = 0; i < wp_length; i++)
-		{
-			if (firstAd == 0) {
-				var adMobRow = createAdMobView();
-				tbl.insertRowBefore(0, adMobRow);
-				firstAd = 10;
-			}
-		
-			firstAd--;
-			var articleContent = wordpress.posts[i].content; // The tweet message
-			var articleTitle = wordpress.posts[i].title; // The screen name of the user
-			var url = wordpress.posts[i].url;
-			
-			var thumbail;
-
-			if (wordpress.posts[i].attachments.length > 0)
-				thumbnail = wordpress.posts[i].attachments[0].images.small.url
-			else 
-				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
-
-			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url);
-			tbl.insertRowBefore(0, articleRow);
-		}
-		refreshing = false;		
-	}
-	
-	loader.send();
-    // and push this into our table.
-    // now we're done; reset the loadData flag and start the interval up again
-};
-
-var refreshButton = Ti.UI.createButton({
-	title: 'R',
-	width: '40dp',
-	height: '40dp',
-});
-
-refreshButton.addEventListener('click', refresh);
 // var admobbutt = Ti.UI.createButton({
 	// title: 'admob',
 	// left: 50,
@@ -743,9 +767,8 @@ win.add(topBar);
 win.add(menu);
 //win.add(menuButton);
 //topBar.add(admobbutt);
-topBar.add(searchButton);
-topBar.add(searchParent);
-// topBar.add(refreshButton);
+//topBar.add(searchButton);
+//topBar.add(searchParent);
 // topBar.add(photoViewButton);
 // topBar.add(textViewButton);
 // topBar.add(searchButton);
