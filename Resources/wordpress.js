@@ -2,9 +2,9 @@ Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 Ti.include('search.js');
+Ti.include('sharing.js');
 
 var db = require('database');
-var current_row = null;
 var osname = Ti.Platform.osname;
 var isAndroid = Ti.Platform.osname === 'android';
 
@@ -97,165 +97,6 @@ var create_loading_row = function(){
 	
 	return loading_row;
 };
-
-
-var post_to_facebook = function(title, url){
-	fb.addEventListener('login', function(e) {
-	    if (e.success) {
-			console.log('Logged In');
-			Ti.App.fbLoggedIn = true;
-			fb.dialog('feed', 
-			{
-				link: url,
-				name: title
-			},
-			function(){
-				alert('posted');
-			});
-	    } else if (e.error) {
-	        alert(e.error);
-	    } else if (e.cancelled) {
-	        alert("Cancelled");
-	    }
-	});
-
-	fb.authorize();		
-};
-
-var create_facebook_share = function(title, url){
-	
-	var facebook_icon = Ti.UI.createImageView({
-		width: '50dp',
-		left: '10dp',
-		height: '50dp',
-		image: 'images/facebook.png',
-		url: url,
-		opacity: 1,
-		bubbleParent: false,
-	});
-	
-	facebook_icon.addEventListener('click',function(e){
-		
-		if (!Ti.App.fbLoggedIn)
-		{
-			if(fb.getLoggedIn())
-			{
-				fb.addEventListener('logout', function(e) {
-					
-					var client = Titanium.Network.createHTTPClient();
-					client.clearCookies('https://login.facebook.com');
-					post_to_facebook(title, url);
-								
-				});
-				fb.logout();
-			}
-			else
-			{
-				post_to_facebook(title, url);
-			}
-		}
-		else
-		{
-			fb.dialog('feed', 
-				{
-					link: url,
-					name: title
-				},
-				function(){
-					alert('posted');
-				});
-		}
-	});	
-	
-	return facebook_icon;
-};
-
-var create_twitter_share = function(title, url){
-	
-	var twitter_icon = Ti.UI.createImageView({
-		width: '50dp',
-		left: '90dp',
-		height: '50dp',
-		image: 'images/twitter.png',
-		url: url,
-		opacity: 1,
-		bubbleParent: false,
-	});
-	
-	twitter_icon.addEventListener('click',function(e){
-		if (!Ti.App.Properties.getString('twitterAccessTokenKey')){
-			sharing_client = Twitter({
-				consumerKey: "FDgfEjNPwqLnZq7xlJuA",
-  				consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
-			});
-			
-			sharing_client.addEventListener('login', function(e){
-				if (e.success){
-					Ti.App.Properties.setString('twitterAccessTokenKey', e.accessTokenKey);
-					Ti.App.Properties.setString('twitterAccessTokenSecret', e.accessTokenSecret);
-					console.log('logged in!');
-					console.log(Ti.App.Properties.getString('twitterAccessTokenKey'));
-					console.log(Ti.App.Properties.getString('twitterAccessTokenSecret'));
-				}
-				else{
-					console.log('error logging in');
-				}
-			});
-			
-			sharing_client.authorize();
-		}
-		else{
-			console.log(Ti.App.Properties.getString('twitterAccessTokenKey'));
-			console.log(Ti.App.Properties.getString('twitterAccessTokenSecret'));
-		}
-	});
-	
-	return twitter_icon;
-};
-
-var create_email_share = function(title, url){
-	
-	var email_icon = Ti.UI.createImageView({
-		width: '50dp',
-		left: '170dp',
-		height: '50dp',
-		image: 'images/mail.png',
-		url: url,
-		opacity: 1,
-		bubbleParent: false,
-	});
-	
-	email_icon.addEventListener('click',function(e){	
-		var emailDialog = Ti.UI.createEmailDialog({
-			subject: title,
-			messageBody: url,
-		});
-		emailDialog.open();
-	});
-	
-	return email_icon;
-};
-
-var create_bookmarks = function(title, url, author, content, date, id){
-	
-	var bookmark = Ti.UI.createImageView({
-		width: '50dp',
-		left: '250dp',
-		height: '50dp',
-		image: 'KS_nav_ui.png',
-		url: url,
-		opacity: 1,
-		bubbleParent: false,
-	});
-	
-	bookmark.addEventListener('click',function(e){	
-		console.log('New Bookmark ' + title);
-		db.insert(id, title, content, url, author, date);
-	});
-	
-	return bookmark;
-};
-
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
@@ -424,44 +265,19 @@ var tbl = Ti.UI.createTableView({
 	separatorColor: '#d3d3d3',
 });
 
-
-var create_sharing_options_view = function(url, title, content, thumbnail, id, date, author) { 
-
-	var icons = Ti.UI.createView({
-		backgroundColor: 'blue',
-		bubbleParent: false,
-		hieght: Ti.UI.SIZE,
-	});
-	
-	icons.add(create_facebook_share(title,url));
-	icons.add(create_twitter_share(title,url));
-	icons.add(create_email_share(title,url));
-	icons.add(create_bookmarks(title, url, author, content, date, id));
-	
-	// var view = Ti.UI.createView({
-		// top: '0.75cm',
-		// width: Ti.Platform.displayCaps.platformWidth,
-		// backgroundColor: 'gray',
-		// opacity: 0.7,
-		// zIndex: 14,
-		// bubbleParent: false,
-		// icons: icons
-	// });
-
-	return icons;
-};
-
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
 	var content_view = Ti.UI.createView({
 		height: Ti.UI.FILL,
-		backgroundColor: 'red',
+		width: Titanium.Platform.displayCaps.platformWidth,
+		left: 0,
+		backgroundColor: 'white',
 	})
 	
 	var thumbnail = Ti.UI.createImageView({
 		height: '80dp',
 		width: '80dp',
-		left: '7.5dp',
+		left: 0,
 		borderColor: '#E3E3E3',
 		borderWidth: '1dp',
 		image: thumbnail,
@@ -507,22 +323,8 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	row.add(sharing);
 	row.add(row.articleRow);
 	
-	row.addEventListener('swipe', function(e) {
-		if (!!current_row) {
-			current_row.articleRow.animate({
-				left: 0,
-				duration: 500
-			});
-		};
-
-		current_row = isAndroid? this : e.row; // it looks like android does not have the e.row property for this event.
-
-		current_row.articleRow.animate({
-			left: -Ti.Platform.displayCaps.platformWidth,
-			duration: 500
-		});
-	});
-	
+	var share_event = isAndroid? 'longclick':'swipe';
+	row.addEventListener(share_event, sharing_animation);
 	
 	return row;
 }
