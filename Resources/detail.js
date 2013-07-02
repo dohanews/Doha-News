@@ -2,6 +2,7 @@ var osname = Ti.Platform.osname;
 
 var win = Ti.UI.currentWindow;
 win.navBarHidden = true;
+win.layout = 'vertical';
 
 var content = win.content;
 
@@ -16,7 +17,7 @@ var topBar = Titanium.UI.createView({
 });
 
 var localWebview = Titanium.UI.createWebView({
-	top:'.75cm',
+	//top:'.75cm',
     left:10,
     right:10, 
     backgroundColor:'transparent',
@@ -24,6 +25,18 @@ var localWebview = Titanium.UI.createWebView({
 	enableZoomControls: false,
 	textSize: 1,
 	disableBounce: true
+});
+
+var disqus = Titanium.UI.createWebView({
+	//top:'.75cm',
+    //left:10,
+    //right:10, 
+    backgroundColor:'transparent',
+	enableZoomControls: false,
+	textSize: 1,
+	disableBounce: true,
+	url: "http://dev.dohanews.co/wp-content/public/disqus.html",
+	zIndex: 40,
 });
 
 var textsize = Titanium.UI.createImageView({
@@ -165,9 +178,9 @@ topBar.addEventListener('click',function(){
 
 topBar.add(textsize);
 topBar.add(topLogo);
-win.add(menuButton);
 win.add(topBar);
-win.add(localWebview);
-
+//win.add(menuButton);
+//win.add(localWebview);
+win.add(disqus);
 //scrollView.add(localWebview);
 //win.add(scrollView);

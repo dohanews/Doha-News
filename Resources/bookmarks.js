@@ -281,6 +281,8 @@ function initialize_table()
 win.add(topBar);
 
 Ti.UI.currentTab.addEventListener('focus', function(){
+	alert('focused');
+	current_row = null;
 	loadBookmarks();
 });
 
