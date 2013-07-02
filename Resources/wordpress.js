@@ -2,7 +2,6 @@ Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 Ti.include('search.js');
-Ti.include('sharing.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
@@ -31,23 +30,11 @@ var recentID = 0;
 
 var loadData = false;
 var refreshing = false;
-var tblOffset = 0;
+var offset = 0;
 
 win.backgroundColor='white';
 win.navBarHidden = true;
 
-
-var scrollingFunction = function(evt) {
-	    
-	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
-	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-
-		if (isAndroid)
-			tbl.removeEventListener('scroll', scrollingFunction);
-			
-		loadData = true;       
-	}
-};
 
 var scrollingFunction = function(evt) {
 	    
@@ -80,7 +67,6 @@ var create_activity_indicator = function(){
 	
 	return activityIndicator;
 };
-
 
 var create_loading_row = function(){
 	var loading_row = Ti.UI.createTableViewRow({
@@ -253,7 +239,6 @@ topBar.addEventListener('click',function(){
 	// return true;
 // }
 
-
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'transparent',
 	minRowHeight: '95dp',
@@ -264,6 +249,9 @@ var tbl = Ti.UI.createTableView({
 	selectionStyle: 'none',
 	separatorColor: '#d3d3d3',
 });
+
+
+Ti.include('sharing.js');
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
@@ -358,7 +346,7 @@ function loadWordpress()
 			var date = wordpress.posts[i].date;
 			lastID = id;		
 			
-			var originalDate = wordpress.posts[i].date.split(' ');
+			var originalDate = date.split(' ');
 			var dateArray = originalDate[0].split('-');
 			
 			var thumbail;
@@ -394,19 +382,20 @@ function loadWordpress()
 	
 	if (!isAndroid){
 		tbl.addEventListener('scroll', function(e){
-			
-			if(e.contentOffset.y > offset && e.contentOffset.y > 0){
-				offset = e.contentOffset.y;
-				if (Ti.App.tabgroupVisible){
-					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
-					Ti.App.tabgroupVisible = false;
+			if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
+				if(e.contentOffset.y > offset){
+					offset = e.contentOffset.y;
+					if (Ti.App.tabgroupVisible){
+						Ti.App.tabgroup.animate({bottom: -50, duration: 250});
+						Ti.App.tabgroupVisible = false;
+					}
 				}
-			}
-			else if (e.contentOffset.y < offset && e.contentOffset.y > 0){
-				offset = e.contentOffset.y;
-				if (!Ti.App.tabgroupVisible){
-					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
-					Ti.App.tabgroupVisible = true;
+				else if (e.contentOffset.y < offset){
+					offset = e.contentOffset.y;
+					if (!Ti.App.tabgroupVisible){
+						Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+						Ti.App.tabgroupVisible = true;
+					}
 				}
 			}
 		});
@@ -434,23 +423,17 @@ function loadWordpress()
 	
 	});
 
-	// if (!isAndroid){
-		// tbl.addEventListener('longpress', function(e){
-			// alert (e.source.url);
-			// win.sharing_options = create_sharing_options_view(e.source.url, e.source.articleTitle, e.source.content, e.source.thumbnail, e.source.id, e.source.date, e.source.author);
-			// win.sharing_options.isVisible = true;
-			// win.add(win.sharing_options);
-			// win.add(win.sharing_options.icons);
-// 			
-// 	
-			// win.sharing_options.icons.addEventListener('click',function(){
-				// win.remove(win.sharing_options);
-				// win.remove(win.sharing_options.icons);
-			// });
-		// });
-	// }
 	
 	var clickEvent = isAndroid? 'singletap':'click';
+	
+	tbl.addEventListener(clickEvent, function(e) {
+		if (!!current_row) {
+			current_row.articleRow.animate({
+				opacity: 1,
+				duration: 500
+			});
+		};
+	});
 	
 	tbl.addEventListener (clickEvent, function(e){
 
@@ -466,6 +449,8 @@ function loadWordpress()
 			});
 		}
 	});
+	
+	tbl.addEventListener('scroll', scrollingFunction);	
 	
 	if (isAndroid){
 		Ti.include('refresh_android.js');
@@ -486,7 +471,6 @@ function loadWordpress()
 		if (this.readyState == 4) {
 			loading_indicator.hide();
 			win.add(tbl);
-			tbl.addEventListener('scroll', scrollingFunction);	
 		} 
 	};
 	loader.send();
@@ -550,20 +534,6 @@ setTimeout(function checkSync() {
     setTimeout(checkSync, 500);
 }, 500);
 
-
-// var admobbutt = Ti.UI.createButton({
-	// title: 'admob',
-	// left: 50,
-// });
-// 
-// admobbutt.addEventListener ('singletap', function(e){
-		// var win = Ti.UI.createWindow({
-			// backgroundColor:'#fff',
-			// url: 'admob-android.js',
-			// modal: true
-		// })
-		// win.open();
-	// });
 
 win.add(topBar);
 win.add(menu);

@@ -8,6 +8,18 @@ exports.createTable = function(){
     
 };
 
+exports.exists = function(id) {
+	var db = Ti.Database.open('bookmarks'); 
+	var resultSet = db.execute('SELECT * FROM bookmarks WHERE id=(?)', id);
+	var exists = false;
+	if (resultSet.isValidRow())
+		exists = true;
+
+	resultSet.close();
+	db.close();
+	return exists;	
+};
+
 exports.getAll = function() {
 	var db = Ti.Database.open('bookmarks'); 
 	var results = [];
@@ -24,7 +36,6 @@ exports.getAll = function() {
 		});
 		resultSet.next();
 	}
-	console.log(results);
 	resultSet.close();
 	db.close();
 	return results;
@@ -42,6 +53,12 @@ exports.deleteAll = function(){
     db.close();
 };
 
+exports.deleteId = function(id){
+	var db = Ti.Database.open(DATABASE_NAME); 
+    db.execute('DELETE FROM bookmarks WHERE id=(?)', id);
+    db.close();
+};
+
 exports.remove = function(id){
 	var db = Ti.Database.open(DATABASE_NAME); 
     db.execute("DELETE FROM bookmarks WHERE id = ?", id);
@@ -51,15 +68,8 @@ exports.remove = function(id){
 
 exports.insert = function(id, title, content, url, author, date){
 	var db = Ti.Database.open(DATABASE_NAME);
-	db.execute('BEGIN');
-	var resultSet = db.execute('SELECT * FROM bookmarks WHERE id = ?', id);
-	
-	if (!resultSet.isValidRow()) {
-		db.execute('INSERT INTO bookmarks (id, title, content, url, author, date) VALUES(?,?,?,?,?,?)',
+	db.execute('INSERT INTO bookmarks (id, title, content, url, author, date) VALUES(?,?,?,?,?,?)',
      		id, title, content, url, author, date);
-     	console.log('inserted');
-	}
-	db.execute('END');    
     db.close();
     return db.lastInsertRowId;
 };

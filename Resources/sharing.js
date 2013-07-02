@@ -24,7 +24,6 @@ var post_to_facebook = function(title, url){
 };
 
 var create_facebook_share = function(title, url){
-	
 	var facebook_icon = Ti.UI.createImageView({
 		width: '50dp',
 		left: '10dp',
@@ -36,7 +35,7 @@ var create_facebook_share = function(title, url){
 	});
 	
 	facebook_icon.addEventListener('click',function(e){
-		
+		console.log(url);
 		if (!Ti.App.fbLoggedIn)
 		{
 			if(fb.getLoggedIn())
@@ -148,11 +147,20 @@ var create_bookmarks = function(title, url, author, content, date, id){
 		opacity: 1,
 		bubbleParent: false,
 	});
-	
-	bookmark.addEventListener('click',function(e){	
-		console.log('New Bookmark ' + title);
-		db.insert(id, title, content, url, author, date);
+
+	bookmark.addEventListener('click',function(e){
+		if (db.exists(id)){
+			if (Ti.UI.currentWindow.id == 'bookmarks'){
+				console.log('deleterow');
+				tbl.deleteRow(current_row, isAndroid? {} : {animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+				current_row = null;
+			}
+			db.deleteId(id);
+		}
+		else
+			db.insert(id, title, content, url, author, date);
 	});
+	
 	
 	return bookmark;
 };
@@ -170,16 +178,6 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
 	icons.add(create_bookmarks(title, url, author, content, date, id));
-	
-	// var view = Ti.UI.createView({
-		// top: '0.75cm',
-		// width: Ti.Platform.displayCaps.platformWidth,
-		// backgroundColor: 'gray',
-		// opacity: 0.7,
-		// zIndex: 14,
-		// bubbleParent: false,
-		// icons: icons
-	// });
 
 	return icons;
 };

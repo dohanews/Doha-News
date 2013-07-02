@@ -15,11 +15,13 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 
 var articlesWin = Titanium.UI.createWindow ({
    url: "wordpress.js",
+   id: 'articles',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
 
-var videosWin = Titanium.UI.createWindow ({
+var bookmarksWin = Titanium.UI.createWindow ({
    url: "bookmarks.js",
+   id: 'bookmarks',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
 
@@ -30,10 +32,12 @@ if (Ti.Platform.osname != 'android')
 	// title: 'Art',
 	// window: articlesWin,
 // });
-var videos = Titanium.UI.createTab({
-	title: 'Videos',
-	window: videosWin,
+var bookmarks = Titanium.UI.createTab({
+	title: 'Bookmarks',
+	window: bookmarksWin,
+	
 });
+
 var articles = Titanium.UI.createTab({
 	title: 'Articles',
 	window: articlesWin,
@@ -47,7 +51,7 @@ var articles = Titanium.UI.createTab({
 //mainWin.open();
 Ti.App.tabgroup.addTab(articles);
 //Ti.App.tabgroup.addTab(book);
-Ti.App.tabgroup.addTab(videos);
+Ti.App.tabgroup.addTab(bookmarks);
 //Ti.App.tabgroup.addTab(photos);
 Ti.App.tabgroup.open();
 Ti.App.tabgroupVisible = true;
