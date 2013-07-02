@@ -408,7 +408,16 @@ function loadWordpress()
 					duration: 500,
 				});
 				menu.isVisible = false;
-			}	
+			}
+			
+		if(!!current_row){
+			if (isAndroid)
+				current_row.articleRow.animate({opacity: 1});
+			else
+				current_row.articleRow.animate({left:0});
+			current_row = null;	
+		}	
+		
 		scrolled_times++;
 	});
 	

@@ -238,15 +238,17 @@ function initialize_table()
 					}
 				}
 			}
-			if(e.size.height < e.contentSize.height && !Ti.App.tabgroupVisible)
-			{
-				Ti.App.tabgroup.animate({bottom: 0, duration: 250});
-				Ti.App.tabgroupVisible = true;
-			}
 		});
 	}
 	
 	tbl.addEventListener('scroll', function(e) {
+		if(!!current_row){
+			if (isAndroid)
+				current_row.articleRow.animate({opacity: 1});
+			else
+				current_row.articleRow.animate({left:0});
+			current_row = null;
+		}	
 		scrolled_times++;
 	});
 	
