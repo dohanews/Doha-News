@@ -215,10 +215,16 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		});
 		
 		if (!!current_row) {
-			current_row.articleRow.animate({
-				opacity: 1,
-				duration: 500
-			});
+			if (isAndroid)
+				current_row.articleRow.animate({
+					opacity: 1,
+					duration: 500
+				});
+			else
+				current_row.articleRow.animate({
+					left: 0,
+					duration: 500
+				});
 		};
 	});
 	
