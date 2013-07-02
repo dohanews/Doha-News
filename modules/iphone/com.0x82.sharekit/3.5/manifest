@@ -1,0 +1,17 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 3.5
+description: ShareKit Titanium Module for iOS
+author: Rúben Fonseca
+license: MIT
+copyright: Copyright (c) 2011 by Rúben Fonseca
+
+
+# these should not be edited
+name: sharekit
+moduleid: com.0x82.sharekit
+guid: 21503f84-4fa6-494e-b371-39503c047db3
+platform: iphone
+minsdk: 2.1.1

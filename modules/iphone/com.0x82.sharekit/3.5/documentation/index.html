@@ -1,0 +1,424 @@
+<!DOCTYPE html>  
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+/* 
+   This document has been created with Marked.app <http://markedapp.com>, Copyright 2011 Brett Terpstra
+   Please leave this notice in place, along with any additional credits below.
+   ---------------------------------------------------------------
+   Some simple Github-like styles, with syntax highlighting CSS via Pygments (requires custom processor).
+   via https://github.com/alampros/Docter
+*/
+html {
+    margin:0;
+    padding:1em;
+}
+body{
+    -webkit-font-smoothing: antialiased;
+    font: 13.34px helvetica,arial,freesans,clean,sans-serif;
+    line-height: 1.4em;
+    color: #333;
+    border: none;
+    line-height: 1.5;
+    margin: 0 auto;
+    max-width: 900px; 
+    text-align:left;
+    color:black;
+    background:#fff;
+}
+
+img {max-width:100%}
+
+@media screen {
+    #wrapper { padding:9px; background:#F8F8F8; border:1px solid #E9E9E9;}    
+    body.inverted, .inverted #wrapper {
+        color: #eee;
+        background:#333;
+        border-color:#555
+    }
+    .inverted h2 {
+        border-color:#555
+    }
+    .inverted hr {
+        border-color: #777;
+        border-width: 1px !important;
+    }
+}
+h1 {
+    font-size: 170%;
+    border-top: 4px solid #aaa;
+    padding-top: .5em;
+    margin-top: 1.5em;
+}
+
+h1:first-child {
+    margin-top: 0 !important;
+    padding-top: .25em !important;
+    border-top: none !important;
+}
+
+h2 {
+    font-size: 150%;
+    margin-top: 1.5em;
+    border-top: 4px solid #e0e0e0;
+    padding-top: .5em;
+}
+
+h3 {
+    margin-top: 1em;
+}
+
+p {
+    margin: 1em 0!important;
+    line-height: 1.5em!important;
+}
+
+pre, code {
+    font: 12px 'Bitstream Vera Sans Mono','Courier',monospace;
+}
+pre {
+    -webkit-box-shadow: rgba(0, 0, 0, 0.0664062) 0px 1px 2px 0px inset;
+    background-color: #EEE;
+    border: #ddd 1px solid;
+    color: #444;
+    display: block;
+    margin: 12px 0;
+    overflow: auto;
+    padding: 5px;
+    white-space: pre;
+    max-width:100%;
+    overflow:auto;
+}
+code {
+    background-color: ghostWhite;
+    color: #444!important;
+    padding: 0 .2em;
+    border: 1px solid #DEDEDE;
+}
+pre code {
+    padding: 0!important;
+    font-size: 12px!important;
+    background-color: #EEE!important;
+    border: none!important;
+    overflow:visible;
+}
+a, a code {
+    color: #4183C4;
+    text-decoration:none;
+}
+
+table td {
+    border-bottom: 1px solid #DDD!important;
+    padding: .2em 1em!important;
+}
+
+.shadow{
+    -webkit-box-shadow:0 5px 15px #000;
+    -moz-box-shadow:0 5px 15px #000;
+    box-shadow:0 5px 15px #000;     
+}
+
+.c{color:#998;font-style:italic;}
+.err{color:#a61717;background-color:#e3d2d2;}
+.k{font-weight:bold;}
+.o{font-weight:bold;}
+.cm{color:#998;font-style:italic;}
+.cp{color:#999;font-weight:bold;}
+.c1{color:#998;font-style:italic;}
+.cs{color:#999;font-weight:bold;font-style:italic;}
+.gd{color:#000;background-color:#fdd;}
+.gd .x{color:#000;background-color:#faa;}
+.ge{font-style:italic;}
+.gr{color:#a00;}
+.gh{color:#999;}
+.gi{color:#000;background-color:#dfd;}
+.gi .x{color:#000;background-color:#afa;}
+.go{color:#888;}
+.gp{color:#555;}
+.gs{font-weight:bold;}
+.gu{color:#800080;font-weight:bold;}
+.gt{color:#a00;}
+.kc{font-weight:bold;}
+.kd{font-weight:bold;}
+.kn{font-weight:bold;}
+.kp{font-weight:bold;}
+.kr{font-weight:bold;}
+.kt{color:#458;font-weight:bold;}
+.m{color:#099;}
+.s{color:#d14;}
+.na{color:#008080;}
+.nb{color:#0086B3;}
+.nc{color:#458;font-weight:bold;}
+.no{color:#008080;}
+.ni{color:#800080;}
+.ne{color:#900;font-weight:bold;}
+.nf{color:#900;font-weight:bold;}
+.nn{color:#555;}
+.nt{color:#000080;}
+.nv{color:#008080;}
+.ow{font-weight:bold;}
+.w{color:#bbb;}
+.mf{color:#099;}
+.mh{color:#099;}
+.mi{color:#099;}
+.mo{color:#099;}
+.sb{color:#d14;}
+.sc{color:#d14;}
+.sd{color:#d14;}
+.s2{color:#d14;}
+.se{color:#d14;}
+.sh{color:#d14;}
+.si{color:#d14;}
+.sx{color:#d14;}
+.sr{color:#009926;}
+.s1{color:#d14;}
+.ss{color:#990073;}
+.bp{color:#999;}
+.vc{color:#008080;}
+.vg{color:#008080;}
+.vi{color:#008080;}
+.il{color:#099;}
+
+.poetry pre {
+    font-family:Georgia, Garamond, serif !important;
+    font-style:italic;
+    font-size:110% !important;
+    line-height:1.6em;
+    display:block;
+    margin-left:1em;
+}
+
+.poetry pre code {
+    font-family:Georgia, Garamond, serif !important;
+}
+
+sup,sub,a.footnote {
+    font-size: 1.4ex;
+    height: 0;
+    line-height: 1;
+    vertical-align: super;
+    position: relative;
+}
+sub {
+    vertical-align: sub;
+    top: -1px;
+}
+
+@media print {
+    body {
+        background:#fff;
+    }
+    img, pre, blockquote, table, figure {
+        page-break-inside: avoid
+    }
+    .footnotes { page-break-before: always }
+    #wrapper {
+        background: #fff;
+        border:none;
+    }
+    code {
+        background-color: #fff;
+        color: #444!important;
+        padding: 0 .2em;
+        border: 1px solid #DEDEDE;
+    }
+    pre code {
+        background-color: #fff!important;
+        overflow:visible;
+    }
+    pre {
+        background: #fff;
+    }
+}
+</style>
+
+</head>
+<body class="normal">
+  <div id="wrapper">
+      <h1 id="sharekitmodule">sharekit Module</h1>
+
+<h2 id="description">Description</h2>
+
+<p>This module wraps the ShareKit 2.0 framework for iOS devices (both iPhone and iPad).</p>
+
+<p>For more information about ShareKit 2.0 visit the source repository at <a href="">https://github.com/ShareKit/ShareKit</a></p>
+
+<h2 id="installation">Installation</h2>
+
+<p><a href="">http://wiki.appcelerator.org/display/tis/Using+Titanium+Modules</a></p>
+
+<h2 id="changelog">Changelog</h2>
+
+<p>See <a href="changelog.html">here</a></p>
+
+<h3 id="upgradingfrom1.xversion">Upgrading from 1.x version</h3>
+
+<p>Lots of things changed. Please read the changelog and re-read the configuration
+section to see what changed and what you need to adapt on your application.</p>
+
+<h2 id="accessingthesharekitmodule">Accessing the sharekit Module</h2>
+
+<p>To access this module from JavaScript, you would do the following:</p>
+
+<pre><code>var sharekit = require(&quot;com.0x82.sharekit&quot;);
+</code></pre>
+
+<p>The sharekit variable is a reference to the Module object.</p>
+
+<h2 id="reference">Reference</h2>
+
+<p>This modules exposes three simple methods.</p>
+
+<h3 id="sharekit.configure">sharekit.configure({ &#8230; })</h3>
+
+<p>This is required and should be the first thing you call on the module.
+All the configuration parameters can be found on the
+<a href="configutarion.html">configuration</a> page.</p>
+
+<h3 id="sharekit.logoutfromall">sharekit.logoutFromAll()</h3>
+
+<p>Forgets about all the credentials stored on the device keychain.</p>
+
+<h3 id="sharekit.share">sharekit.share({&#8230;})</h3>
+
+<p>Shares an item with ShareKit. The following two arguments ARE ALWAYS REQUIRED:</p>
+
+<ul>
+<li><p>title[string]:</p>
+
+<blockquote>
+<p>a title that identifies that URL</p>
+</blockquote></li>
+<li><p>view[Ti.UI.View]:</p>
+
+<blockquote>
+<p>a view associated with the call to share. This could
+be used on the iPad to show a popover from the view that called the
+share action. Like the Sharekit module, passing a UIToolbar or UITabBar on this
+parameter will cause Sharekit to use a special effect on the action sheet.</p>
+</blockquote></li>
+<li><p>sharer[string]: <em>optional</em></p>
+
+<blockquote>
+<p>if you supply this key to a valid Sharer, the module will try to directly share using the sharer, instead of showing the action sheet. The names of the shares should always start with the Capital Letter (ex: Facebook, Google, ReadItLater, Delicious). The list of available Sharers are:</p>
+</blockquote>
+
+<p>Copy
+ Mail
+ Safari
+ PhotoAlbum
+ TextMessage
+ Vkontakte
+ Evernote
+ Facebook
+ FoursquareV2
+ Flickr
+ GoogleReader
+ Instapaper
+ LinkedIn
+ Pinboard
+ ReadItLater
+ Tumblr
+ Twitter</p></li>
+</ul>
+
+<h4 id="sharinglinks">sharing links</h4>
+
+<ul>
+<li><p>link[string]:</p>
+
+<blockquote>
+<p>the valid url you want to share</p>
+</blockquote></li>
+</ul>
+
+<h4 id="sharingimages">sharing images</h4>
+
+<ul>
+<li><p>image[blob]:</p>
+
+<blockquote>
+<p>the image blob to share</p>
+</blockquote></li>
+</ul>
+
+<h4 id="sharingtexts">sharing texts</h4>
+
+<ul>
+<li><p>text[string]:</p>
+
+<blockquote>
+<p>the text block to share</p>
+</blockquote></li>
+</ul>
+
+<h4 id="sharingfiles">sharing files</h4>
+
+<ul>
+<li><p>file[blob]:</p>
+
+<blockquote>
+<p>the file blob to share</p>
+</blockquote></li>
+<li><p>filename[string]:</p>
+
+<blockquote>
+<p>OPTIONAL -&gt; the filename of the file</p>
+</blockquote></li>
+<li><p>mimetype[string]:</p>
+
+<blockquote>
+<p>OPTIONAL but recommended, since Titanium can&#8217;t currently guess
+ a mimetype from a file</p>
+</blockquote></li>
+</ul>
+
+<h2 id="tipsandtricksfaq">Tips and tricks / FAQ</h2>
+
+<h3 id="howtolimittheservicesavailabletotheuser">How to limit the services available to the user?</h3>
+
+<p>Copy the <code>assets/Sharers.plist</code> to your Resources directory, edit it using
+XCode, remove the services you want, and use the <code>sharers_plist_name</code> key on
+the configuration call, to specify the path to your own sharer. See the
+<a href="configuration.html">Configuration documentation</a> for more information.</p>
+
+<h3 id="doesthismoduleusesthenewios5twittercapabilities">Does this module uses the new iOS5 Twitter capabilities?</h3>
+
+<p>Yes, as long as the application runs on an iOS5 device. If not, the module
+automatically reverts to a in-app strategy, like before.</p>
+
+<h3 id="helpfacebookauthdoesntwork">Help! Facebook auth doesn&#8217;t work!</h3>
+
+<p>Please make sure you&#8217;ve followed the new procedure to configure Facebook, by
+reading the <a href="configuration.html">Configuration documentation</a></p>
+
+<h3 id="canii18nl10nthismodule">Can I i18n/l10n this module?</h3>
+
+<p>Yes! Please look inside the <code>example/strings.xml</code> file to see a file with
+all the Strings available to be translated. Just follow the official
+Titanium Guide for internationalization and you should be ok!</p>
+
+<p><a href="">https://wiki.appcelerator.org/display/guides/Internationalization</a></p>
+
+<h2 id="usage">Usage</h2>
+
+<p>Please see the examples/app.js for a full app example.</p>
+
+<h2 id="author">Author</h2>
+
+<p>Ruben Fonseca, root (at) cpan (dot) org</p>
+
+<p>You can also find me on <a href="http://github.com/rubenfonseca">github</a> and on my
+<a href="http://blog.0x82.com">blog</a></p>
+
+<h2 id="license">License</h2>
+
+<p>This module is licensed under the MIT License. Please see the LICENSE file for</p>
+
+    </div>
+</body>
+</html>
