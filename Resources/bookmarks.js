@@ -196,16 +196,20 @@ function loadBookmarks(){
 		var dateArray = originalDate[0].split('-');
 	
 		var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
-
 		articleData.push(articleRow);
 	}
 
+	if (isAndroid)
+		tbl.setData(null);
+		
 	tbl.setData(articleData);
 }
 
 function initialize_table()
 {
-	loadBookmarks();	
+	if (!isAndroid)
+		loadBookmarks();
+	
 	if (isAndroid) {
 	
 		var scrolled_times = 0;
@@ -280,11 +284,9 @@ function initialize_table()
 
 win.add(topBar);
 
-Ti.UI.currentTab.addEventListener('focus', function(){
-	alert('focused');
-	current_row = null;
-	loadBookmarks();
-});
-
 // topBar.add(topLogo);
 initialize_table();
+
+Ti.UI.currentTab.addEventListener('focus', function(){
+	loadBookmarks();
+});
