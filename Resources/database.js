@@ -62,16 +62,18 @@ exports.deleteId = function(id){
 exports.remove = function(id){
 	var db = Ti.Database.open(DATABASE_NAME); 
     db.execute("DELETE FROM bookmarks WHERE id = ?", id);
+    var rowsAffected = db.rowsAffected;
     db.close();
-    return db.rowsAffected;
+    return rowsAffected;
 };
 
 exports.insert = function(id, title, content, url, author, date){
 	var db = Ti.Database.open(DATABASE_NAME);
 	db.execute('INSERT INTO bookmarks (id, title, content, url, author, date) VALUES(?,?,?,?,?,?)',
      		id, title, content, url, author, date);
+    var lastInsertRowId = db.lastInsertRowId;
     db.close();
-    return db.lastInsertRowId;
+    return lastInsertRowId;
 };
 
 
