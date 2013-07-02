@@ -288,5 +288,17 @@ win.add(topBar);
 initialize_table();
 
 Ti.UI.currentTab.addEventListener('focus', function(){
-	loadBookmarks();
+	if (Ti.App.bookmarksChanged){
+		loadBookmarks();
+		Ti.App.bookmarksChanged = false;
+	}
+});
+
+Ti.UI.currentTab.addEventListener('blur', function(){
+	if (!!current_row){
+		if (isAndroid)
+			current_row.articleRow.animate({opacity:1, duration:500});
+		else
+			current_row.articleRow.animate({left:0, duration:500});
+	}
 });

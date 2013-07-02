@@ -152,6 +152,12 @@ var create_bookmarks = function(title, url, author, content, date, id){
 		if (db.exists(id)){
 			if (Ti.UI.currentWindow.id == 'bookmarks'){
 				console.log('deleterow');
+				
+				if (isAndroid)
+					current_row.articleRow.animate({opacity:1});
+				else
+					current_row.articleRow.left.animate({left: 0});
+					
 				tbl.deleteRow(current_row, isAndroid? {} : {animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
 				current_row = null;
 			}

@@ -20,7 +20,7 @@ var twitter_client = Twitter({
   accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
 });
 
-var win = Titanium.UI.currentWindow;
+var win = Ti.UI.currentWindow;
 
 var firstAd = 0;
 var lastAd = 3;
@@ -546,4 +546,15 @@ win.add(menu);
 // topBar.add(searchButton);
 // topBar.add(topLogo);
 
+Ti.UI.currentTab.addEventListener('blur', function(){
+	if (!!current_row){
+		if (isAndroid)
+			current_row.articleRow.animate({opacity:1, duration:500});
+		else
+			current_row.articleRow.animate({left:0, duration:500});
+	}
+});
+
 loadWordpress();
+
+

@@ -1,6 +1,7 @@
 var DATABASE_NAME = 'bookmarks';
 
 exports.createTable = function(){
+	Ti.App.bookmarksChanged = true;
 	var db = Ti.Database.open(DATABASE_NAME);
 	db.execute('CREATE TABLE IF NOT EXISTS bookmarks \
         (id INTEGER PRIMARY KEY, title TEXT, content TEXT, url TEXT, author TEXT, date TEXT)');
@@ -12,6 +13,7 @@ exports.exists = function(id) {
 	var db = Ti.Database.open('bookmarks'); 
 	var resultSet = db.execute('SELECT * FROM bookmarks WHERE id=(?)', id);
 	var exists = false;
+	
 	if (resultSet.isValidRow())
 		exists = true;
 
@@ -42,18 +44,21 @@ exports.getAll = function() {
 };
 
 exports.dropTable = function(){
+	Ti.App.bookmarksChanged = true;
 	var db = Ti.Database.open(DATABASE_NAME); 
     db.execute('DROP TABLE bookmarks');
     db.close();
 };      
 
 exports.deleteAll = function(){
+	Ti.App.bookmarksChanged = true;
 	var db = Ti.Database.open(DATABASE_NAME); 
     db.execute('DELETE FROM bookmarks');
     db.close();
 };
 
 exports.deleteId = function(id){
+	Ti.App.bookmarksChanged = true;
 	var db = Ti.Database.open(DATABASE_NAME); 
     db.execute('DELETE FROM bookmarks WHERE id=(?)', id);
     db.close();
@@ -64,6 +69,7 @@ exports.remove = function(id){
     db.execute("DELETE FROM bookmarks WHERE id = ?", id);
     var rowsAffected = db.rowsAffected;
     db.close();
+    Ti.App.bookmarksChanged = true;
     return rowsAffected;
 };
 
@@ -73,7 +79,8 @@ exports.insert = function(id, title, content, url, author, date){
      		id, title, content, url, author, date);
     var lastInsertRowId = db.lastInsertRowId;
     db.close();
-    return lastInsertRowId;
+    Ti.App.bookmarksChanged = true;
+	return lastInsertRowId;
 };
 
 
