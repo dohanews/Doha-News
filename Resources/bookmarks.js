@@ -6,7 +6,7 @@ Ti.include('search.js');
 var db = require('database');
 var osname = Ti.Platform.osname;
 var isAndroid = Ti.Platform.osname === 'android';
-
+//
 var fb = require('facebook');
 fb.appid = "520290184684825";
 fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
