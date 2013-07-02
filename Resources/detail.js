@@ -22,7 +22,8 @@ var localWebview = Titanium.UI.createWebView({
     backgroundColor:'transparent',
 	html:content,
 	enableZoomControls: false,
-	textSize: 1
+	textSize: 1,
+	disableBounce: true
 });
 
 var textsize = Titanium.UI.createImageView({
@@ -85,7 +86,7 @@ for (i = 0; i < opt.length; i++)
 	row.addEventListener('click',function(){
 		var win = Ti.UI.createWindow({
 			backgroundColor: '#fff',
-			url: 'settings.js',
+			url: 'upload_photo.js',
 			modal: true,
 		});
 		win.open();
