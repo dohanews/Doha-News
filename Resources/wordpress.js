@@ -90,15 +90,6 @@ var topBar = Titanium.UI.createView({
 	top: 0,
 });
 
-var textViewButton = Titanium.UI.createImageView({
-	image:'images/text-view.png',
-	right: '95dp', 
-	width: '30dp',
-	height: '30dp',
-	top: '10dp',
-	zIndex: 3
-});
-
 // var searchButton = Titanium.UI.createImageView({
 	// image:'images/search.png',
 	// right: '135dp', 
@@ -108,23 +99,6 @@ var textViewButton = Titanium.UI.createImageView({
 	// zIndex: 3
 // });
 
-var photoViewButton = Titanium.UI.createImageView({
-	image:'images/photoview-ipad.png',
-	right: '55dp', 
-	width: '30dp',
-	height: '30dp',
-	top: '10dp',
-	zIndex: 3
-});
-
-var menuButton = Titanium.UI.createImageView({
-	image:'images/menu.png',
-	width: '0.75cm',
-	height: '0.75cm',
-	top: 0,
-	right: 0,
-	zIndex: 3
-});
 
 var topLogo = Titanium.UI.createImageView({
 	image:'images/logo.png',
@@ -133,91 +107,6 @@ var topLogo = Titanium.UI.createImageView({
 	top: 0,
 	left: 0,
 	zIndex: 3
-});
-
-var menuData = [];
-
-var opt = ['images/settings.png','images/photos.png','images/videos.png','images/articles.png'];
-
-for (i = 0; i < opt.length; i++)
-{
-	var row = Ti.UI.createTableViewRow({
-				height: Ti.UI.SIZE,
-				zIndex: 1,
-			});
-	
-	var img = Ti.UI.createImageView({
-		image: opt[i],
-		width: '50dp',
-		height: '50dp',
-		zIndex: 1,
-		menu_action: i
-	});
-	
-	row.addEventListener('click',function(e){
-			if (e.source.menu_action == 0) {
-				var win = Ti.UI.createWindow({
-		    			backgroundColor:'#fff',
-		    			url: 'settings.js',
-		    			modal: true
-			    })
-		    	win.open({
-		    		animated:true,
-		    	});
-			}
-			else if (e.source.menu_action == 1) {
-			}
-			else
-			{
-				console.log(fb.accessToken);
-			}
-	});
-	row.add(img);
-	menuData.push(row);				
-}
-
-menuButton.addEventListener('click', function(e){
-
-	if (menu.isVisible == true){
-		menu.animate({
-			top: '-210dp', 
-			duration: 500,
-		});
-		menu.isVisible = false;
-	}
-	else{
-		menu.animate({
-			top: '.75cm', 
-			duration: 500,
-		});
-		menu.isVisible = true;
-	}
-});
-
-var menu = Ti.UI.createTableView({
-	width: '50dp',
-	top: '-210dp', 
-	right: '0dp',
-	rowHeight: Ti.UI.SIZE,
-	separatorColor: 'black',
-	backgroundColor:'white',
-	zIndex: 2,
-	height: Ti.UI.SIZE,
-	isVisible : false,
-	scrollable: false,
-});
-
-
-menu.setData(menuData);
-
-topBar.addEventListener('click',function(){
-	if (menu.isVisible == true){
-		menu.animate({
-			top: '-210dp', 
-			duration: 500,
-		});
-		menu.isVisible = false;
-	}	
 });
 
 
@@ -249,7 +138,6 @@ var tbl = Ti.UI.createTableView({
 	selectionStyle: 'none',
 	separatorColor: '#d3d3d3',
 });
-
 
 Ti.include('sharing.js');
 
@@ -402,13 +290,6 @@ function loadWordpress()
 	}
 	
 	tbl.addEventListener('scroll', function(e) {
-		if (menu.isVisible == true && (isAndroid ?  scrolled_times > 3 : true)){
-				menu.animate({
-					top: '-210dp', 
-					duration: 500,
-				});
-				menu.isVisible = false;
-			}
 			
 		if(!!current_row){
 			if (isAndroid)
@@ -420,19 +301,7 @@ function loadWordpress()
 		
 		scrolled_times++;
 	});
-	
-	tbl.addEventListener('click', function(e) {
-		if (menu.isVisible == true){
-			menu.animate({
-				top: '-210dp', 
-				duration: 1000,
-			});
-			menu.isVisible = false;
-		}	
-	
-	});
 
-	
 	var clickEvent = isAndroid? 'singletap':'click';
 	
 	tbl.addEventListener(clickEvent, function(e) {
@@ -545,7 +414,6 @@ setTimeout(function checkSync() {
 
 
 win.add(topBar);
-win.add(menu);
 //win.add(menuButton);
 //topBar.add(admobbutt);
 //topBar.add(searchButton);
@@ -565,5 +433,3 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 });
 
 loadWordpress();
-
-
