@@ -202,6 +202,26 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	var share_event = isAndroid? 'longclick':'swipe';
 	row.addEventListener(share_event, sharing_animation);
 	
+	var clickEvent = isAndroid? 'singletap' : 'click';
+	row.articleRow.addEventListener (clickEvent, function(e){
+		var win = Ti.UI.createWindow({
+			backgroundColor:'#fff',
+			url: 'detail.js',
+			modal: true
+		})
+		win.content = content;
+		win.open({
+			animated:true,
+		});
+		
+		if (!!current_row) {
+			current_row.articleRow.animate({
+				opacity: 1,
+				duration: 500
+			});
+		};
+	});
+	
 	return row;
 }
 
@@ -258,16 +278,6 @@ function loadWordpress()
 		tbl.setData(articleData);
 	}
 	
-	if (isAndroid) {
-	
-		var scrolled_times = 0;
-	
-		tbl.addEventListener('scrollEnd', function(e) {
-			scrolled_times = 0;
-		});
-	
-	}
-	
 	if (!isAndroid){
 		tbl.addEventListener('scroll', function(e){
 			if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
@@ -298,36 +308,8 @@ function loadWordpress()
 				current_row.articleRow.animate({left:0});
 			current_row = null;	
 		}	
-		
-		scrolled_times++;
 	});
 
-	var clickEvent = isAndroid? 'singletap':'click';
-	
-	tbl.addEventListener(clickEvent, function(e) {
-		if (!!current_row) {
-			current_row.articleRow.animate({
-				opacity: 1,
-				duration: 500
-			});
-		};
-	});
-	
-	tbl.addEventListener (clickEvent, function(e){
-
-		if (e.rowData.className == 'article'){
-			var win = Ti.UI.createWindow({
-				backgroundColor:'#fff',
-				url: 'detail.js',
-				modal: true
-			})
-			win.content = e.rowData.content;
-			win.open({
-				animated:true,
-			});
-		}
-	});
-	
 	tbl.addEventListener('scroll', scrollingFunction);	
 	
 	if (isAndroid){
