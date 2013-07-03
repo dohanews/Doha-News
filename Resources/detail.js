@@ -23,8 +23,6 @@ var topBar = Titanium.UI.createView({
 
 var localWebview = Titanium.UI.createWebView({
 	//top:'.75cm',
-    left:10,
-    right:10, 
     backgroundColor:'transparent',
 	html:content,
 	enableZoomControls: false,
@@ -201,7 +199,7 @@ topBar.add(textsize);
 topBar.add(topLogo);
 win.add(topBar);
 //win.add(menuButton);
-//win.add(localWebview);
-win.add(disqus);
+win.add(localWebview);
+//win.add(disqus);
 //scrollView.add(localWebview);
 //win.add(scrollView);
