@@ -1,17 +1,8 @@
-Ti.include('twitter.js');
-Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
-
-var twitter_client = Twitter({
-  consumerKey: "FDgfEjNPwqLnZq7xlJuA",
-  consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
-  accessTokenKey: Ti.App.Properties.getString('twitterAccessTokenKey'),
-  accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
-});
 
 var win = Ti.UI.currentWindow;
 
@@ -72,8 +63,9 @@ var create_loading_row = function(){
 
 var topBar = Titanium.UI.createView({
 	backgroundColor: '#70193c',
-	height: '0.75cm',
 	top: 0,
+	height: '0.75cm',
+	zIndex: 2
 });
 
 var topLogo = Titanium.UI.createImageView({
@@ -85,29 +77,81 @@ var topLogo = Titanium.UI.createImageView({
 	zIndex: 3
 });
 
+var searchBar = Ti.UI.createSearchBar({
+	hintText: 'Search',
+	barColor : 'silver',
+	zIndex: 1,
+	top: '0.75cm',
+	isVisible: true,
+});
 
-// function isToday(day, month, year){
-	// var currentTime = new Date();
-	// var currentDay = currentTime.getDate();
-	// var currentMonth = currentTime.getMonth() + 1;
-	// var currentYear = currentTime.getFullYear();
-// 	
-	// if (year<currentYear){
-		// return false;
-	// }
-	// else if (month<currentMonth){
-		// return false;
-	// }
-	// else if (day<currentDay){
-		// return false;
-	// }
-	// return true;
-// }
+function isToday(day, month, year){
+	var currentTime = new Date();
+	var currentDay = currentTime.getDate();
+	var currentMonth = currentTime.getMonth() + 1;
+	var currentYear = currentTime.getFullYear();
+	
+	if (year<currentYear){
+		return false;
+	}
+	else if (month<currentMonth){
+		return false;
+	}
+	else if (day<currentDay){
+		return false;
+	}
+	return true;
+}
+
+function get_date_label(date){
+	var label;
+	var dateTime = date.split(' ');
+	var date = originalDate[0].split('-');
+	var time = originalDate[1].split(':');
+	
+	var currentTime = new Date();
+	var hours = currentTime.getHours();
+	var minutes = currentTime.getMinutes();
+	var year = currentTime.getFullYear();
+	var month = currentTime.getMonth();
+	var day = currentTime.getDay();
+	
+	if (isToday(date[0], date[1], date[2])){
+		if (time[0] == hours){
+			if (time[1] == minutes)
+				label = 'Just now';
+			else{
+				diff = Math.abs(time[1] - minutes);
+				label = diff == 1? diff + 'minute ago' : diff + 'minutes ago';
+			}
+		}
+		else{
+			diff = Math.abs(time[0] - hours);
+			label = diff == 1? diff + 'hour ago' : diff + 'hours ago';
+		}
+	}
+	else{
+		if (date[0] == years){
+			if (date[1] == month){
+				diff = Math.abs(date[2] - day);
+				label = diff == 1? 'Yesterday' : diff + 'days ago';
+			}
+			else{
+				diff = Math.abs(date[1] - month);
+				label = diff == 1? 'Last month' : diff + 'months ago';
+			}	
+		}
+		else{
+			diff = Math.abs(date[0] - year);
+			label = diff == 1? 'Last year' : diff + 'years ago';
+		}	
+	}	
+}
 
 var tbl = Ti.UI.createTableView({
 	backgroundColor:'transparent',
 	minRowHeight: '95dp',
-	top: '.75cm',
+	top: '1.5cm',
 	left: '5dp',
 	right: '5dp',
 	bubbleParent: false,
@@ -224,9 +268,6 @@ function loadWordpress()
 			var date = wordpress.posts[i].date;
 			lastID = id;		
 			
-			var originalDate = date.split(' ');
-			var dateArray = originalDate[0].split('-');
-			
 			var thumbail;
 			
 			if (wordpress.posts[i].attachments.length > 0)
@@ -256,12 +297,24 @@ function loadWordpress()
 					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
 					Ti.App.tabgroupVisible = false;
 				}
+				if(searchBar.isVisible){
+					searchBar.animate({top:0,duration:500});
+					tbl.animate({top:'0.75cm',duration:500});
+					searchBar.blur();
+					searchBar.isVisible = false;
+				}
 			}
 			else if (e.contentOffset.y < offset){
 				offset = e.contentOffset.y;
 				if (!Ti.App.tabgroupVisible){
 					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
 					Ti.App.tabgroupVisible = true;
+				}
+				if(!searchBar.isVisible){
+					searchBar.animate({top:'0.75cm',duration:500});
+					tbl.animate({top:'1.5cm',duration:500});
+					searchBar.blur();
+					searchBar.isVisible = true;
 				}
 			}
 		}
@@ -359,6 +412,7 @@ setTimeout(function checkSync() {
 
 
 win.add(topBar);
+win.add(searchBar);
 //win.add(menuButton);
 //topBar.add(admobbutt);
 //topBar.add(searchButton);
