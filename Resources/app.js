@@ -1,12 +1,7 @@
 var db = require('database');
 db.createTable();
 
-var fb = require('facebook');
-fb.appid = "520290184684825";
-fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
-fb.forceDialogAuth = true;
-
-Ti.App.fbLoggedIn = fb.getLoggedIn();
+var prefix = Ti.Platform.osname == 'android'? 'android' : 'ios';
 
 Ti.App.tabgroup = Titanium.UI.createTabGroup({
 	bottom: 0,
@@ -14,24 +9,23 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 });
 
 var articlesWin = Titanium.UI.createWindow ({
-   url: "wordpress.js",
+   url: prefix + "-wordpress.js",
    id: 'articles',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
 
 var bookmarksWin = Titanium.UI.createWindow ({
-   url: "bookmarks.js",
+   url: prefix + "-bookmarks.js",
    id: 'bookmarks',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
 
-if (Ti.Platform.osname != 'android')
+if (Ti.Platform.osname != 'android'){
+	bookmarksWin.navBarHidden = true;
 	articlesWin.navBarHidden = true;
+}
 
-// var articles = Titanium.UI.createTab({
-	// title: 'Art',
-	// window: articlesWin,
-// });
+
 var bookmarks = Titanium.UI.createTab({
 	title: 'Bookmarks',
 	window: bookmarksWin,
