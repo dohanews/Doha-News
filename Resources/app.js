@@ -5,7 +5,8 @@ var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
 Ti.App.bookmarksChanged = true;
 Ti.App.tabgroup = Titanium.UI.createTabGroup({
 	bottom: 0,
-	navBarHidden: true,	
+	navBarHidden: true,
+	tabsBackgroundColor: 'silver',
 });
 
 var articlesWin = Titanium.UI.createWindow ({
