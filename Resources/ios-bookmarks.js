@@ -5,13 +5,6 @@ Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
-var isAndroid = Ti.Platform.osname === 'android';
-
-var fb = require('facebook');
-fb.appid = "520290184684825";
-fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
-fb.forceDialogAuth = true;
-facebookToken = fb.accessToken;
 
 var twitter_client = Twitter({
   consumerKey: "FDgfEjNPwqLnZq7xlJuA",
@@ -32,14 +25,9 @@ var offset = 0;
 win.backgroundColor='white';
 win.navBarHidden = true;
 
-var scrollingFunction = function(evt) {
+var infinite_scroll = function(evt) {
 	    
-	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
-	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-
-		if (isAndroid)
-			tbl.removeEventListener('scroll', scrollingFunction);
-			
+	if(evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height) {
 		loadData = true;       
 	}
 };
@@ -106,7 +94,7 @@ var tbl = Ti.UI.createTableView({
 	separatorColor: '#d3d3d3',
 });
 
-Ti.include('sharing.js');
+Ti.include('ios-sharing.js');
 
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
@@ -126,12 +114,6 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		borderWidth: '1dp',
 		image: thumbnail,
 	});
-
-	var fontSize;
-	if (isAndroid)
-		fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
-	else
-		fontSize = (Titanium.Platform.displayCaps.platformHeight)/30;
 		
 	var titleLabel = Ti.UI.createLabel({
 		text: title,
@@ -141,7 +123,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		font: {
-			fontSize: fontSize,
+			fontSize: Titanium.Platform.displayCaps.platformHeight/30,
 		},
 		backgroundColor:'transparent',
 	});
@@ -167,8 +149,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	row.add(sharing);
 	row.add(row.articleRow);
 	
-	var share_event = isAndroid? 'longclick':'swipe';
-	row.addEventListener(share_event, sharing_animation);
+	row.addEventListener('swipe', sharing_animation);
 	
 	return row;
 }
@@ -199,71 +180,54 @@ function loadBookmarks(){
 		articleData.push(articleRow);
 	}
 
-	if (isAndroid)
-		tbl.setData(null);
-		
 	tbl.setData(articleData);
 }
 
 function initialize_table()
 {
-	if (!isAndroid)
-		loadBookmarks();
+	loadBookmarks();
 	
-	if (isAndroid) {
-	
-		var scrolled_times = 0;
-	
-		tbl.addEventListener('scrollEnd', function(e) {
-			scrolled_times = 0;
-		});
-	
-	}
-	
-	if (!isAndroid){
-		tbl.addEventListener('scroll', function(e){
-			if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
-				if(e.contentOffset.y > offset){
-					offset = e.contentOffset.y;
-					if (Ti.App.tabgroupVisible){
-						Ti.App.tabgroup.animate({bottom: -50, duration: 250});
-						Ti.App.tabgroupVisible = false;
-					}
-				}
-				else if (e.contentOffset.y < offset){
-					offset = e.contentOffset.y;
-					if (!Ti.App.tabgroupVisible){
-						Ti.App.tabgroup.animate({bottom: 0, duration: 250});
-						Ti.App.tabgroupVisible = true;
-					}
+	tbl.addEventListener('scroll', function(e){
+		if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
+			if(e.contentOffset.y > offset){
+				offset = e.contentOffset.y;
+				if (Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
+					Ti.App.tabgroupVisible = false;
 				}
 			}
-		});
-	}
+			else if (e.contentOffset.y < offset){
+				offset = e.contentOffset.y;
+				if (!Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+					Ti.App.tabgroupVisible = true;
+				}
+			}
+		}
+	});
+	
 	
 	tbl.addEventListener('scroll', function(e) {
-		if(!!current_row){
-			if (isAndroid)
-				current_row.articleRow.animate({opacity: 1});
-			else
-				current_row.articleRow.animate({left:0});
-			current_row = null;
-		}	
-		scrolled_times++;
-	});
-	
-	var clickEvent = isAndroid? 'singletap':'click';
-	
-	tbl.addEventListener(clickEvent, function(e) {
 		if (!!current_row) {
 			current_row.articleRow.animate({
-				opacity: 1,
+				left: 0,
 				duration: 500
 			});
-		};
+			current_row = null;
+		}
+	});
+	
+	tbl.addEventListener('click', function(e) {
+		if (!!current_row) {
+			current_row.articleRow.animate({
+				left: 0,
+				duration: 500
+			});
+			current_row = null;
+		}
 	});
 
-	tbl.addEventListener (clickEvent, function(e){
+	tbl.addEventListener ('click', function(e){
 
 		if (e.rowData.className == 'article'){
 			var win = Ti.UI.createWindow({
@@ -278,7 +242,7 @@ function initialize_table()
 		}
 	});
 
-	tbl.addEventListener('scroll', scrollingFunction);	
+	tbl.addEventListener('scroll', infinite_scroll);	
 	
 	win.add(tbl);
 	win.open();
@@ -297,10 +261,11 @@ Ti.UI.currentTab.addEventListener('focus', function(){
 });
 
 Ti.UI.currentTab.addEventListener('blur', function(){
-	if (!!current_row){
-		if (isAndroid)
-			current_row.articleRow.animate({opacity:1, duration:500});
-		else
-			current_row.articleRow.animate({left:0, duration:500});
+	if (!!current_row) {
+		current_row.articleRow.animate({
+			left: 0,
+			duration: 500
+		});
+		current_row = null;
 	}
 });

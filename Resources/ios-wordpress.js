@@ -5,13 +5,6 @@ Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
-var isAndroid = Ti.Platform.osname === 'android';
-
-var fb = require('facebook');
-fb.appid = "520290184684825";
-fb.permissions = ['publish_stream', 'offline_access']; // Permissions your app needs
-fb.forceDialogAuth = true;
-facebookToken = fb.accessToken;
 
 var twitter_client = Twitter({
   consumerKey: "FDgfEjNPwqLnZq7xlJuA",
@@ -29,21 +22,14 @@ var lastID = 0;
 var recentID = 0;
 
 var loadData = false;
-var refreshing = false;
 var offset = 0;
 
 win.backgroundColor='white';
 win.navBarHidden = true;
 
 
-var scrollingFunction = function(evt) {
-	    
-	if (isAndroid && (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3)
-	|| (!isAndroid && (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height))) {
-
-		if (isAndroid)
-			tbl.removeEventListener('scroll', scrollingFunction);
-			
+var infinite_scroll = function(evt) {
+	if (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height){
 		loadData = true;       
 	}
 };
@@ -90,16 +76,6 @@ var topBar = Titanium.UI.createView({
 	top: 0,
 });
 
-// var searchButton = Titanium.UI.createImageView({
-	// image:'images/search.png',
-	// right: '135dp', 
-	// width: '30dp',
-	// height: '30dp',
-	// top: '10dp',
-	// zIndex: 3
-// });
-
-
 var topLogo = Titanium.UI.createImageView({
 	image:'images/logo.png',
 	width: '50dp',
@@ -139,7 +115,7 @@ var tbl = Ti.UI.createTableView({
 	separatorColor: '#d3d3d3',
 });
 
-Ti.include('sharing.js');
+Ti.include('ios-sharing.js');
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
@@ -159,11 +135,6 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		image: thumbnail,
 	});
 
-	var fontSize;
-	if (isAndroid)
-		fontSize = (Titanium.Platform.displayCaps.platformHeight)/40;
-	else
-		fontSize = (Titanium.Platform.displayCaps.platformHeight)/30;
 		
 	var titleLabel = Ti.UI.createLabel({
 		text: title,
@@ -173,7 +144,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		font: {
-			fontSize: fontSize,
+			fontSize: (Titanium.Platform.displayCaps.platformHeight)/30,
 		},
 		backgroundColor:'transparent',
 	});
@@ -199,11 +170,9 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	row.add(sharing);
 	row.add(row.articleRow);
 	
-	var share_event = isAndroid? 'longclick':'swipe';
-	row.addEventListener(share_event, sharing_animation);
+	row.addEventListener('swipe', sharing_animation);
 	
-	var clickEvent = isAndroid? 'singletap' : 'click';
-	row.articleRow.addEventListener (clickEvent, function(e){
+	row.articleRow.addEventListener ('click', function(e){
 		var win = Ti.UI.createWindow({
 			backgroundColor:'#fff',
 			url: 'detail.js',
@@ -215,17 +184,12 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		});
 		
 		if (!!current_row) {
-			if (isAndroid)
-				current_row.articleRow.animate({
-					opacity: 1,
-					duration: 500
-				});
-			else
-				current_row.articleRow.animate({
-					left: 0,
-					duration: 500
-				});
-		};
+			current_row.articleRow.animate({
+				left: 0,
+				duration: 500
+			});
+			current_row = null;
+		}
 	});
 	
 	return row;
@@ -284,47 +248,40 @@ function loadWordpress()
 		tbl.setData(articleData);
 	}
 	
-	if (!isAndroid){
-		tbl.addEventListener('scroll', function(e){
-			if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
-				if(e.contentOffset.y > offset){
-					offset = e.contentOffset.y;
-					if (Ti.App.tabgroupVisible){
-						Ti.App.tabgroup.animate({bottom: -50, duration: 250});
-						Ti.App.tabgroupVisible = false;
-					}
-				}
-				else if (e.contentOffset.y < offset){
-					offset = e.contentOffset.y;
-					if (!Ti.App.tabgroupVisible){
-						Ti.App.tabgroup.animate({bottom: 0, duration: 250});
-						Ti.App.tabgroupVisible = true;
-					}
+	tbl.addEventListener('scroll', function(e){
+		if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
+			if(e.contentOffset.y > offset){
+				offset = e.contentOffset.y;
+				if (Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
+					Ti.App.tabgroupVisible = false;
 				}
 			}
-		});
-	}
+			else if (e.contentOffset.y < offset){
+				offset = e.contentOffset.y;
+				if (!Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+					Ti.App.tabgroupVisible = true;
+				}
+			}
+		}
+	});
+	
 	
 	tbl.addEventListener('scroll', function(e) {
-			
 		if(!!current_row){
-			if (isAndroid)
-				current_row.articleRow.animate({opacity: 1});
-			else
-				current_row.articleRow.animate({left:0});
+			current_row.articleRow.animate({
+				left: 0,
+				duration: 500
+			});
 			current_row = null;	
 		}	
 	});
 
-	tbl.addEventListener('scroll', scrollingFunction);	
+	tbl.addEventListener('scroll', infinite_scroll);	
 	
-	if (isAndroid){
-		Ti.include('refresh_android.js');
-	}
-	else{
-		Ti.include('refresh_ios.js');
-		tbl.headerPullView = tableHeader;
-	}
+	Ti.include('ios-refresh.js');
+	tbl.headerPullView = tableHeader;
 	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
@@ -334,7 +291,7 @@ function loadWordpress()
 	win.open();
 	
 	loader.onreadystatechange = function(e){ 
-		if (this.readyState == 4) {
+		if (this.readyState == this.DONE) {
 			loading_indicator.hide();
 			win.add(tbl);
 		} 
@@ -348,9 +305,9 @@ setTimeout(function checkSync() {
         setTimeout(checkSync, 500);
         return;
     }
-    
-    tbl.removeEventListener('scroll',scrollingFunction);
-	
+
+	tbl.removeEventListener('scroll',infinite_scroll);
+	 
 	tbl.appendRow(create_loading_row());
 
     loadData = false;	
@@ -392,7 +349,7 @@ setTimeout(function checkSync() {
 			}
 		}
 		
-		tbl.addEventListener('scroll',scrollingFunction);
+		tbl.addEventListener('scroll',infinite_scroll);
 	}
 	
 	loader.send();
@@ -413,10 +370,11 @@ win.add(topBar);
 
 Ti.UI.currentTab.addEventListener('blur', function(){
 	if (!!current_row){
-		if (isAndroid)
-			current_row.articleRow.animate({opacity:1, duration:500});
-		else
-			current_row.articleRow.animate({left:0, duration:500});
+		current_row.articleRow.animate({
+				left: 0,
+				duration: 500
+		});
+		current_row = null;
 	}
 });
 

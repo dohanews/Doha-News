@@ -1,5 +1,10 @@
 var osname = Ti.Platform.osname;
 
+var fb_regex = /(^http:\/\/disqus.com\/_ax\/facebook\/complete)/;
+var twitter_regex = /(^http:\/\/disqus.com\/_ax\/twitter\/complete)/;
+var google_regex = /(^http:\/\/disqus.com\/_ax\/google\/complete)/;
+var disqus_reqex = /(^http:\/\/disqus.com\/next\/login-success)/
+
 var win = Ti.UI.currentWindow;
 win.navBarHidden = true;
 win.layout = 'vertical';
@@ -27,17 +32,33 @@ var localWebview = Titanium.UI.createWebView({
 	disableBounce: true
 });
 
-var disqus = Titanium.UI.createWebView({
-	//top:'.75cm',
-    //left:10,
-    //right:10, 
-    backgroundColor:'transparent',
-	enableZoomControls: false,
-	textSize: 1,
-	disableBounce: true,
-	url: "http://dev.dohanews.co/wp-content/public/disqus.html",
-	zIndex: 40,
-});
+var create_disqus = function(){
+	var disqus = Titanium.UI.createWebView({
+		//top:'.75cm',
+	    //left:10,
+	    //right:10, 
+	    backgroundColor:'transparent',
+		enableZoomControls: false,
+		textSize: 1,
+		disableBounce: true,
+		url: "http://dev.dohanews.co/wp-content/public/disqusTest.html",
+		zIndex: 40,
+	});
+	
+	disqus.addEventListener('load',function(e){
+	   	console.log('Url is: '+e.url);
+		if(e.url.match(fb_regex) || e.url.match(twitter_regex) || e.url.match(google_regex) || e.url.match(disqus_reqex)){
+	    	console.log ('it\'s facebook');
+	    	win.remove(disqus);
+	    	disqus = null;
+	       	disqus = create_disqus();
+	       	win.add(disqus);
+    	}
+	});
+	return disqus;
+}
+
+var disqus = create_disqus();
 
 var textsize = Titanium.UI.createImageView({
 	title:'o',
