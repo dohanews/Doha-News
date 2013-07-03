@@ -86,7 +86,7 @@ var tbl = Ti.UI.createTableView({
 	separatorColor: '#d3d3d3',
 });
 
-Ti.include('android-sharing.js');
+Ti.include('and-sharing.js');
 
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {

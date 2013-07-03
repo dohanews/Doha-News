@@ -1,8 +1,8 @@
 var db = require('database');
 db.createTable();
 
-var prefix = Ti.Platform.osname == 'android'? 'android' : 'ios';
-
+var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
+Ti.App.bookmarksChanged = true;
 Ti.App.tabgroup = Titanium.UI.createTabGroup({
 	bottom: 0,
 	navBarHidden: true,	
