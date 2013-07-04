@@ -105,6 +105,8 @@ var refresh = function(tbl){
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.insertRowBefore(0, articleRow);
 		}
+		
+		articleData = tbl.data;
 		resetPullHeader(tbl);
 	}
 	
@@ -113,7 +115,7 @@ var refresh = function(tbl){
     // now we're done; reset the loadData flag and start the interval up again
 };
 
-tbl.addEventListener('scroll',function(e){
+var pull_to_refresh = function(e){
     offset = e.contentOffset.y;
     if (pulling && !reloading && offset > -80 && offset < 0){
         pulling = false;
@@ -126,9 +128,9 @@ tbl.addEventListener('scroll',function(e){
         imageArrow.animate({transform:rotate, duration:180});
         labelStatus.text = 'Release to refresh...';
     }
-});
- 
-tbl.addEventListener('dragEnd',function(e){
+};
+
+var release_to_refresh = function(e){
     if (pulling && !reloading && offset < -80){
         pulling = false;
         reloading = true;
@@ -138,4 +140,18 @@ tbl.addEventListener('dragEnd',function(e){
         e.source.setContentInsets({top:80}, {animated:true});
         refresh(tbl);
     }
-});
+}
+
+var add_pull_to_refresh = function(table){
+	table.addEventListener('dragEnd',release_to_refresh);
+	table.addEventListener('scroll',pull_to_refresh);
+	table.headerPullView = tableHeader;
+}
+
+var remove_pull_to_refresh = function(table){
+	table.removeEventListener('dragEnd',release_to_refresh);
+	table.removeEventListener('scroll',pull_to_refresh);
+	table.headerPullView = null;
+}
+
+

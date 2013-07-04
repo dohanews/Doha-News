@@ -1,7 +1,6 @@
 Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
-Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
@@ -14,7 +13,6 @@ var twitter_client = Twitter({
 });
 
 var win = Titanium.UI.currentWindow;
-win.navBarHidden = true;
 
 var lastID = 0;
 var recentID = 0;
@@ -144,6 +142,26 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	
 	row.addEventListener('longclick', sharing_animation);
 	
+		row.articleRow.addEventListener ('singletap', function(e){
+		var win = Ti.UI.createWindow({
+			backgroundColor:'#fff',
+			url: 'detail.js',
+			modal: true
+		})
+		win.content = content;
+		win.open({
+			animated:true,
+		});
+
+		if (!!current_row) {
+			current_row.articleRow.animate({
+				opacity: 1,
+				duration: 500
+			});
+			current_row = null;
+		}
+	});
+
 	return row;
 }
 

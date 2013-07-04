@@ -37,6 +37,7 @@
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17"/>
         <tool-api-level>14</tool-api-level>
+        <application android:theme="@android:style/Theme.Holo"></application>
     </android>
     <mobileweb>
         <precache/>

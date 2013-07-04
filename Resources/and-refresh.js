@@ -113,6 +113,8 @@ var refresh = function(e){
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.insertRowBefore(0, articleRow);
 		}
+		
+		articleData = tbl.data;
 	}
 	
 	loader.send();
@@ -127,4 +129,4 @@ var refreshButton = Ti.UI.createButton({
 });
 
 refreshButton.addEventListener('click', refresh);
-topBar.add(refreshButton);
+header.add(refreshButton);

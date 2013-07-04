@@ -1,7 +1,6 @@
 Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
-Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
@@ -14,6 +13,7 @@ var twitter_client = Twitter({
 });
 
 var win = Ti.UI.currentWindow;
+var articleData = [];
 
 var firstAd = 0;
 var lastAd = 3;
@@ -21,7 +21,7 @@ var lastAd = 3;
 var lastID = 0;
 var recentID = 0;
 
-var loadData = false;
+var loadMoreArticles = false;
 var offset = 0;
 
 win.backgroundColor='white';
@@ -32,7 +32,7 @@ var infinite_scroll = function(evt) {
 
 	if (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3) {
 		tbl.removeEventListener('scroll', infinite_scroll);	
-		loadData = true;       
+		loadMoreArticles = true;       
 	}
 };
 
@@ -72,7 +72,7 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
-var topBar = Titanium.UI.createView({
+var header = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height: '0.75cm',
 	top: 0,
@@ -116,18 +116,35 @@ var topLogo = Titanium.UI.createImageView({
 	// return true;
 // }
 
-var tbl = Ti.UI.createTableView({
-	backgroundColor:'transparent',
-	minRowHeight: '95dp',
-	top: '.75cm',
-	left: '5dp',
-	right: '5dp',
-	bubbleParent: false,
-	selectionStyle: 'none',
-	separatorColor: '#d3d3d3',
+var create_table_view = function(){
+	var table  = Ti.UI.createTableView({
+		backgroundColor:'transparent',
+		minRowHeight: '95dp',
+		top: '.75cm',
+		left: '5dp',
+		right: '5dp',
+		bubbleParent: false,
+		selectionStyle: 'none',
+		separatorColor: '#d3d3d3',
+	});
+	return table;
+}
+
+var tbl = create_table_view();
+tbl.addEventListener('scroll', function(e) {	
+	if (!!current_row){
+		current_row.articleRow.animate({
+				opacity:1,
+				duration: 500
+		});
+		current_row = null;
+	}
 });
 
+tbl.addEventListener('scroll', infinite_scroll);	
+Ti.include('and-refresh.js');
 Ti.include('and-sharing.js');
+Ti.include('and-search.js');
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
@@ -209,7 +226,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 function loadWordpress()
 {
 	var loader;
-	var articleData = [];
+ 	articleData = [];
 	// Create our HTTP Client and name it "loader"
 	loader = Titanium.Network.createHTTPClient();
 	// Sets the HTTP request method, and the URL to get data from
@@ -259,20 +276,6 @@ function loadWordpress()
 		tbl.setData(articleData);
 	}
 
-	tbl.addEventListener('scroll', function(e) {	
-		if (!!current_row){
-			current_row.articleRow.animate({
-					opacity:1,
-					duration: 500
-			});
-			current_row = null;
-		}
-	});
-
-	tbl.addEventListener('scroll', infinite_scroll);	
-
-	Ti.include('and-refresh.js');
-
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
 
@@ -281,7 +284,7 @@ function loadWordpress()
 	win.open();
 
 	loader.onreadystatechange = function(e){ 
-		if (this.readyState == this.DONE) {
+		if (this.readyState == 4) {
 			loading_indicator.hide();
 			win.add(tbl);
 		} 
@@ -289,10 +292,10 @@ function loadWordpress()
 	loader.send();
 }
 
-setTimeout(function checkSync() {
+setTimeout(function load_more_articles() {
 
-    if (loadData == false) {
-        setTimeout(checkSync, 500);
+    if (loadMoreArticles == false) {
+        setTimeout(load_more_articles, 500);
         return;
     }
     
@@ -300,7 +303,7 @@ setTimeout(function checkSync() {
 
 	tbl.appendRow(create_loading_row());
 
-    loadData = false;	
+    loadMoreArticles = false;	
     
 	var loader = Titanium.Network.createHTTPClient();
 
@@ -338,25 +341,15 @@ setTimeout(function checkSync() {
 				tbl.appendRow(adMobRow);
 			}
 		}
-
+		
+		articleData = tbl.data;
 		tbl.addEventListener('scroll',infinite_scroll);
 	}
 
 	loader.send();
 
-    setTimeout(checkSync, 500);
+    setTimeout(load_more_articles, 500);
 }, 500);
-
-
-win.add(topBar);
-//win.add(menuButton);
-//topBar.add(admobbutt);
-//topBar.add(searchButton);
-//topBar.add(searchParent);
-// topBar.add(photoViewButton);
-// topBar.add(textViewButton);
-// topBar.add(searchButton);
-// topBar.add(topLogo);
 
 Ti.UI.currentTab.addEventListener('blur', function(){
 	if (!!current_row){
@@ -366,6 +359,9 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 		});
 		current_row = null;
 	}
+	searchBar.blur();
 });
 
+win.add(header);
+header.add(searchBar);
 loadWordpress();
