@@ -1,19 +1,11 @@
-Ti.include('twitter.js');
-Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
-Ti.include('search.js');
+Ti.include('ios-refresh.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
 
-var twitter_client = Twitter({
-  consumerKey: "FDgfEjNPwqLnZq7xlJuA",
-  consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
-  accessTokenKey: Ti.App.Properties.getString('twitterAccessTokenKey'),
-  accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
-});
-
 var win = Ti.UI.currentWindow;
+var articleData = [];
 
 var firstAd = 0;
 var lastAd = 3;
@@ -21,7 +13,7 @@ var lastAd = 3;
 var lastID = 0;
 var recentID = 0;
 
-var loadData = false;
+var loadOlderArticles = false;
 var offset = 0;
 
 win.backgroundColor='white';
@@ -30,7 +22,7 @@ win.navBarHidden = true;
 
 var infinite_scroll = function(evt) {
 	if (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height){
-		loadData = true;       
+		loadOlderArticles = true;       
 	}
 };
 
@@ -70,12 +62,27 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
-var topBar = Titanium.UI.createView({
-	backgroundColor: '#70193c',
-	height: '0.75cm',
+var header = Titanium.UI.createView({
+	backgroundColor: '#f8f8f8',
 	top: 0,
+	height: '45dp',
+	zIndex: 2
 });
 
+var headerStrip = Titanium.UI.createView({
+	backgroundColor: 'maroon',
+	height: '5dp',
+	top: 0,
+})
+header.add(headerStrip);
+
+var topLogo = Titanium.UI.createLabel({
+	width: Ti.UI.FILL,
+	text: 'Doha News',
+	color: '#5a5a5a',
+});
+
+header.add(topLogo);
 var topLogo = Titanium.UI.createImageView({
 	image:'images/logo.png',
 	width: '50dp',
@@ -85,36 +92,131 @@ var topLogo = Titanium.UI.createImageView({
 	zIndex: 3
 });
 
+function isToday(day, month, year){
+	var currentTime = new Date();
+	var currentDay = currentTime.getDate();
+	var currentMonth = currentTime.getMonth() + 1;
+	var currentYear = currentTime.getFullYear();
+	
+	if (year<currentYear){
+		return false;
+	}
+	else if (month<currentMonth){
+		return false;
+	}
+	else if (day<currentDay){
+		return false;
+	}
+	return true;
+}
 
-// function isToday(day, month, year){
-	// var currentTime = new Date();
-	// var currentDay = currentTime.getDate();
-	// var currentMonth = currentTime.getMonth() + 1;
-	// var currentYear = currentTime.getFullYear();
-// 	
-	// if (year<currentYear){
-		// return false;
-	// }
-	// else if (month<currentMonth){
-		// return false;
-	// }
-	// else if (day<currentDay){
-		// return false;
-	// }
-	// return true;
-// }
+function get_date_label(date){
+	var label;
+	var dateTime = date.split(' ');
+	var date = originalDate[0].split('-');
+	var time = originalDate[1].split(':');
+	
+	var currentTime = new Date();
+	var hours = currentTime.getHours();
+	var minutes = currentTime.getMinutes();
+	var year = currentTime.getFullYear();
+	var month = currentTime.getMonth();
+	var day = currentTime.getDay();
+	
+	if (isToday(date[0], date[1], date[2])){
+		if (time[0] == hours){
+			if (time[1] == minutes)
+				label = 'Just now';
+			else{
+				diff = Math.abs(time[1] - minutes);
+				label = diff == 1? diff + 'minute ago' : diff + 'minutes ago';
+			}
+		}
+		else{
+			diff = Math.abs(time[0] - hours);
+			label = diff == 1? diff + 'hour ago' : diff + 'hours ago';
+		}
+	}
+	else{
+		if (date[0] == years){
+			if (date[1] == month){
+				diff = Math.abs(date[2] - day);
+				label = diff == 1? 'Yesterday' : diff + 'days ago';
+			}
+			else{
+				diff = Math.abs(date[1] - month);
+				label = diff == 1? 'Last month' : diff + 'months ago';
+			}	
+		}
+		else{
+			diff = Math.abs(date[0] - year);
+			label = diff == 1? 'Last year' : diff + 'years ago';
+		}	
+	}	
+}
 
-var tbl = Ti.UI.createTableView({
-	backgroundColor:'transparent',
-	minRowHeight: '95dp',
-	top: '.75cm',
-	left: '5dp',
-	right: '5dp',
-	bubbleParent: false,
-	selectionStyle: 'none',
-	separatorColor: '#d3d3d3',
+var create_table_view = function(){
+	var table = Ti.UI.createTableView({
+		backgroundColor:'white',
+		minRowHeight: '80dp',
+		top: '90dp',
+		left: '5dp',
+		right: '5dp',
+		bubbleParent: false,
+		selectionStyle: 'none',
+		separatorColor: '#afafaf',
+	});
+	
+	return table;
+}
+
+var toggle_tab_search = function(e){
+	if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
+		if(e.contentOffset.y > offset){
+			offset = e.contentOffset.y;
+			if (Ti.App.tabgroupVisible){
+				Ti.App.tabgroup.animate({bottom: '-50dp', duration: 250});
+				Ti.App.tabgroupVisible = false;
+			}
+			if(searchBar.isVisible){
+				searchBar.animate({top:0,duration:250});
+				this.animate({top:'45dp',duration:250});
+				searchBar.blur();
+				searchBar.isVisible = false;
+			}
+		}
+		else if (e.contentOffset.y < offset){
+			offset = e.contentOffset.y;
+			if (!Ti.App.tabgroupVisible){
+				Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+				Ti.App.tabgroupVisible = true;
+			}
+			if(!searchBar.isVisible){
+				searchBar.animate({top:'45dp',duration:250});
+				this.animate({top:'90dp',duration:250});
+				searchBar.blur();
+				searchBar.isVisible = true;
+			}
+		}
+	}
+};
+
+var tbl = create_table_view();
+
+tbl.addEventListener('scroll', toggle_tab_search);
+tbl.addEventListener('scroll', function(e) {
+	if(!!current_row){
+		current_row.articleRow.animate({
+			left: 0,
+			duration: 500
+		});
+		current_row = null;	
+	}	
 });
+tbl.addEventListener('scroll', infinite_scroll);
+add_pull_to_refresh(tbl);
 
+Ti.include('ios-search.js');
 Ti.include('ios-sharing.js');
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
@@ -127,11 +229,9 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	})
 	
 	var thumbnail = Ti.UI.createImageView({
-		height: '80dp',
-		width: '80dp',
+		height: '70dp',
+		width: '70dp',
 		left: 0,
-		borderColor: '#E3E3E3',
-		borderWidth: '1dp',
 		image: thumbnail,
 	});
 
@@ -139,8 +239,8 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	var titleLabel = Ti.UI.createLabel({
 		text: title,
 		color:'#4A4A4A',
-		top: '10dp',
-		left: '100dp',
+		top: '0dp',
+		left: '80dp',
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		font: {
@@ -157,6 +257,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		width: Ti.Platform.displayCaps.platformWidth,
 		backgroundColor:'#fff',
 		className: 'article',
+		leftImage:'images/bar.png',
 		url: url,
 		content: content,
 		articleTitle: title,
@@ -198,7 +299,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 function loadWordpress()
 {
 	var loader;
-	var articleData = [];
+	
 	// Create our HTTP Client and name it "loader"
 	loader = Titanium.Network.createHTTPClient();
 	// Sets the HTTP request method, and the URL to get data from
@@ -224,9 +325,6 @@ function loadWordpress()
 			var date = wordpress.posts[i].date;
 			lastID = id;		
 			
-			var originalDate = date.split(' ');
-			var dateArray = originalDate[0].split('-');
-			
 			var thumbail;
 			
 			if (wordpress.posts[i].attachments.length > 0)
@@ -248,41 +346,6 @@ function loadWordpress()
 		tbl.setData(articleData);
 	}
 	
-	tbl.addEventListener('scroll', function(e){
-		if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
-			if(e.contentOffset.y > offset){
-				offset = e.contentOffset.y;
-				if (Ti.App.tabgroupVisible){
-					Ti.App.tabgroup.animate({bottom: -50, duration: 250});
-					Ti.App.tabgroupVisible = false;
-				}
-			}
-			else if (e.contentOffset.y < offset){
-				offset = e.contentOffset.y;
-				if (!Ti.App.tabgroupVisible){
-					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
-					Ti.App.tabgroupVisible = true;
-				}
-			}
-		}
-	});
-	
-	
-	tbl.addEventListener('scroll', function(e) {
-		if(!!current_row){
-			current_row.articleRow.animate({
-				left: 0,
-				duration: 500
-			});
-			current_row = null;	
-		}	
-	});
-
-	tbl.addEventListener('scroll', infinite_scroll);	
-	
-	Ti.include('ios-refresh.js');
-	tbl.headerPullView = tableHeader;
-	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
 			
@@ -301,7 +364,7 @@ function loadWordpress()
 
 setTimeout(function checkSync() {
 
-    if (loadData == false) {
+    if (loadOlderArticles == false) {
         setTimeout(checkSync, 500);
         return;
     }
@@ -310,7 +373,7 @@ setTimeout(function checkSync() {
 	 
 	tbl.appendRow(create_loading_row());
 
-    loadData = false;	
+    loadOlderArticles = false;	
     
 	var loader = Titanium.Network.createHTTPClient();
 
@@ -349,6 +412,7 @@ setTimeout(function checkSync() {
 			}
 		}
 		
+		articleData = tbl.data;
 		tbl.addEventListener('scroll',infinite_scroll);
 	}
 	
@@ -356,17 +420,6 @@ setTimeout(function checkSync() {
 
     setTimeout(checkSync, 500);
 }, 500);
-
-
-win.add(topBar);
-//win.add(menuButton);
-//topBar.add(admobbutt);
-//topBar.add(searchButton);
-//topBar.add(searchParent);
-// topBar.add(photoViewButton);
-// topBar.add(textViewButton);
-// topBar.add(searchButton);
-// topBar.add(topLogo);
 
 Ti.UI.currentTab.addEventListener('blur', function(){
 	if (!!current_row){
@@ -377,5 +430,8 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 		current_row = null;
 	}
 });
+
+win.add(header);
+win.add(searchBar);
 
 loadWordpress();

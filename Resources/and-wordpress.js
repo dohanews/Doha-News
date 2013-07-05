@@ -1,7 +1,6 @@
 Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
-Ti.include('search.js');
 
 var db = require('database');
 var osname = Ti.Platform.osname;
@@ -14,6 +13,7 @@ var twitter_client = Twitter({
 });
 
 var win = Ti.UI.currentWindow;
+var articleData = [];
 
 var firstAd = 0;
 var lastAd = 3;
@@ -21,7 +21,7 @@ var lastAd = 3;
 var lastID = 0;
 var recentID = 0;
 
-var loadData = false;
+var loadMoreArticles = false;
 var offset = 0;
 
 win.backgroundColor='white';
@@ -29,10 +29,10 @@ win.navBarHidden = true;
 
 
 var infinite_scroll = function(evt) {
-	    
+
 	if (evt.totalItemCount < evt.firstVisibleItem + evt.visibleItemCount + 3) {
 		tbl.removeEventListener('scroll', infinite_scroll);	
-		loadData = true;       
+		loadMoreArticles = true;       
 	}
 };
 
@@ -52,7 +52,7 @@ var create_activity_indicator = function(){
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
-	
+
 	return activityIndicator;
 };
 
@@ -65,14 +65,14 @@ var create_loading_row = function(){
 
 	var loading_indicator = create_activity_indicator();
 	loading_indicator.top = '40dp';
-	
+
 	loading_row.add(loading_indicator);
 	loading_indicator.show();
-	
+
 	return loading_row;
 };
 
-var topBar = Titanium.UI.createView({
+var header = Titanium.UI.createView({
 	backgroundColor: '#70193c',
 	height: '0.75cm',
 	top: 0,
@@ -116,18 +116,35 @@ var topLogo = Titanium.UI.createImageView({
 	// return true;
 // }
 
-var tbl = Ti.UI.createTableView({
-	backgroundColor:'transparent',
-	minRowHeight: '95dp',
-	top: '.75cm',
-	left: '5dp',
-	right: '5dp',
-	bubbleParent: false,
-	selectionStyle: 'none',
-	separatorColor: '#d3d3d3',
+var create_table_view = function(){
+	var table  = Ti.UI.createTableView({
+		backgroundColor:'transparent',
+		minRowHeight: '95dp',
+		top: '.75cm',
+		left: '5dp',
+		right: '5dp',
+		bubbleParent: false,
+		selectionStyle: 'none',
+		separatorColor: '#d3d3d3',
+	});
+	return table;
+}
+
+var tbl = create_table_view();
+tbl.addEventListener('scroll', function(e) {	
+	if (!!current_row){
+		current_row.articleRow.animate({
+				opacity:1,
+				duration: 500
+		});
+		current_row = null;
+	}
 });
 
-Ti.include('android-sharing.js');
+tbl.addEventListener('scroll', infinite_scroll);	
+Ti.include('and-refresh.js');
+Ti.include('and-sharing.js');
+Ti.include('and-search.js');
 
 var make_content_view = function(title, content, thumbnail, url, id, date, author) {
 
@@ -137,7 +154,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		left: 0,
 		backgroundColor: 'white',
 	})
-	
+
 	var thumbnail = Ti.UI.createImageView({
 		height: '80dp',
 		width: '80dp',
@@ -159,10 +176,10 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		},
 		backgroundColor:'transparent',
 	});
-	
+
 	content_view.add(thumbnail);
 	content_view.add(titleLabel);
-	
+
 	var row = Ti.UI.createTableViewRow({
 		height: Ti.UI.FILL,
 		width: Ti.Platform.displayCaps.platformWidth,
@@ -180,9 +197,9 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
 	row.add(sharing);
 	row.add(row.articleRow);
-	
+
 	row.addEventListener('longclick', sharing_animation);
-	
+
 	row.articleRow.addEventListener ('singletap', function(e){
 		var win = Ti.UI.createWindow({
 			backgroundColor:'#fff',
@@ -193,7 +210,7 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 		win.open({
 			animated:true,
 		});
-		
+
 		if (!!current_row) {
 			current_row.articleRow.animate({
 				opacity: 1,
@@ -202,28 +219,28 @@ var make_content_view = function(title, content, thumbnail, url, id, date, autho
 			current_row = null;
 		}
 	});
-	
+
 	return row;
 }
 
 function loadWordpress()
 {
 	var loader;
-	var articleData = [];
+ 	articleData = [];
 	// Create our HTTP Client and name it "loader"
 	loader = Titanium.Network.createHTTPClient();
 	// Sets the HTTP request method, and the URL to get data from
 
 	loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
 	// Runs the function when the data is ready for us to process
-	
+
 	loader.onload = function() 
 	{
 		var wordpress = JSON.parse(this.responseText);
-		
+
 		if (wordpress.posts.length > 0)
 			recentID = wordpress.posts[0].id;
-			
+
 		for (var i = 0; i < wordpress.posts.length; i++)
 		{	
 			lastAd++;
@@ -234,54 +251,40 @@ function loadWordpress()
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
 			lastID = id;		
-			
+
 			var originalDate = date.split(' ');
 			var dateArray = originalDate[0].split('-');
-			
+
 			var thumbail;
-			
+
 			if (wordpress.posts[i].attachments.length > 0)
 				thumbnail = wordpress.posts[i].attachments[0].images.small.url
 			else 
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
-			
+
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 
 			articleData.push(articleRow);
-			
+
 			if (lastAd%10 == 0 && lastAd != 0) {
 				var adMobRow = createAdMobView();
 				articleData.push(adMobRow);
 			}
 		}
-	
+
 		tbl.setData(articleData);
 	}
-	
-	tbl.addEventListener('scroll', function(e) {	
-		if (!!current_row){
-			current_row.articleRow.animate({
-					opacity:1,
-					duration: 500
-			});
-			current_row = null;
-		}
-	});
 
-	tbl.addEventListener('scroll', infinite_scroll);	
-	
-	Ti.include('android-refresh.js');
-	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
-			
+
 	loading_indicator.show();
-		
+
 	win.open();
-	
+
 	loader.onreadystatechange = function(e){ 
-		if (this.readyState == Ti.Network.HTTPClient.DONE) {
+		if (this.readyState == 4) {
 			loading_indicator.hide();
 			win.add(tbl);
 		} 
@@ -289,23 +292,23 @@ function loadWordpress()
 	loader.send();
 }
 
-setTimeout(function checkSync() {
+setTimeout(function load_more_articles() {
 
-    if (loadData == false) {
-        setTimeout(checkSync, 500);
+    if (loadMoreArticles == false) {
+        setTimeout(load_more_articles, 500);
         return;
     }
     
     tbl.removeEventListener('scroll',infinite_scroll);
-	
+
 	tbl.appendRow(create_loading_row());
 
-    loadData = false;	
+    loadMoreArticles = false;	
     
 	var loader = Titanium.Network.createHTTPClient();
 
 	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
-	
+
 	loader.onload = function() 
 	{
 		tbl.deleteRow(tbl.data[0].rows.length-1);
@@ -319,55 +322,46 @@ setTimeout(function checkSync() {
 			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
-			
+
 			lastID = id;
-			
+
 			var thumbail;
-	
+
 			if (wordpress.posts[i].attachments.length > 0)
 				thumbnail = wordpress.posts[i].attachments[0].images.small.url
 			else 
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
-	
+
 			// Create a row and set its height to auto
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.appendRow(articleRow);
-			
+
 			if (lastAd%10 == 0 && lastAd != 0) {
 				var adMobRow = createAdMobView();
 				tbl.appendRow(adMobRow);
 			}
 		}
 		
+		articleData = tbl.data;
 		tbl.addEventListener('scroll',infinite_scroll);
 	}
-	
+
 	loader.send();
 
-    setTimeout(checkSync, 500);
+    setTimeout(load_more_articles, 500);
 }, 500);
 
-
-win.add(topBar);
-//win.add(menuButton);
-//topBar.add(admobbutt);
-//topBar.add(searchButton);
-//topBar.add(searchParent);
-// topBar.add(photoViewButton);
-// topBar.add(textViewButton);
-// topBar.add(searchButton);
-// topBar.add(topLogo);
-
 Ti.UI.currentTab.addEventListener('blur', function(){
-	tbl.addEventListener('scroll', function(e) {	
-		if (!!current_row){
-			current_row.articleRow.animate({
-					opacity:1,
-					duration: 500
-			});
-			current_row = null;
-		}
-	});
+	if (!!current_row){
+		current_row.articleRow.animate({
+				opacity:1,
+				duration: 500
+		});
+		current_row = null;
+	}
+	searchBar.blur();
 });
 
+win.add(header);
+header.add(searchBar);
 loadWordpress();
