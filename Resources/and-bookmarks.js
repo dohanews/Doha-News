@@ -58,8 +58,6 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
-var header = create_header();
-
 var tbl = create_table_view();
 
 Ti.include('and-sharing.js');
@@ -135,7 +133,6 @@ function initialize_table()
 	win.open();
 }
 
-win.add(header);
 initialize_table();
 
 Ti.UI.currentTab.addEventListener('focus', function(){

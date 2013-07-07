@@ -196,25 +196,24 @@ exports.create_header = function(){
 		backgroundColor: '#f8f8f8',
 		top: 0,
 		height: '45dp',
-		zIndex: 2
+		zIndex: 2,
+		layout:'horizontal'
 	});
 	
+	var headerlogo = Ti.UI.createImageView({
+		image: 'images/ios-header.png',
+		width: '150dp',
+		height: '20dp',
+		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 20},
+		
+	});
 	var headerStrip = Titanium.UI.createView({
 		backgroundColor: '#70193c',
 		height: '5dp',
 		top: 0,
 	})
 	header.add(headerStrip);
-	
-	var topLogo = Titanium.UI.createLabel({
-		width: Ti.UI.SIZE,
-		text: 'Doha News',
-		color: '#70193c',
-		top: '5dp',
-		font: {fontSize: '18dp', fontFamily: 'Helvetica-Bold'}
-	});
-	
-	header.add(topLogo);
+	header.add(headerlogo);
 	
 	return header;
 }

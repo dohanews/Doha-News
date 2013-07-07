@@ -230,6 +230,6 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 	searchBar.blur();
 });
 
-win.add(header);
+//win.add(header);
 header.add(searchBar);
 loadWordpress();

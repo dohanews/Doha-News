@@ -2,7 +2,6 @@ var create_table_view = function(){
 	var table  = Ti.UI.createTableView({
 		backgroundColor:'white',
 		minRowHeight: '80dp',
-		top: '.75cm',
 		left: '5dp',
 		right: '5dp',
 		bubbleParent: false,
