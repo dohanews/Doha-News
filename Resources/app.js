@@ -66,7 +66,7 @@ Ti.App.tabgroup.addTab(videos);
 Ti.App.tabgroup.open();
 Ti.App.tabgroupVisible = true;
 
-if (Ti.Platform.osname == 'ios'){
+if (Ti.Platform.osname != 'android'){
 var icons = ['images/tab_articles_active.png',
 			'images/tab_articles_inactive.png',
 			'images/tab_bookmarks_active.png',
