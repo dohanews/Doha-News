@@ -1,3 +1,5 @@
+Ti.include('and-common.js');
+
 var refreshing = false;
 
 function getFormattedDate(){

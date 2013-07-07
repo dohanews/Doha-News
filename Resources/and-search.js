@@ -1,3 +1,5 @@
+Ti.include('and-common');
+
 var searchData = [];
 var nextpage = 1;
 var loadMoreResults = false;

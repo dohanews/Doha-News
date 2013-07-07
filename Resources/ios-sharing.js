@@ -37,10 +37,10 @@ sharekit.configure({
 
 var create_facebook_share = function(title, url){
 	var facebook_icon = Ti.UI.createImageView({
-		width: '50dp',
+		width: '36dp',
 		left: '10dp',
-		height: '50dp',
-		image: 'images/facebook.png',
+		height: '36dp',
+		image: 'images/social_fb.png',
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -62,10 +62,10 @@ var create_facebook_share = function(title, url){
 var create_twitter_share = function(title, url){
 	
 	var twitter_icon = Ti.UI.createImageView({
-		width: '50dp',
+		width: '36dp',
 		left: '90dp',
-		height: '50dp',
-		image: 'images/twitter.png',
+		height: '36dp',
+		image: 'images/social_twitter.png',
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -86,10 +86,10 @@ var create_twitter_share = function(title, url){
 var create_email_share = function(title, url){
 	
 	var email_icon = Ti.UI.createImageView({
-		width: '50dp',
+		width: '36dp',
 		left: '170dp',
-		height: '50dp',
-		image: 'images/mail.png',
+		height: '36dp',
+		image: 'images/social_email.png',
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
@@ -106,23 +106,52 @@ var create_email_share = function(title, url){
 	return email_icon;
 };
 
+
+var animate = function(imageView, images, duration, callback){
+	var i = 0;
+	
+	var ndx = setInterval(function(){
+		imageView.image = images[i++];
+		if(i == images.length){
+			clearInterval(ndx);
+			if (callback)
+				callback();
+		}
+	}, duration);
+}
+
 var create_bookmarks = function(title, url, author, content, date, id){
 	
+	var image;
+	if (db.exists(id)){
+		image = 'images/Bookmarks-06.png';
+	}
+	else{
+		image = 'images/Bookmarks-00.png';
+	}
+	
 	var bookmark = Ti.UI.createImageView({
-		width: '50dp',
+		width: '36dp',
 		left: '250dp',
-		height: '50dp',
-		image: 'KS_nav_ui.png',
+		height: '36dp',
+		image: image,
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
 	});
-
+	
+	bookmark.addEventListener('postlayout', function(){
+		if (db.exists(id)){
+			bookmark.image = 'images/Bookmarks-06.png';
+		}
+		else{
+			bookmark.image = 'images/Bookmarks-00.png';
+		}
+	});
+	
 	bookmark.addEventListener('click',function(e){
 		if (db.exists(id)){
-			if (Ti.UI.currentWindow.id == 'bookmarks'){
-				console.log('deleterow');
-				
+			if (Ti.UI.currentWindow.id == 'bookmarks'){				
 				current_row.articleRow.animate({
 					left: 0,
 					duration: 500
@@ -131,10 +160,37 @@ var create_bookmarks = function(title, url, author, content, date, id){
 				tbl.deleteRow(current_row, {animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
 				current_row = null;
 			}
+
+			animate(bookmark,
+				['images/Bookmarks-06.png',
+				'images/Bookmarks-05.png',
+				'images/Bookmarks-04.png',
+				'images/Bookmarks-03.png',
+				'images/Bookmarks-02.png',
+				'images/Bookmarks-01.png',]
+				, 30, function(){
+					bookmark.opacity = 0;
+					bookmark.image = 'images/Bookmarks-00.png'
+					bookmark.animate({opacity:1, duration: 250});
+			});
 			db.deleteId(id);
+			
 		}
-		else
+		else{
 			db.insert(id, title, content, url, author, date);
+			bookmark.animate({opacity: 0, duration: 250}, 
+				function(){
+					bookmark.image = null;
+					bookmark.opacity = 1;
+					animate(bookmark, 
+						['images/Bookmarks-01.png',
+						'images/Bookmarks-02.png',
+						'images/Bookmarks-03.png',
+						'images/Bookmarks-04.png',
+						'images/Bookmarks-05.png',
+						'images/Bookmarks-06.png'], 30);
+			});
+		}
 	});
 	
 	
@@ -158,10 +214,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	return icons;
 };
 
-var sharing_animation;
-
-
-sharing_animation = function(e) {
+var sharing_animation = function(e) {
 	if (!!current_row) {
 		current_row.articleRow.animate({
 			left: 0,
@@ -171,8 +224,14 @@ sharing_animation = function(e) {
 	
 	current_row = e.row;
 	
-	current_row.articleRow.animate({
-		left: -Ti.Platform.displayCaps.platformWidth,
-		duration: 500
-	});
+	if (e.direction == 'left')
+		current_row.articleRow.animate({
+			left: -Ti.Platform.displayCaps.platformWidth,
+			duration: 500
+		});
+	else
+		current_row.articleRow.animate({
+			left: Ti.Platform.displayCaps.platformWidth,
+			duration: 500
+		});
 };

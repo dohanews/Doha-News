@@ -1,3 +1,5 @@
+var common = require('ios-common');
+
 var searchData = [];
 var nextpage = 1;
 var loadMoreResults = false;
@@ -34,7 +36,7 @@ var create_no_results_row = function(){
 	return row;
 }
 
-var searchTable = create_table_view();
+var searchTable = common.create_table_view();
 
 searchTable.addEventListener('scroll', toggle_tab_search);
 searchTable.addEventListener('scroll', function(e) {
@@ -107,7 +109,7 @@ var getSearchResults = function(e){
 			else 
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 
 			searchData.push(articleRow);
 		}
@@ -173,7 +175,7 @@ setTimeout(function load_more_results() {
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 	
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.appendRow(articleRow);
 		}
 			
@@ -235,7 +237,7 @@ var load_older_results = function() {
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 	
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			searchTable.appendRow(articleRow);
 		}
 			

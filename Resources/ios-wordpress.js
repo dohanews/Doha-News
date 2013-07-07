@@ -1,7 +1,8 @@
 Ti.include('admob-android.js');
 Ti.include('ios-refresh.js');
-
+var common = require('ios-common');
 var db = require('database');
+
 var osname = Ti.Platform.osname;
 
 var win = Ti.UI.currentWindow;
@@ -62,113 +63,7 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
-var header = Titanium.UI.createView({
-	backgroundColor: '#f8f8f8',
-	top: 0,
-	height: '45dp',
-	zIndex: 2
-});
-
-var headerStrip = Titanium.UI.createView({
-	backgroundColor: 'maroon',
-	height: '5dp',
-	top: 0,
-})
-header.add(headerStrip);
-
-var topLogo = Titanium.UI.createLabel({
-	width: Ti.UI.FILL,
-	text: 'Doha News',
-	color: '#5a5a5a',
-});
-
-header.add(topLogo);
-var topLogo = Titanium.UI.createImageView({
-	image:'images/logo.png',
-	width: '50dp',
-	height: '50dp',
-	top: 0,
-	left: 0,
-	zIndex: 3
-});
-
-function isToday(day, month, year){
-	var currentTime = new Date();
-	var currentDay = currentTime.getDate();
-	var currentMonth = currentTime.getMonth() + 1;
-	var currentYear = currentTime.getFullYear();
-	
-	if (year<currentYear){
-		return false;
-	}
-	else if (month<currentMonth){
-		return false;
-	}
-	else if (day<currentDay){
-		return false;
-	}
-	return true;
-}
-
-function get_date_label(date){
-	var label;
-	var dateTime = date.split(' ');
-	var date = originalDate[0].split('-');
-	var time = originalDate[1].split(':');
-	
-	var currentTime = new Date();
-	var hours = currentTime.getHours();
-	var minutes = currentTime.getMinutes();
-	var year = currentTime.getFullYear();
-	var month = currentTime.getMonth();
-	var day = currentTime.getDay();
-	
-	if (isToday(date[0], date[1], date[2])){
-		if (time[0] == hours){
-			if (time[1] == minutes)
-				label = 'Just now';
-			else{
-				diff = Math.abs(time[1] - minutes);
-				label = diff == 1? diff + 'minute ago' : diff + 'minutes ago';
-			}
-		}
-		else{
-			diff = Math.abs(time[0] - hours);
-			label = diff == 1? diff + 'hour ago' : diff + 'hours ago';
-		}
-	}
-	else{
-		if (date[0] == years){
-			if (date[1] == month){
-				diff = Math.abs(date[2] - day);
-				label = diff == 1? 'Yesterday' : diff + 'days ago';
-			}
-			else{
-				diff = Math.abs(date[1] - month);
-				label = diff == 1? 'Last month' : diff + 'months ago';
-			}	
-		}
-		else{
-			diff = Math.abs(date[0] - year);
-			label = diff == 1? 'Last year' : diff + 'years ago';
-		}	
-	}	
-}
-
-var create_table_view = function(){
-	var table = Ti.UI.createTableView({
-		backgroundColor:'white',
-		minRowHeight: '80dp',
-		top: '90dp',
-		left: '5dp',
-		right: '5dp',
-		bubbleParent: false,
-		selectionStyle: 'none',
-		separatorColor: '#afafaf',
-	});
-	
-	return table;
-}
+var header = common.create_header();
 
 var toggle_tab_search = function(e){
 	if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
@@ -201,7 +96,7 @@ var toggle_tab_search = function(e){
 	}
 };
 
-var tbl = create_table_view();
+var tbl = common.create_table_view();
 
 tbl.addEventListener('scroll', toggle_tab_search);
 tbl.addEventListener('scroll', function(e) {
@@ -218,83 +113,6 @@ add_pull_to_refresh(tbl);
 
 Ti.include('ios-search.js');
 Ti.include('ios-sharing.js');
-
-var make_content_view = function(title, content, thumbnail, url, id, date, author) {
-
-	var content_view = Ti.UI.createView({
-		height: Ti.UI.FILL,
-		width: Titanium.Platform.displayCaps.platformWidth,
-		left: 0,
-		backgroundColor: 'white',
-	})
-	
-	var thumbnail = Ti.UI.createImageView({
-		height: '70dp',
-		width: '70dp',
-		left: 0,
-		image: thumbnail,
-	});
-
-		
-	var titleLabel = Ti.UI.createLabel({
-		text: title,
-		color:'#4A4A4A',
-		top: '0dp',
-		left: '80dp',
-		right: '20dp',
-		height: Ti.UI.SIZE,
-		font: {
-			fontSize: (Titanium.Platform.displayCaps.platformHeight)/30,
-		},
-		backgroundColor:'transparent',
-	});
-	
-	content_view.add(thumbnail);
-	content_view.add(titleLabel);
-	
-	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.FILL,
-		width: Ti.Platform.displayCaps.platformWidth,
-		backgroundColor:'#fff',
-		className: 'article',
-		leftImage:'images/bar.png',
-		url: url,
-		content: content,
-		articleTitle: title,
-		id: id,
-		author: author,
-		date: date,
-	});
-
-	row.articleRow = content_view;
-	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
-	row.add(sharing);
-	row.add(row.articleRow);
-	
-	row.addEventListener('swipe', sharing_animation);
-	
-	row.articleRow.addEventListener ('click', function(e){
-		var win = Ti.UI.createWindow({
-			backgroundColor:'#fff',
-			url: 'detail.js',
-			modal: true
-		})
-		win.content = content;
-		win.open({
-			animated:true,
-		});
-		
-		if (!!current_row) {
-			current_row.articleRow.animate({
-				left: 0,
-				duration: 500
-			});
-			current_row = null;
-		}
-	});
-	
-	return row;
-}
 
 function loadWordpress()
 {
@@ -333,8 +151,8 @@ function loadWordpress()
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
 
 			
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
-
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			
 			articleData.push(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {
@@ -403,7 +221,7 @@ setTimeout(function checkSync() {
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 	
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.appendRow(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {

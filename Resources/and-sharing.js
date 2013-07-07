@@ -56,33 +56,61 @@ var create_email_share = function(title, url){
 
 var create_bookmarks = function(title, url, author, content, date, id){
 	
+	var image;
+	if (db.exists(id)){
+		image = 'images/Bookmarks-06.png';
+	}
+	else{
+		image = 'images/Bookmarks-00.png';
+	}
+	
 	var bookmark = Ti.UI.createImageView({
 		width: '50dp',
 		left: '250dp',
 		height: '50dp',
-		image: 'KS_nav_ui.png',
+		image: image,
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
 	});
-
+	
+	// bookmark.addEventListener('postlayout', function(){
+		// alert('shown')
+		// if (db.exists(id)){
+			// bookmark.image = 'images/Bookmarks-06.png';
+		// }
+		// else{
+			// bookmark.image = 'images/Bookmarks-00.png';
+		// }
+	// });
+	
 	bookmark.addEventListener('click',function(e){
 		if (db.exists(id)){
 			if (Ti.UI.currentWindow.id == 'bookmarks'){
-				console.log('deleterow');
 				
 				current_row.articleRow.animate({
 					opacity: 1,
 					duration: 500
 				});
-					
-				tbl.deleteRow(current_row);
+
 				current_row = null;
 			}
+			
+			bookmark.animate({opacity:0, duration: 0}, function(){;
+				bookmark.image = 'images/Bookmarks-00.png'
+				bookmark.animate({opacity:1, duration: 350});
+			});
 			db.deleteId(id);
+			Ti.UI.currentTab.fireEvent('focus');
+
 		}
-		else
+		else{
+			bookmark.animate({opacity:0, duration: 0}, function(){;
+				bookmark.image = 'images/Bookmarks-06.png'
+				bookmark.animate({opacity:1, duration: 350});
+			});
 			db.insert(id, title, content, url, author, date);
+		}
 	});
 	
 	
@@ -106,10 +134,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	return icons;
 };
 
-var sharing_animation;
-
-
-sharing_animation = function(e) {
+var sharing_animation = function(e) {
 	if (!!current_row) {
 		current_row.articleRow.animate({
 			opacity: 1,

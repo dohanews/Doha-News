@@ -2,7 +2,9 @@ Ti.include('twitter.js');
 Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 
+var common = require('ios-common');
 var db = require('database');
+
 var osname = Ti.Platform.osname;
 
 var twitter_client = Twitter({
@@ -66,112 +68,10 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
-var topBar = Titanium.UI.createView({
-	backgroundColor: '#70193c',
-	height: '0.75cm',
-	top: 0,
-});
-
-var topLogo = Titanium.UI.createImageView({
-	image:'images/logo.png',
-	width: '50dp',
-	height: '50dp',
-	top: 0,
-	left: 0,
-	zIndex: 3
-});
-
-var tbl = Ti.UI.createTableView({
-	backgroundColor:'transparent',
-	minRowHeight: '95dp',
-	top: '.75cm',
-	left: '5dp',
-	right: '5dp',
-	bubbleParent: false,
-	selectionStyle: 'none',
-	separatorColor: '#d3d3d3',
-});
+var header = common.create_header();
+var tbl = common.create_table_view('45dp');
 
 Ti.include('ios-sharing.js');
-
-
-var make_content_view = function(title, content, thumbnail, url, id, date, author) {
-
-	var content_view = Ti.UI.createView({
-		height: Ti.UI.FILL,
-		width: Titanium.Platform.displayCaps.platformWidth,
-		left: 0,
-		backgroundColor: 'white',
-	})
-	
-	var thumbnail = Ti.UI.createImageView({
-		height: '80dp',
-		width: '80dp',
-		left: 0,
-		borderColor: '#E3E3E3',
-		borderWidth: '1dp',
-		image: thumbnail,
-	});
-		
-	var titleLabel = Ti.UI.createLabel({
-		text: title,
-		color:'#4A4A4A',
-		top: '10dp',
-		left: '100dp',
-		right: '20dp',
-		height: Ti.UI.SIZE,
-		font: {
-			fontSize: Titanium.Platform.displayCaps.platformHeight/30,
-		},
-		backgroundColor:'transparent',
-	});
-	
-	content_view.add(thumbnail);
-	content_view.add(titleLabel);
-	
-	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.FILL,
-		width: Ti.Platform.displayCaps.platformWidth,
-		backgroundColor:'#fff',
-		className: 'article',
-		url: url,
-		content: content,
-		articleTitle: title,
-		id: id,
-		author: author,
-		date: date,
-	});
-
-	row.articleRow = content_view;
-	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
-	row.add(sharing);
-	row.add(row.articleRow);
-	
-	row.addEventListener('swipe', sharing_animation);
-	
-	row.articleRow.addEventListener ('click', function(e){
-		var win = Ti.UI.createWindow({
-			backgroundColor:'#fff',
-			url: 'detail.js',
-			modal: true
-		})
-		win.content = content;
-		win.open({
-			animated:true,
-		});
-		
-		if (!!current_row) {
-			current_row.articleRow.animate({
-				left: 0,
-				duration: 500
-			});
-			current_row = null;
-		}
-	});
-	
-	
-	return row;
-}
 
 function loadBookmarks(){
 	var articleData = [];
@@ -195,7 +95,7 @@ function loadBookmarks(){
 		var originalDate = date.split(' ');
 		var dateArray = originalDate[0].split('-');
 	
-		var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+		var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 		articleData.push(articleRow);
 	}
 
@@ -252,9 +152,7 @@ function initialize_table()
 	win.open();
 }
 
-win.add(topBar);
-
-// topBar.add(topLogo);
+win.add(header);
 initialize_table();
 
 Ti.UI.currentTab.addEventListener('focus', function(){

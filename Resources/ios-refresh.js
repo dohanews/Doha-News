@@ -1,3 +1,4 @@
+var common = require('ios-common');
 var pulling = false;
 var reloading = false;
 var offset = 0;
@@ -102,7 +103,7 @@ var refresh = function(tbl){
 				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
 
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.insertRowBefore(0, articleRow);
 		}
 		
