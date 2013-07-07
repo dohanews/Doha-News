@@ -20,6 +20,12 @@ var bookmarksWin = Titanium.UI.createWindow ({
    orientationModes: [Titanium.UI.PORTRAIT],
 });
 
+var photosWin = Titanium.UI.createWindow({
+	url: 'photos.js',
+	id: 'photos',
+	navBarHidden: true,
+})
+
 if (Ti.Platform.osname != 'android'){
 	bookmarksWin.navBarHidden = true;
 	articlesWin.navBarHidden = true;
@@ -37,11 +43,15 @@ var articles = Titanium.UI.createTab({
 });
 var photos = Titanium.UI.createTab({
 	title: 'Photos',
+
 	window: bookmarksWin,
 });
 var videos = Titanium.UI.createTab({
 	title: 'Videos',
 	window: bookmarksWin,
+
+	window: photosWin,
+
 });
 
 //mainWin.open();
@@ -50,6 +60,7 @@ Ti.App.tabgroup.addTab(articles);
 //Ti.App.tabgroup.addTab(book);
 Ti.App.tabgroup.addTab(bookmarks);
 Ti.App.tabgroup.addTab(photos);
+
 Ti.App.tabgroup.addTab(videos);
 
 Ti.App.tabgroup.open();
