@@ -24,5 +24,11 @@ var images1 = [
 var pictureGallery = PictureGallery.createWindow({
   images: images,
 });
-pictureGallery.pushImages(images1);
+
+var images2 = [
+{ path:'http://24.media.tumblr.com/0ab98ce8de9c42ee1d845788bff5eb2a/tumblr_moqqbq2UmR1qhhgvuo6_r1_1280.jpg', caption:'anas'},
+];
 win.add(pictureGallery);
+pictureGallery.pushImages(images1);
+
+setTimeout(function(){pictureGallery.pushImages(images2);}, 1000);

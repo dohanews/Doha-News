@@ -213,16 +213,15 @@ var xPosition;
 		 * Recompute thumbnails size on orientation change.
 		 */
 		var reComputeImageGalleryOnOrientationChange = function() {
-
 			computeSizesforThumbGallery();
 	
 			var currentColumn = 0;
 			var currentRow = 0;
 			var yPosition = thumbPadding;
 			var xPosition = thumbPadding;
-	
+	alert(thumbnailScrollView.children.length);
 			for (var i = 0, b = thumbnailScrollView.children.length; i < b; i++) {
-	
+				
 				if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
 					xPosition = thumbPadding;
 					yPosition += thumbPadding + thumbSize;
@@ -480,7 +479,6 @@ var xPosition;
 			thumbGalleryWindow.add(thumbnailScrollView);
 			thumbGalleryWindow.add(topBar);
 		}
-		
 		
 		/**
 		 * Create the scrollable gallery view
