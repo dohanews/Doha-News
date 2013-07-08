@@ -3,7 +3,7 @@ var current_row = null;
 var create_facebook_share = function(title, url){
 	var facebook_icon = Ti.UI.createImageView({
 		width: '50dp',
-		left: '10dp',
+		center: {x: 0.2 * Ti.Platform.displayCaps.platformWidth},
 		height: '50dp',
 		image: 'images/facebook.png',
 		url: url,
@@ -19,7 +19,7 @@ var create_twitter_share = function(title, url){
 	
 	var twitter_icon = Ti.UI.createImageView({
 		width: '50dp',
-		left: '90dp',
+		center: {x: 0.4 * Ti.Platform.displayCaps.platformWidth},
 		height: '50dp',
 		image: 'images/twitter.png',
 		url: url,
@@ -35,7 +35,7 @@ var create_email_share = function(title, url){
 	
 	var email_icon = Ti.UI.createImageView({
 		width: '50dp',
-		left: '170dp',
+		center: {x: 0.6 * Ti.Platform.displayCaps.platformWidth},
 		height: '50dp',
 		image: 'images/mail.png',
 		url: url,
@@ -66,7 +66,7 @@ var create_bookmarks = function(title, url, author, content, date, id){
 	
 	var bookmark = Ti.UI.createImageView({
 		width: '50dp',
-		left: '250dp',
+		center: {x: 0.8 * Ti.Platform.displayCaps.platformWidth},
 		height: '50dp',
 		image: image,
 		url: url,
@@ -125,7 +125,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 		bubbleParent: false,
 		hieght: Ti.UI.SIZE,
 	});
-	
+
 	icons.add(create_facebook_share(title,url));
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
