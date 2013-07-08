@@ -50,26 +50,24 @@ var photos = Titanium.UI.createTab({
 // });
 
 //mainWin.open();
-Ti.App.tabgroup.addTab(articles);
-
-//Ti.App.tabgroup.addTab(book);
 Ti.App.tabgroup.addTab(bookmarks);
+Ti.App.tabgroup.addTab(articles);
+//Ti.App.tabgroup.addTab(book);
 Ti.App.tabgroup.addTab(photos);
-
 //Ti.App.tabgroup.addTab(videos);
 Ti.App.tabgroupVisible = true;
 
 if (Ti.Platform.osname != 'android'){
-	var icons = ['images/tab_articles_active.png',
-				'images/tab_articles_inactive.png',
-				'images/tab_bookmarks_active.png',
+	var icons = ['images/tab_bookmarks_active.png',
 				'images/tab_bookmarks_inactive.png',
+				'images/tab_articles_active.png',
+				'images/tab_articles_inactive.png',
 				'images/tab_photos_active.png',
 				'images/tab_photos_inactive.png',
 				'images/tab_videos_active.png',
 				'images/tab_videos_inactive.png'];
 				
-	var background = Ti.UI.createView({
+	var tabgroupBackground = Ti.UI.createView({
 		backgroundColor: '#f9f9f9',
 		width: Ti.UI.FILL,
 		height: '50dp',
@@ -77,7 +75,7 @@ if (Ti.Platform.osname != 'android'){
 		touchEnabled: false,
 	})
 	
-	var backgroundHeader = Ti.UI.createView({
+	var tabgroupHeader = Ti.UI.createView({
 		backgroundColor: '#b2b2b2',
 		height: '1dp',
 		top: 0,
@@ -116,19 +114,19 @@ if (Ti.Platform.osname != 'android'){
 			touchEnabled: false,
 		});
 	 	
-	 	if (i == 0){
+	 	if (i == 1){
 	 		selectedImage.visible = true;
 	 		tabTitle.color = '#167efc';
 	 	}
-	    background.add(tab.deselected = deselectedImage);
-	    background.add(tab.selected = selectedImage);
-	    background.add(tab.tabTitle = tabTitle); 
+	 	
+	    tabgroupBackground.add(tab.deselected = deselectedImage);
+	    tabgroupBackground.add(tab.selected = selectedImage);
+	    tabgroupBackground.add(tab.tabTitle = tabTitle); 
 	}
 	
 	Ti.App.tabgroup.addEventListener('focus', overrideFocusTab);
-	Ti.App.tabgroup.add(background);
-	Ti.App.tabgroup.overrideTabs = background;
-	background.add(backgroundHeader);
+	Ti.App.tabgroup.add(tabgroupBackground);
+	tabgroupBackground.add(tabgroupHeader);
 	
 	function overrideFocusTab(evt) {
 	    if (evt.previousIndex >= 0) {
@@ -150,8 +148,10 @@ else{
                 };
 		}
 	});
-	
-	var searchView = Ti.UI.Android.createSearchView();
+
+	var searchView = Ti.UI.Android.createSearchView({
+		iconifiedByDefault: false,
+	});
 	articlesWin.addEventListener('open', function(){
 		articlesWin.activity.onCreateOptionsMenu = function(e) {
 			var menu = e.menu;
@@ -159,17 +159,19 @@ else{
 				title: 'Search',
 				actionView : searchView,
 				icon: Ti.Android.R.drawable.ic_menu_search,
-				showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS 
+				showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS, 
+			
 			});
 			
-			menuItem.addEventListener('clicl',function(e){
+			menuItem.addEventListener('click',function(e){
+				searchView.iconified = false;
 				menuItem.expandActionView();
 			})
 		};
 		
 	})
-	
-	Ti.App.tabgroup.getActivity().invalidateOptionsMenu();
 }
-Ti.App.tabgroup.open();
 
+
+Ti.App.tabgroup.open();
+Ti.App.tabgroup.setActiveTab(1);
