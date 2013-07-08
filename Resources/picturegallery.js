@@ -8,6 +8,11 @@
 /** @namespace Holds the only function creating a new gallery */
 var PictureGallery = {};
 
+var currentColumn;
+var currentRow;
+var yPosition;
+var xPosition;
+			
 (function() {
 	PictureGallery.createWindow = function(dictionary) {
 	
@@ -27,15 +32,7 @@ var PictureGallery = {};
 	
 		/** Window managing the thumb gallery */
 		thumbGalleryWindow = null,
-	
-		// iOS only --------------------
-		/** Optional window wrapping a navigation group */
-		navigationWrappingWindow = null,
-	
-		/** Navigation group */
-		navigation = null,
-		// -----------------------------
-	
+
 		/** Thumbnail gallery view */
 		thumbnailScrollView = null,
 	
@@ -283,6 +280,94 @@ var PictureGallery = {};
 			}
 		}
 		
+		var pushImagesToGallery = function(newImages){
+			console.log(newImages);
+			console.log(dictionary.images.length);
+
+			var b =  dictionary.images.length;
+			for (var i = dictionary.images.length; i < newImages.length+b; i++) {
+				dictionary.images.push(newImages[i-b]);
+				if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
+						xPosition = thumbPadding;
+						yPosition += thumbPadding + thumbSize;
+						currentRow++;
+				}
+				
+				var thumbImageBorder = Ti.UI.createView({
+	
+					width : thumbSize,
+					height : thumbSize,
+	
+					imageId : i-b,
+	
+					left : xPosition,
+					top : yPosition,
+	
+					backgroundColor : dictionary.thumbGallery.backgroundColor
+	
+				});
+	
+				var thumbPath = (typeof newImages[i-b].thumbPath == 'undefined') ?
+								 newImages[i-b].path :
+								 newImages[i-b].thumbPath;
+	
+				var dpifactor = dpi;
+				if (dictionary.thumbGallery.forceRealPixelSize) {
+					dpifactor = 1;
+				}
+	
+				var thumbImage = Ti.UI.createImageView({
+	
+					image : thumbPath,
+					imageId : i-b,
+	
+					width : (thumbSize - (6 * dpifactor)),
+					height : (thumbSize - (6 * dpifactor)),
+	
+					top : (3 * dpifactor),
+					left : (3 * dpifactor)
+	
+				});
+	
+				thumbImageBorder.borderColor = dictionary.thumbGallery.thumbBorderColor;
+				thumbImageBorder.borderWidth = dictionary.thumbGallery.thumbBorderWidth;
+				thumbImageBorder.backgroundColor = dictionary.thumbGallery.thumbBackgroundColor;
+	
+				thumbImageBorder.add(thumbImage);
+	
+				thumbImageBorder.addEventListener('click', function(e) {
+					galleryWindow = Ti.UI.createWindow({
+						backgroundColor : '#000',
+						navBarHidden: true,
+						translucent : true,	
+					});
+	
+					// Add a listener on orientation change...
+					Ti.Gesture.addEventListener('orientationchange', reComputeImagesSizeOnChange);
+	
+					// ... But remove listener from pool on close.
+					galleryWindow.addEventListener('close', function() {
+						Ti.Gesture.removeEventListener('orientationchange', reComputeImagesSizeOnChange);
+					});
+					
+					if (dictionary.scrollableGallery.barColor !== 'undefined') {
+						galleryWindow.barColor = dictionary.scrollableGallery.barColor;
+					}
+	
+					createGalleryWindow(e.source.imageId);
+					galleryWindow.open({
+						fullscreen : true,
+						navBarHidden : true
+					});
+				});
+	
+				thumbnailScrollView.add(thumbImageBorder);
+	
+				// Increments values (thumb layout)
+				currentColumn++;
+				xPosition += thumbSize + thumbPadding;
+			}
+		}
 		
 		/**
 		 * Create thumbnail gallery.
@@ -303,10 +388,10 @@ var PictureGallery = {};
 			computeSizesforThumbGallery();
 	
 			// Laying out thumbnails
-			var currentColumn = 0;
-			var currentRow = 0;
-			var yPosition = thumbPadding;
-			var xPosition = thumbPadding;
+			currentColumn = 0;
+			currentRow = 0;
+			yPosition = thumbPadding;
+			xPosition = thumbPadding;
 	
 			for (var i = 0, b = dictionary.images.length; i < b; i++) {
 	
@@ -362,9 +447,8 @@ var PictureGallery = {};
 				thumbImageBorder.addEventListener('click', function(e) {
 					galleryWindow = Ti.UI.createWindow({
 						backgroundColor : '#000',
-						navBarHidden: false,
-						translucent : true,
-						
+						navBarHidden: true,
+						translucent : true,	
 					});
 	
 					// Add a listener on orientation change...
@@ -380,20 +464,10 @@ var PictureGallery = {};
 					}
 	
 					createGalleryWindow(e.source.imageId);
-	
-					if (isAndroidDevice()) {
-						galleryWindow.open({
-							fullscreen : true,
-							navBarHidden : true
-						});
-					} else {
-						Titanium.UI.iPhone.statusBarStyle = Titanium.UI.iPhone.StatusBar.OPAQUE_BLACK
-						if ( typeof dictionary.windowGroup == 'undefined') {
-							navigation.open(galleryWindow);
-						} else {
-							dictionary.windowGroup.open(galleryWindow);
-						}
-					}
+					galleryWindow.open({
+						fullscreen : true,
+						navBarHidden : true
+					});
 				});
 	
 				thumbnailScrollView.add(thumbImageBorder);
@@ -701,41 +775,41 @@ var PictureGallery = {};
 			top: 0,
 		});
 		
-		thumbGalleryWindow = Ti.UI.createWindow({
+		thumbGalleryWindow = Ti.UI.createView({
+			pushImages: pushImagesToGallery,
 			navBarHidden: true,
 		});
-	
-		thumbGalleryWindow.orientationModes = [
-			Titanium.UI.LANDSCAPE_LEFT,
-			Titanium.UI.LANDSCAPE_RIGHT,
-			Titanium.UI.PORTRAIT,
-			Titanium.UI.UPSIDE_PORTRAIT
-		];
-	
-		if (!isAndroidDevice()) {
-			if (typeof dictionary.windowGroup == 'undefined') {
-				navigationWrappingWindow = Ti.UI.createWindow({
-				});
-				navigation = Ti.UI.iPhone.createNavigationGroup({
-					window : thumbGalleryWindow
-				});
-	
-				navigationWrappingWindow.add(navigation);
-				
-				navigationWrappingWindow.orientationModes = [
-					Titanium.UI.LANDSCAPE_LEFT,
-					Titanium.UI.LANDSCAPE_RIGHT,
-					Titanium.UI.PORTRAIT,
-					Titanium.UI.UPSIDE_PORTRAIT
-				];
-			} else {
-				navigationWrappingWindow = thumbGalleryWindow;
-			}
-	
-		} else {
-			navigationWrappingWindow = thumbGalleryWindow;
-		}
-	
+		// thumbGalleryWindow.orientationModes = [
+			// Titanium.UI.LANDSCAPE_LEFT,
+			// Titanium.UI.LANDSCAPE_RIGHT,
+			// Titanium.UI.PORTRAIT,
+			// Titanium.UI.UPSIDE_PORTRAIT
+		// ];
+// 	
+		// if (!isAndroidDevice()) {
+			// if (typeof dictionary.windowGroup == 'undefined') {
+				// navigationWrappingWindow = Ti.UI.createWindow({
+				// });
+				// navigation = Ti.UI.iPhone.createNavigationGroup({
+					// window : thumbGalleryWindow
+				// });
+// 	
+				// navigationWrappingWindow.add(navigation);
+// 				
+				// navigationWrappingWindow.orientationModes = [
+					// Titanium.UI.LANDSCAPE_LEFT,
+					// Titanium.UI.LANDSCAPE_RIGHT,
+					// Titanium.UI.PORTRAIT,
+					// Titanium.UI.UPSIDE_PORTRAIT
+				// ];
+			// } else {
+				// navigationWrappingWindow = thumbGalleryWindow;
+			// }
+// 	
+		// } else {
+			// navigationWrappingWindow = thumbGalleryWindow;
+		// }
+// 	
 		createThumbGallery();
 	
 		Ti.Gesture.addEventListener('orientationchange', reComputeImageGalleryOnOrientationChange);
@@ -744,7 +818,7 @@ var PictureGallery = {};
 			Ti.Gesture.removeEventListener('orientationchange', reComputeImageGalleryOnOrientationChange);
 		});
 		
-		return navigationWrappingWindow;
+		return thumbGalleryWindow;
 	
 	};
 })();
