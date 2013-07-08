@@ -172,9 +172,19 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		var win = Ti.UI.createWindow({
 			backgroundColor:'#fff',
 			url: 'detail.js',
-			modal: true
+			modal: true,
+			content: content, /////////////////
+			id: id,/////////////////
+			articleUrl: url,/////////////////
+			articleTitle: title,/////////////////
+			thumbnail: thumbnail,/////////////////
+			date: date,/////////////////
+			author: author,/////////////////
 		})
-		win.content = content;
+		win.addEventListener('close',function(){
+			console.log('closed');////////////////
+			Ti.UI.currentTab.fireEvent('focus');
+		})
 		win.open({
 			animated:true,
 		});
@@ -210,6 +220,7 @@ exports.create_header = function(){
 		backgroundColor: '#70193c',
 		height: '5dp',
 		top: 0,
+		zIndex: 100,
 	});
 	
 	var headerBottomBorder = Ti.UI.createView({
@@ -238,4 +249,18 @@ exports.create_table_view = function(top){
 	});
 	
 	return table;
+}
+
+
+exports.dialog = function(title, msg){
+	title = title || 'Couldn\'t fetch your articles';
+	msg = msg || 'Please check internet connectivity';
+	
+	var d = Ti.UI.createAlertDialog({
+		message: msg,
+		title: title,
+		ok: 'Got it!',
+		cancel: -1,
+	})
+	d.show();
 }
