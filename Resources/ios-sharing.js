@@ -3,6 +3,7 @@ var current_row = null;
 var sharekit = require('com.0x82.sharekit');
 
 sharekit.configure({
+	title: 'Sharing',
 	my_app_name: 'Doha News',
 	my_app_url: 'http://www.dohanews.co',
 	
@@ -16,23 +17,23 @@ sharekit.configure({
 	
 	facebook_key: '520290184684825',
 	
-	bar_style: "UIBarStyleDefault",
+	bar_style: "UIBarStyleBlack",
 	
 	form_font_color_red: -1,
 	form_font_color_green: -1,
 	form_font_color_blue: -1,
-	form_bg_color_red: -1,
-	form_bg_color_green: -1,
-	form_bg_color_blue: -1,
+	form_bg_color_red: 50,
+	form_bg_color_green: 50,
+	form_bg_color_blue: 50,
 	
 	ipad_modal_presentation_style: "UIModalPresentationFormSheet",
 	ipad_modal_transition_style: "UIModalTransitionStyleCoverVertical",
-	
-	use_placeholders: true,
-	
-	max_fav_count: 3,
+	share_menu_alphabetical_order: true,
+	//use_placeholders: true,
+	//max_fav_count: 3,
 	allow_offline: true,
-	allow_auto_share: true
+	allow_auto_share: false,
+	hide_more_button: true,
 });
 
 var create_facebook_share = function(title, url){
