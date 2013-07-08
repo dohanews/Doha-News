@@ -197,24 +197,30 @@ exports.create_header = function(){
 		top: 0,
 		height: '45dp',
 		zIndex: 2,
-		layout:'horizontal'
 	});
 	
 	var headerlogo = Ti.UI.createImageView({
 		image: 'images/ios-header.png',
 		width: '150dp',
 		height: '20dp',
-		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 20},
+		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 25},
 		
 	});
 	var headerStrip = Titanium.UI.createView({
 		backgroundColor: '#70193c',
 		height: '5dp',
 		top: 0,
-	})
+	});
+	
+	var headerBottomBorder = Ti.UI.createView({
+		backgroundColor: '#b2b2b2',
+		height: '1dp',
+		bottom: 0,
+	});
+	
 	header.add(headerStrip);
 	header.add(headerlogo);
-	
+	header.add(headerBottomBorder);
 	return header;
 }
 

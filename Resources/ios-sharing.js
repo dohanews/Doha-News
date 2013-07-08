@@ -38,7 +38,7 @@ sharekit.configure({
 var create_facebook_share = function(title, url){
 	var facebook_icon = Ti.UI.createImageView({
 		width: '36dp',
-		left: '10dp',
+		center: {x: 0.2 * Ti.Platform.displayCaps.platformWidth},
 		height: '36dp',
 		image: 'images/social_fb.png',
 		url: url,
@@ -63,7 +63,7 @@ var create_twitter_share = function(title, url){
 	
 	var twitter_icon = Ti.UI.createImageView({
 		width: '36dp',
-		left: '90dp',
+		center: {x: 0.4 * Ti.Platform.displayCaps.platformWidth},
 		height: '36dp',
 		image: 'images/social_twitter.png',
 		url: url,
@@ -87,7 +87,7 @@ var create_email_share = function(title, url){
 	
 	var email_icon = Ti.UI.createImageView({
 		width: '36dp',
-		left: '170dp',
+		center: {x: 0.6 * Ti.Platform.displayCaps.platformWidth},
 		height: '36dp',
 		image: 'images/social_email.png',
 		url: url,
@@ -132,7 +132,7 @@ var create_bookmarks = function(title, url, author, content, date, id){
 	
 	var bookmark = Ti.UI.createImageView({
 		width: '36dp',
-		left: '250dp',
+		center: {x: 0.8 * Ti.Platform.displayCaps.platformWidth},
 		height: '36dp',
 		image: image,
 		url: url,
@@ -200,10 +200,11 @@ var create_bookmarks = function(title, url, author, content, date, id){
 
 var create_sharing_options_view = function(url, title, content, thumbnail, id, date, author) { 
 
-	var icons = Ti.UI.createView({
-		backgroundColor: 'white',
+	var icons = Ti.UI.createImageView({
+		image: 'images/options_row.png',
 		bubbleParent: false,
-		hieght: Ti.UI.SIZE,
+		height: Ti.UI.FILL,
+		width: Ti.UI.FILL,
 	});
 	
 	icons.add(create_facebook_share(title,url));
