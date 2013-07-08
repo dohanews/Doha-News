@@ -71,6 +71,12 @@ var create_searching_row = function(){
 
 
 var getSearchResults = function(e){
+	
+	if(!Ti.Network.online){
+		common.dialog('Couldn\'t fetch your results');
+		searching = false;
+		return;
+	}
 
 	if (infiniteScrolling)
 		searchTable.removeEventListener('scroll',search_infinite_scroll);
@@ -129,6 +135,12 @@ var getSearchResults = function(e){
 		searching = false;
 	}
 	
+	loader.onerror = function(e){
+		common.dialog('Couldn\'t fetch your results');
+		searchData.push(create_no_results_row());
+		searchTable.setData;
+		searching = false;
+	}
 	loader.send();
 };
 

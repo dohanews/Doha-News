@@ -116,10 +116,23 @@ Ti.include('ios-sharing.js');
 
 function loadWordpress()
 {
+	var send_request = function(e){
+		if (e.online){
+			loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+			loading_indicator.show();
+			loader.send();
+		}
+	}
+	
+	var network = Titanium.Network;
+	network.addEventListener('change', send_request);
+
 	var loader;
 	
 	// Create our HTTP Client and name it "loader"
-	loader = Titanium.Network.createHTTPClient();
+	loader = Titanium.Network.createHTTPClient({
+		timeout: 10000,
+	});
 	// Sets the HTTP request method, and the URL to get data from
 
 	loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
@@ -134,6 +147,8 @@ function loadWordpress()
 			
 		for (var i = 0; i < wordpress.posts.length; i++)
 		{	
+			network.removeEventListener('change',send_request);
+			
 			lastAd++;
 			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
@@ -162,31 +177,31 @@ function loadWordpress()
 		}
 	
 		tbl.setData(articleData);
+		
+		loading_indicator.hide();
+		win.add(tbl);
 	}
 	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
 			
 	loading_indicator.show();
-		
-	win.open();
 	
-	loader.onreadystatechange = function(e){ 
-		if (this.readyState == this.DONE) {
-			loading_indicator.hide();
-			win.add(tbl);
-		} 
+	loader.onerror = function(e){
+		common.dialog('Couldn\'t fetch your articles', 'Please check internet connectivity');
+		loading_indicator.hide();
 	};
+
 	loader.send();
 }
 
 setTimeout(function checkSync() {
 
-    if (loadOlderArticles == false) {
+    if (loadOlderArticles == false || !Ti.Network.online) {
         setTimeout(checkSync, 500);
         return;
     }
-
+    
 	tbl.removeEventListener('scroll',infinite_scroll);
 	 
 	tbl.appendRow(create_loading_row());
@@ -234,6 +249,11 @@ setTimeout(function checkSync() {
 		tbl.addEventListener('scroll',infinite_scroll);
 	}
 	
+	loader.onerror = function(e){
+		tbl.deleteRow(tbl.data[0].rows.length-1);
+		tbl.addEventListener('scroll',infinite_scroll);
+	};
+
 	loader.send();
 
     setTimeout(checkSync, 500);
@@ -251,5 +271,5 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 
 win.add(header);
 win.add(searchBar);
-
+win.open();
 loadWordpress();

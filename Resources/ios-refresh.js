@@ -111,6 +111,10 @@ var refresh = function(tbl){
 		resetPullHeader(tbl);
 	}
 	
+	loader.onerror = function(e){
+		resetPullHeader(tbl);
+	}
+
 	loader.send();
     // and push this into our table.
     // now we're done; reset the loadData flag and start the interval up again
