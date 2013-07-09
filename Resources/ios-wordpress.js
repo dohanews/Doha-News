@@ -28,18 +28,9 @@ var infinite_scroll = function(evt) {
 };
 
 var create_activity_indicator = function(){
-	var style;
-	if (Ti.Platform.name === 'iPhone OS'){
-		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	}
-	else {
-		style = Ti.UI.ActivityIndicatorStyle.DARK;
-	}
 
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: style,
-		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
-			y:Ti.Platform.displayCaps.platformHeight/2},
+		style: Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
@@ -49,14 +40,13 @@ var create_activity_indicator = function(){
 
 var create_loading_row = function(){
 	var loading_row = Ti.UI.createTableViewRow({
-		height: Ti.UI.SIZE,
+		height: '100dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
 
 	var loading_indicator = create_activity_indicator();
-	loading_indicator.top = '40dp';
-	
+	loading_indicator.top = '35dp'
 	loading_row.add(loading_indicator);
 	loading_indicator.show();
 	
