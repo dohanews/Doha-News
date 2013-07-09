@@ -1,24 +1,25 @@
-var create_date_label = function(date){
+var get_relative_time = exports.get_relative_time = function(date){
 	var text;
 	var dateTime = date.split(' ');
 	
 	var pDate = dateTime[0].split('-');
-	pYear = parseInt(pDate[0]);
-	pMonth = parseInt(pDate[1]);
-	pDay= parseInt(pDate[2]);
+	pYear = parseInt(pDate[0],10);
+	pMonth = parseInt(pDate[1],10);
+	pDay= parseInt(pDate[2],10);
 
 	var pTime = dateTime[1].split(':');
-	pHour = parseInt(pTime[0]);
-	pMin = parseInt(pTime[1]);
+	pHour = parseInt(pTime[0],10);
+	pMin = parseInt(pTime[1],10);
 	
 	var currentTime = new Date();
-	var hours = parseInt(currentTime.getHours());
-	var minutes = parseInt(currentTime.getMinutes());
-	var year = parseInt(currentTime.getFullYear());
-	var month = parseInt(currentTime.getMonth()+1);
-	var day = parseInt(currentTime.getDay());
+	var hours = parseInt(currentTime.getUTCHours(),10);
+	var minutes = parseInt(currentTime.getUTCMinutes(),10);
+	var year = parseInt(currentTime.getUTCFullYear(),10);
+	var month = parseInt(currentTime.getUTCMonth()+1,10);
+	var day = parseInt(currentTime.getUTCDate(),10);
 
 	if (year == pYear && month == pMonth && day == pDay){
+		
 		if (pHour == hours){
 			if (pMin == minutes)
 				text = 'Just now';
@@ -30,7 +31,8 @@ var create_date_label = function(date){
 		else{
 			diff = Math.abs(pHour - hours);
 			if (diff == 1){
-				diff = minutes - pMin;
+				diff = pMin - minutes;
+
 				if (diff > 0){
 					diff = 60 - diff;
 					text = diff == 1? diff + ' minute ago' : diff + ' minutes ago';
@@ -60,6 +62,11 @@ var create_date_label = function(date){
 		}	
 	}
 	
+	return text;
+}
+
+var create_date_label = function(date){
+	var text = get_relative_time(date);
 	var dateLabel = Ti.UI.createLabel({
 		text: text,
 		backgroundColor: 'transparent',
@@ -85,13 +92,13 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	var thumbnail = Ti.UI.createImageView({
 		height: '70dp',
 		width: '70dp',
-		left: 0,
+		left: '5dp',
 		image: thumbnail,
 	});
 
 	var textView = Ti.UI.createView({
-		top: '0dp',
-		left: '80dp',
+		//top: '0dp',
+		left: '85dp',
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		backgroundColor:'transparent',
@@ -140,15 +147,16 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		backgroundColor:'transparent',
 	});
 	
+	var date_label = create_date_label(date);
 	textView.add(titleLabel);
-	authorTimeView.add(create_date_label(date));
+	authorTimeView.add(date_label);
 	authorTimeView.add(authorLabel);
 	textView.add(authorTimeView);
 	content_view.add(thumbnail);
 	content_view.add(textView);
-	
+
 	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.FILL,
+		height: '90dp',
 		width: Ti.Platform.displayCaps.platformWidth,
 		backgroundColor:'#fff',
 		className: 'article',
@@ -159,6 +167,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		id: id,
 		author: author,
 		date: date,
+		date_label: date_label,
 	});
 
 	row.articleRow = content_view;
@@ -239,18 +248,17 @@ exports.create_table_view = function(top){
 	top = top || '90dp';
 	var table = Ti.UI.createTableView({
 		backgroundColor:'white',
-		minRowHeight: '80dp',
+		rowHeight: Ti.UI.SIZE,
 		top: top,
 		left: '5dp',
 		right: '5dp',
 		bubbleParent: false,
 		selectionStyle: 'none',
-		separatorColor: '#afafaf',
+		separatorColor: '#e9e5df',
 	});
 	
 	return table;
 }
-
 
 exports.dialog = function(title, msg){
 	title = title || 'Couldn\'t fetch your articles';
