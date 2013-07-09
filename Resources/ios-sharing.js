@@ -33,7 +33,6 @@ sharekit.configure({
 	//max_fav_count: 3,
 	allow_offline: true,
 	allow_auto_share: false,
-	hide_more_button: true,
 });
 
 var create_facebook_share = function(title, url){
@@ -159,6 +158,10 @@ var create_bookmarks = function(title, url, author, content, date, id){
 				});
 					
 				tbl.deleteRow(current_row, {animationStyle:Ti.UI.iPhone.RowAnimationStyle.RIGHT});
+				if (!Ti.App.tabgroupVisible){
+					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
+					Ti.App.tabgroupVisible = true;
+				}
 				current_row = null;
 			}
 
