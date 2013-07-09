@@ -135,6 +135,18 @@ var pull_to_refresh = function(e){
     }
 };
 
+var change_date_labels = function(tbl){
+
+	for (i = 0; i < tbl.data[0].rows.length; i++){
+		if(tbl.data[0].rows[i].className == 'article'){
+			console.log((tbl.data[0].rows[i].date));
+			date = common.get_relative_time(tbl.data[0].rows[i].date);
+			//console.log(date);
+			tbl.data[0].rows[i].date_label.text = date;
+		}
+	}
+};
+
 var release_to_refresh = function(e){
     if (pulling && !reloading && offset < -80){
         pulling = false;
@@ -144,6 +156,7 @@ var release_to_refresh = function(e){
         actInd.show();
         e.source.setContentInsets({top:80}, {animated:true});
         refresh(tbl);
+        change_date_labels(tbl);
     }
 }
 
