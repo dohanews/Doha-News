@@ -16,22 +16,23 @@ create_date_label = function(date){
 	var dateTime = date.split(' ');
 	
 	var pDate = dateTime[0].split('-');
-	pYear = parseInt(pDate[0]);
-	pMonth = parseInt(pDate[1]);
-	pDay= parseInt(pDate[2]);
+	pYear = parseInt(pDate[0],10);
+	pMonth = parseInt(pDate[1],10);
+	pDay= parseInt(pDate[2],10);
 
 	var pTime = dateTime[1].split(':');
-	pHour = parseInt(pTime[0]);
-	pMin = parseInt(pTime[1]);
+	pHour = parseInt(pTime[0],10);
+	pMin = parseInt(pTime[1],10);
 	
 	var currentTime = new Date();
-	var hours = parseInt(currentTime.getHours());
-	var minutes = parseInt(currentTime.getMinutes());
-	var year = parseInt(currentTime.getFullYear());
-	var month = parseInt(currentTime.getMonth()+1);
-	var day = parseInt(currentTime.getDay());
+	var hours = parseInt(currentTime.getUTCHours(),10);
+	var minutes = parseInt(currentTime.getUTCMinutes(),10);
+	var year = parseInt(currentTime.getUTCFullYear(),10);
+	var month = parseInt(currentTime.getUTCMonth()+1,10);
+	var day = parseInt(currentTime.getUTCDate(),10);
 
 	if (year == pYear && month == pMonth && day == pDay){
+		
 		if (pHour == hours){
 			if (pMin == minutes)
 				text = 'Just now';
@@ -43,7 +44,8 @@ create_date_label = function(date){
 		else{
 			diff = Math.abs(pHour - hours);
 			if (diff == 1){
-				diff = minutes - pMin;
+				diff = pMin - minutes;
+
 				if (diff > 0){
 					diff = 60 - diff;
 					text = diff == 1? diff + ' minute ago' : diff + ' minutes ago';
