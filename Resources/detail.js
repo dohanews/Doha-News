@@ -104,11 +104,54 @@ var share = Titanium.UI.createImageView({
 });
 
 share.addEventListener('click', function(){
-	sharekit.share({
-	  		title: title,
-			link: url,
-	    	view: textsize,
-	  });
+	
+	var dialog = Ti.UI.createOptionDialog({
+		title: "Share",
+		options: ['Twitter', 'Facebook', 'Mail', 'Cancel'],
+		cancel: 3 // index of cancel option
+	});
+ 
+	dialog.addEventListener('click', function(e) {
+		if(e.index == e.cancel) { 
+			return; 
+		}
+		
+		var sharer = null;
+		var shareTitle;
+
+		switch(e.index) {
+			case 0:
+				sharer = 'Twitter';
+				shareTitle = '@dohanews ' + title;
+				break;
+			case 1:
+				sharer = 'Facebook';
+				shareTitle = title;
+				break;
+			case 2:
+				sharer = 'Mail';
+				shareTitle = title;
+				break;
+		}
+	 
+		if (sharer == 'Mail'){
+			var emailDialog = Ti.UI.createEmailDialog({
+				subject: shareTitle,
+				messageBody: url,
+			});
+			emailDialog.open();
+		}
+		else{
+			sharekit.share({
+				title: shareTitle,
+				link: url,
+				sharer: sharer,
+				view: share
+			});
+		}
+	});
+	
+	dialog.show();
 });
 
 header.add(share);
