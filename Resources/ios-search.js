@@ -18,7 +18,7 @@ var searchBar = Ti.UI.createSearchBar({
 
 var create_no_results_row = function(){
 	var row = Titanium.UI.createTableViewRow({
-		height: Ti.UI.SIZE,
+		height: '50dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
@@ -51,7 +51,7 @@ searchTable.addEventListener('scroll', function(e) {
 
 var create_searching_row = function(){
 	var row = Titanium.UI.createTableViewRow({
-		height: Ti.UI.SIZE,
+		height: '50dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
