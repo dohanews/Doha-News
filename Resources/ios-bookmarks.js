@@ -107,7 +107,10 @@ function initialize_table()
 	loadBookmarks();
 	
 	tbl.addEventListener('scroll', function(e){
-		if (e.contentOffset.y > 0 && e.contentOffset.y + e.size.height < e.contentSize.height){
+		console.log(" " + e.contentSize.height + ' ' + Ti.Platform.displayCaps.platformHeight);
+		if (e.contentOffset.y > 0 && 
+			e.contentOffset.y + e.size.height < e.contentSize.height &&
+			e.contentSize.height > Ti.Platform.displayCaps.platformHeight - 45){
 			if(e.contentOffset.y > offset){
 				offset = e.contentOffset.y;
 				if (Ti.App.tabgroupVisible){
