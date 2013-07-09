@@ -31,7 +31,7 @@ var createAdMobView = function()
 	});	
 	
 	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.FILL,
+		height: '50dp',
 		backgroundColor:'#fdfcf8',
 		//backgroundColor: 'red',
 		width: Ti.Platform.displayCaps.platformWidth,
