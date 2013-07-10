@@ -113,21 +113,6 @@ function initialize_table()
 			current_row = null;
 		}
 	});
-
-	tbl.addEventListener ('singletap', function(e){
-
-		if (e.rowData.className == 'article'){
-			var win = Ti.UI.createWindow({
-				backgroundColor:'#fff',
-				url: 'detail.js',
-				modal: true
-			})
-			win.content = e.rowData.content;
-			win.open({
-				animated:true,
-			});
-		}
-	});
 		
 	win.add(tbl);
 	win.open();
