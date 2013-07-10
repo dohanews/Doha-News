@@ -38,18 +38,9 @@ var infinite_scroll = function(evt) {
 };
 
 var create_activity_indicator = function(){
-	var style;
-	if (Ti.Platform.name === 'iPhone OS'){
-		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	}
-	else {
-		style = Ti.UI.ActivityIndicatorStyle.DARK;
-	}
-
+	
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: style,
-		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
-			y:Ti.Platform.displayCaps.platformHeight/2},
+		style: Ti.UI.ActivityIndicatorStyle.DARK,
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
@@ -59,17 +50,16 @@ var create_activity_indicator = function(){
 
 var create_loading_row = function(){
 	var loading_row = Ti.UI.createTableViewRow({
-		height: Ti.UI.SIZE,
+		height: '90dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
 
 	var loading_indicator = create_activity_indicator();
-	loading_indicator.top = '40dp';
-
+	loading_indicator.top = '35dp'
 	loading_row.add(loading_indicator);
 	loading_indicator.show();
-
+	
 	return loading_row;
 };
 
@@ -93,10 +83,21 @@ Ti.include('and-search.js');
 
 function loadWordpress()
 {
-	var loader;
+	var network = Titanium.Network;
+	var send_request = function(e){
+		if (e.online){
+			network.removeEventListener('change', send_request);
+			loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+			loading_indicator.show();
+			loader.send();
+		}
+	}
+	
  	articleData = [];
 	// Create our HTTP Client and name it "loader"
-	loader = Titanium.Network.createHTTPClient();
+	var loader = Titanium.Network.createHTTPClient({
+		timeout: 10000,
+	});
 	// Sets the HTTP request method, and the URL to get data from
 
 	loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
@@ -105,7 +106,7 @@ function loadWordpress()
 	loader.onload = function() 
 	{
 		var wordpress = JSON.parse(this.responseText);
-
+		
 		if (wordpress.posts.length > 0)
 			recentID = wordpress.posts[0].id;
 
@@ -118,10 +119,7 @@ function loadWordpress()
 			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
-			lastID = id;		
-
-			var originalDate = date.split(' ');
-			var dateArray = originalDate[0].split('-');
+			lastID = id;
 
 			var thumbail;
 
@@ -142,6 +140,8 @@ function loadWordpress()
 		}
 
 		tbl.setData(articleData);
+		loading_indicator.hide();
+		win.add(tbl);
 	}
 
 	var loading_indicator = create_activity_indicator();	
@@ -149,20 +149,18 @@ function loadWordpress()
 
 	loading_indicator.show();
 
-	win.open();
-
-	loader.onreadystatechange = function(e){ 
-		if (this.readyState == 4) {
-			loading_indicator.hide();
-			win.add(tbl);
-		} 
+	loader.onerror = function(e){
+		network.addEventListener('change', send_request);
+		dialog('Couldn\'t fetch your articles', 'Please check internet connectivity');
+		loading_indicator.hide();
 	};
+	
 	loader.send();
 }
 
 setTimeout(function load_more_articles() {
 
-    if (loadMoreArticles == false) {
+    if (loadMoreArticles == false || !Ti.Network.online) {
         setTimeout(load_more_articles, 500);
         return;
     }
@@ -173,7 +171,9 @@ setTimeout(function load_more_articles() {
 
     loadMoreArticles = false;	
     
-	var loader = Titanium.Network.createHTTPClient();
+	var loader = Titanium.Network.createHTTPClient({
+		timeout: 10000,
+	});
 
 	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
 
@@ -214,6 +214,11 @@ setTimeout(function load_more_articles() {
 		tbl.addEventListener('scroll',infinite_scroll);
 	}
 
+	loader.onerror = function(e){
+		tbl.deleteRow(tbl.data[0].rows.length-1);
+		tbl.addEventListener('scroll',infinite_scroll);
+	};
+	
 	loader.send();
 
     setTimeout(load_more_articles, 500);
@@ -231,5 +236,6 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 });
 
 //win.add(header);
-header.add(searchBar);
+//header.add(searchBar);
 loadWordpress();
+win.open();
