@@ -42,15 +42,19 @@ var create_email_share = function(title, url){
 		opacity: 1,
 		bubbleParent: false,
 	});
-	
-	email_icon.addEventListener('click',function(e){	
-		var emailDialog = Ti.UI.createEmailDialog({
-			subject: title,
-			messageBody: url,
-		});
-		emailDialog.open();
+
+	email_icon.addEventListener('click', function(){
+		var activity = Ti.Android.currentActivity;
+		var intent = Ti.Android.createIntent({
+		            action: Ti.Android.ACTION_SEND,
+		            type: 'text/plain'
+		        });
+		
+		intent.putExtra(Ti.Android.EXTRA_TEXT, url);
+		intent.putExtra(Ti.Android.EXTRA_SUBJECT, title);
+		activity.startActivity(Ti.Android.createIntentChooser(intent,'Share'));	
 	});
-	
+
 	return email_icon;
 };
 
@@ -74,15 +78,14 @@ var create_bookmarks = function(title, url, author, content, date, id){
 		bubbleParent: false,
 	});
 	
-	// bookmark.addEventListener('postlayout', function(){
-		// alert('shown')
-		// if (db.exists(id)){
-			// bookmark.image = 'images/Bookmarks-06.png';
-		// }
-		// else{
-			// bookmark.image = 'images/Bookmarks-00.png';
-		// }
-	// });
+	bookmark.addEventListener('postlayout', function(){
+		if (db.exists(id)){
+			bookmark.image = 'images/Bookmarks-06.png';
+		}
+		else{
+			bookmark.image = 'images/Bookmarks-00.png';
+		}
+	});
 	
 	bookmark.addEventListener('click',function(e){
 		if (db.exists(id)){
@@ -92,7 +95,8 @@ var create_bookmarks = function(title, url, author, content, date, id){
 					opacity: 1,
 					duration: 500
 				});
-
+				
+				tbl.deleteRow(current_row);
 				current_row = null;
 			}
 			
@@ -101,8 +105,6 @@ var create_bookmarks = function(title, url, author, content, date, id){
 				bookmark.animate({opacity:1, duration: 350});
 			});
 			db.deleteId(id);
-			Ti.UI.currentTab.fireEvent('focus');
-
 		}
 		else{
 			bookmark.animate({opacity:0, duration: 0}, function(){;
@@ -130,7 +132,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
 	icons.add(create_bookmarks(title, url, author, content, date, id));
-
+	
 	return icons;
 };
 
@@ -149,3 +151,4 @@ var sharing_animation = function(e) {
 		duration: 500
 	});
 };
+
