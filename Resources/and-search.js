@@ -4,7 +4,7 @@ var searchData = [];
 var nextpage = 1;
 var loadMoreResults = false;
 var query;
-var alreadyInSearch = false;
+var inSearchView = false;
 var infiniteScrolling = false;
 var searching = false;
 
@@ -70,6 +70,13 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	
 	
 	var getSearchResults = function(e){
+		
+		if(!Ti.Network.online){
+			dialog('Couldn\'t fetch your results');
+			searching = false;
+			return;
+		}
+	
 		if (infiniteScrolling)
 			searchTable.removeEventListener('scroll',search_infinite_scroll);
 			
@@ -79,14 +86,17 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 		searchData = [];
 		searchTable.setData([create_searching_row()]);	
 		
-		if (!alreadyInSearch)
-		win.add(searchTable);
+		if (!inSearchView)
+			win.add(searchTable);
 	
 		tbl.hide();	
 		
 		query = searchBar.value.replace(' ','+');
 		
-		var loader = Titanium.Network.createHTTPClient();
+		var loader = Titanium.Network.createHTTPClient({
+			timeout:10000
+		});
+		
 		loader.open("GET",'http://dev.dohanews.co/?json=1&count=10&s='+query);
 	
 		loader.onload = function() 
@@ -128,6 +138,13 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 
 		}
 		
+		loader.onerror = function(e){
+			common.dialog('Couldn\'t fetch your results');
+			searchData.push(create_no_results_row());
+			searchTable.setData(searchData);
+			searching = false;
+		}
+		
 		loader.send();
 	};
 	
@@ -141,7 +158,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	
 	setTimeout(function load_more_results() {
 	
-	    if (loadMoreResults == false) {
+	    if (loadMoreResults == false || !Titanium.Network.online) {
 	        setTimeout(load_more_results, 500);
 	        return;
 		}			
@@ -194,6 +211,11 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			}
 		}
 		
+		loader.onerror = function(e){
+			tbl.deleteRow(tbl.data[0].rows.length-1);
+			tbl.addEventListener('scroll',infinite_scroll);
+		};
+		
 		loader.send();
 		
 		setTimeout(load_more_results, 500);
@@ -214,7 +236,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			tbl.show();
 			win.remove(searchTable);
 			searchData = null;
-			alreadyInSearch = false;
+			inSearchView = false;
 		}
     });
 	
@@ -223,7 +245,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			tbl.show();
 			win.remove(searchTable);
 			searchData = null;
-			alreadyInSearch = false;
+			inSearchView = false;
 		}
 	});
 }
