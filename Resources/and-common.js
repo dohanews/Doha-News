@@ -1,17 +1,4 @@
-var create_table_view = function(){
-	var table  = Ti.UI.createTableView({
-		backgroundColor:'white',
-		minRowHeight: '80dp',
-		left: '5dp',
-		right: '5dp',
-		bubbleParent: false,
-		selectionStyle: 'none',
-		separatorColor: '#afafaf',
-	});
-	return table;
-}
-
-create_date_label = function(date){
+var get_relative_time = function(date){
 	var text;
 	var dateTime = date.split(' ');
 	
@@ -75,6 +62,14 @@ create_date_label = function(date){
 		}	
 	}
 	
+	return text;
+}
+
+
+create_date_label = function(date){
+	
+	var text = get_relative_time(date);
+	
 	var dateLabel = Ti.UI.createLabel({
 		text: text,
 		backgroundColor: 'transparent',
@@ -100,13 +95,13 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 	var thumbnail = Ti.UI.createImageView({
 		height: '70dp',
 		width: '70dp',
-		left: 0,
+		left: '5dp',
 		image: thumbnail,
 	});
 
 	var textView = Ti.UI.createView({
-		top: '0dp',
-		left: '80dp',
+		//top: '0dp',
+		left: '85dp',
 		right: '20dp',
 		height: Ti.UI.SIZE,
 		backgroundColor:'transparent',
@@ -155,15 +150,16 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 		backgroundColor:'transparent',
 	});
 	
+	var date_label = create_date_label(date);
 	textView.add(titleLabel);
-	authorTimeView.add(create_date_label(date));
+	authorTimeView.add(date_label);
 	authorTimeView.add(authorLabel);
 	textView.add(authorTimeView);
 	content_view.add(thumbnail);
 	content_view.add(textView);
 	
 	var row = Ti.UI.createTableViewRow({
-		height: Ti.UI.FILL,
+		height: '90dp',
 		width: Ti.Platform.displayCaps.platformWidth,
 		backgroundColor:'#fff',
 		className: 'article',
@@ -173,6 +169,7 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 		id: id,
 		author: author,
 		date: date,
+		date_label: date_label,
 	});
 
 	row.articleRow = content_view;
@@ -186,12 +183,23 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 		var win = Ti.UI.createWindow({
 			backgroundColor:'#fff',
 			url: 'detail.js',
-			modal: true
+			modal: true,
+			content: content, 
+			id: id,
+			articleUrl: url,
+			articleTitle: title,
+			thumbnail: thumbnail,
+			date: date,
+			author: author,
 		})
-		win.content = content;
+		
 		win.open({
 			animated:true,
 		});
+		
+		win.addEventListener('close',function(){
+			Ti.UI.currentTab.fireEvent('focus');
+		})
 
 		if (!!current_row) {
 			current_row.articleRow.animate({
@@ -205,7 +213,20 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 	return row;
 }
 
-create_header = function(){
+var create_table_view = function(){
+	var table = Ti.UI.createTableView({
+		backgroundColor:'white',
+		rowHeight: Ti.UI.SIZE,
+		left: '5dp',
+		right: '5dp',
+		bubbleParent: false,
+		selectionStyle: 'none',
+		separatorColor: '#e9e5df',
+	});
+	return table;
+}
+
+var create_header = function(){
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
 		top: 0,
@@ -231,4 +252,19 @@ create_header = function(){
 	header.add(topLogo);
 	
 	return header;
+}
+
+var dialog = function(title, msg){
+	title = title || 'Couldn\'t fetch your articles';
+	msg = msg || 'Please check internet connectivity';
+	
+	var notification = Titanium.UI.createNotification({
+		message: title + '\n' + msg,
+		duration: Ti.UI.NOTIFICATION_DURATION_LONG,
+	}) 
+	
+	notification.addEventListener('click',function(){
+		notification.hide();
+	})
+	notification.show();
 }
