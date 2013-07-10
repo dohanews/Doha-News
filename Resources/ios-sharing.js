@@ -178,7 +178,6 @@ var create_bookmarks = function(title, url, author, content, date, id){
 					bookmark.animate({opacity:1, duration: 250});
 			});
 			db.deleteId(id);
-			
 		}
 		else{
 			db.insert(id, title, content, url, author, date);

@@ -141,7 +141,6 @@ var change_date_labels = function(tbl){
 		if(tbl.data[0].rows[i].className == 'article'){
 			console.log((tbl.data[0].rows[i].date));
 			date = common.get_relative_time(tbl.data[0].rows[i].date);
-			//console.log(date);
 			tbl.data[0].rows[i].date_label.text = date;
 		}
 	}

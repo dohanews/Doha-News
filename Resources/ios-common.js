@@ -182,13 +182,12 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 			backgroundColor:'#fff',
 			url: 'detail.js',
 			modal: true,
-			content: content, /////////////////
-			id: id,/////////////////
-			articleUrl: url,/////////////////
-			articleTitle: title,/////////////////
-			thumbnail: thumbnail,/////////////////
-			date: date,/////////////////
-			author: author,/////////////////
+			id: id,
+			articleUrl: url,
+			articleTitle: title,
+			thumbnail: thumbnail,
+			date: date,
+			author: author,
 		})
 		win.addEventListener('close',function(){
 			console.log('closed');////////////////
@@ -264,11 +263,11 @@ exports.dialog = function(title, msg){
 	title = title || 'Couldn\'t fetch your articles';
 	msg = msg || 'Please check internet connectivity';
 	
-	var d = Ti.UI.createAlertDialog({
+	var dialog = Ti.UI.createAlertDialog({
 		message: msg,
 		title: title,
 		ok: 'Got it!',
 		cancel: -1,
 	})
-	d.show();
+	dialog.show();
 }

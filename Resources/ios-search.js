@@ -92,7 +92,10 @@ var getSearchResults = function(e){
 	
 	query = searchBar.value.replace(' ','+');
 	
-	var loader = Titanium.Network.createHTTPClient();
+	var loader = Titanium.Network.createHTTPClient({
+		timeout: 10000,
+	});
+	
 	loader.open("GET",'http://dev.dohanews.co/?json=1&count=10&s='+query);
 
 	loader.onload = function() 
@@ -138,7 +141,7 @@ var getSearchResults = function(e){
 	loader.onerror = function(e){
 		common.dialog('Couldn\'t fetch your results');
 		searchData.push(create_no_results_row());
-		searchTable.setData;
+		searchTable.setData(searchData);
 		searching = false;
 	}
 	loader.send();
@@ -212,7 +215,7 @@ var search_infinite_scroll = function(evt) {
 
 var load_older_results = function() {
 	
-    if (loadMoreResults == true) {
+    if (loadMoreResults == true || !Titanium.Network.online) {
         return;
     }
 	
@@ -264,6 +267,11 @@ var load_older_results = function() {
 		}
 		loadMoreResults = false;
 	}
+	
+	loader.onerror = function(e){
+		loadMoreResults = false;
+		return;
+	};
 	
 	loader.send();
 };

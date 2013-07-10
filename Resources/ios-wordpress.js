@@ -40,7 +40,7 @@ var create_activity_indicator = function(){
 
 var create_loading_row = function(){
 	var loading_row = Ti.UI.createTableViewRow({
-		height: '100dp',
+		height: '90dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
@@ -106,21 +106,21 @@ Ti.include('ios-sharing.js');
 
 function loadWordpress()
 {
+	var network = Titanium.Network;
+	
 	var send_request = function(e){
 		if (e.online){
+			network.removeEventListener('change', send_request);
 			loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
 			loading_indicator.show();
 			loader.send();
 		}
 	}
 	
-	var network = Titanium.Network;
-	network.addEventListener('change', send_request);
 
-	var loader;
 	
 	// Create our HTTP Client and name it "loader"
-	loader = Titanium.Network.createHTTPClient({
+	var loader = Titanium.Network.createHTTPClient({
 		timeout: 10000,
 	});
 	// Sets the HTTP request method, and the URL to get data from
@@ -136,9 +136,7 @@ function loadWordpress()
 			recentID = wordpress.posts[0].id;
 			
 		for (var i = 0; i < wordpress.posts.length; i++)
-		{	
-			network.removeEventListener('change',send_request);
-			
+		{				
 			lastAd++;
 			var articleContent = wordpress.posts[i].content; // The tweet message
 			var articleTitle = wordpress.posts[i].title; // The screen name of the user
@@ -167,7 +165,6 @@ function loadWordpress()
 		}
 	
 		tbl.setData(articleData);
-		
 		loading_indicator.hide();
 		win.add(tbl);
 	}
@@ -178,6 +175,7 @@ function loadWordpress()
 	loading_indicator.show();
 	
 	loader.onerror = function(e){
+		network.removeEventListener('change', send_request);
 		common.dialog('Couldn\'t fetch your articles', 'Please check internet connectivity');
 		loading_indicator.hide();
 	};
@@ -198,7 +196,9 @@ setTimeout(function checkSync() {
 
     loadOlderArticles = false;	
     
-	var loader = Titanium.Network.createHTTPClient();
+	var loader = Titanium.Network.createHTTPClient({
+		timeout: 10000,
+	});
 
 	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
 	
