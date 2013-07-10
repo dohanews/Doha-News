@@ -54,7 +54,6 @@ tableHeaderRow.add(tableHeader);
 var refresh = function(e){
 	
 	if (refreshing){
-		alert('already refreshing!');
 		return;
 	}
 	
@@ -70,7 +69,6 @@ var refresh = function(e){
 	
 	loader.onload = function() 
 	{
-		
 		var wordpress = JSON.parse(this.responseText);
 		
 		var wp_length = wordpress.posts.length;
@@ -119,9 +117,25 @@ var refresh = function(e){
 		articleData = tbl.data;
 	}
 	
+	loader.onerror = function(e){
+		tbl.deleteRow(tableHeaderRow);
+	}
+	
 	loader.send();
+	
     // and push this into our table.
     // now we're done; reset the loadData flag and start the interval up again
+};
+
+var change_date_labels = function(tbl){
+
+	for (i = 0; i < tbl.data[0].rows.length; i++){
+		if(tbl.data[0].rows[i].className == 'article'){
+			console.log((tbl.data[0].rows[i].date));
+			date = get_relative_time(tbl.data[0].rows[i].date);
+			tbl.data[0].rows[i].date_label.text = date;
+		}
+	}
 };
 
 var refreshButton = Ti.UI.createButton({
@@ -130,5 +144,9 @@ var refreshButton = Ti.UI.createButton({
 	height: '40dp',
 });
 
-refreshButton.addEventListener('click', refresh);
+refreshButton.addEventListener('click', function(){
+	refresh();
+	change_date_labels()
+});
+
 header.add(refreshButton);
