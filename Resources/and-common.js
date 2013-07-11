@@ -173,8 +173,8 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 	});
 
 	row.articleRow = content_view;
-	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
-	row.add(sharing);
+	row.sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
+	row.add(row.sharing);
 	row.add(row.articleRow);
 	
 	row.addEventListener('longclick', sharing_animation);

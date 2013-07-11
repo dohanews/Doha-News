@@ -125,14 +125,16 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	var icons = Ti.UI.createView({
 		backgroundColor: 'white',
 		bubbleParent: false,
-		hieght: Ti.UI.SIZE,
+		height: '90dp',
+		borderColor: 'transparent',
+		borderWidth: 0,
 	});
 
 	icons.add(create_facebook_share(title,url));
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
-	icons.add(create_bookmarks(title, url, author, content, date, id));
-	
+	icons.bookmark = create_bookmarks(title, url, author, content, date, id);
+	icons.add(icons.bookmark);
 	return icons;
 };
 
@@ -145,7 +147,13 @@ var sharing_animation = function(e) {
 	};
 	
 	current_row = this;
-	
+	if (db.exists(current_row.id)){
+		current_row.sharing.bookmark.image = 'images/Bookmarks-06.png';
+	}
+	else{
+		current_row.sharing.bookmark.image = 'images/Bookmarks-00.png';	
+	}
+	current_row.sharing.bookmark.image;
 	current_row.articleRow.animate({
 		opacity: 0,
 		duration: 500
