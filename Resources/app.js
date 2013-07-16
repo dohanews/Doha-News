@@ -1,4 +1,5 @@
 var db = require('database');
+db.dropTable();
 db.createTable();
 
 var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
@@ -140,36 +141,14 @@ if (Ti.Platform.osname != 'android'){
 else{
 	Ti.App.tabgroup.addEventListener('open', function(e) {
 		var actionBar = Ti.App.tabgroup.getActivity().actionBar;
-		if (actionBar){
-		actionBar.icon = "images/photos.png";
-		actionBar.title = "";
-		actionBar.onHomeIconItemSelected = function() {
-                    alert("Home icon clicked!");
-                };
-		}
+			if (actionBar){
+				actionBar.icon = "images/photos.png";
+				actionBar.title = "";
+				actionBar.onHomeIconItemSelected = function() {
+					alert("Home icon clicked!");
+				};
+			}
 	});
-
-	var searchView = Ti.UI.Android.createSearchView({
-		iconifiedByDefault: false,
-	});
-	articlesWin.addEventListener('open', function(){
-		articlesWin.activity.onCreateOptionsMenu = function(e) {
-			var menu = e.menu;
-			var menuItem = menu.add({
-				title: 'Search',
-				actionView : searchView,
-				icon: Ti.Android.R.drawable.ic_menu_search,
-				showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS, 
-			
-			});
-			
-			menuItem.addEventListener('click',function(e){
-				searchView.iconified = false;
-				menuItem.expandActionView();
-			})
-		};
-		
-	})
 }
 
 
