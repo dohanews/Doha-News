@@ -3,6 +3,8 @@ Ti.include('jsOAuth-1.3.1.js');
 Ti.include('admob-android.js');
 Ti.include('and-common.js');
 
+var win = Ti.UI.currentWindow;
+
 var db = require('database');
 var osname = Ti.Platform.osname;
 
@@ -13,7 +15,7 @@ var twitter_client = Twitter({
   accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
 });
 
-var win = Ti.UI.currentWindow;
+
 var articleData = [];
 
 var firstAd = 0;
@@ -81,6 +83,21 @@ Ti.include('and-refresh.js');
 Ti.include('and-sharing.js');
 Ti.include('and-search.js');
 
+
+win.activity.onCreateOptionsMenu = function(e) {
+	var menu = e.menu;
+	var menuItem = menu.add({
+		title: 'Search',
+		itemId: 1,
+		icon: Ti.Android.R.drawable.ic_menu_search,
+		showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS, 
+	});
+
+	menuItem.addEventListener('click',function(e){
+		show_searchBar();	
+	})
+};
+
 function loadWordpress()
 {
 	var network = Titanium.Network;
@@ -126,8 +143,7 @@ function loadWordpress()
 			if (wordpress.posts[i].attachments.length > 0)
 				thumbnail = wordpress.posts[i].attachments[0].images.small.url
 			else 
-				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
-
+				thumbnail = 'images/default_thumb.png';
 
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 
@@ -198,8 +214,8 @@ setTimeout(function load_more_articles() {
 			if (wordpress.posts[i].attachments.length > 0)
 				thumbnail = wordpress.posts[i].attachments[0].images.small.url
 			else 
-				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
-
+				thumbnail = 'images/default_thumb.png';
+				
 			// Create a row and set its height to auto
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 			tbl.appendRow(articleRow);
