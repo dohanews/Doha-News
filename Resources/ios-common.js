@@ -89,7 +89,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		backgroundColor: 'white',
 	})
 	
-	var thumbnail = Ti.UI.createImageView({
+	var thumb = Ti.UI.createImageView({
 		height: '70dp',
 		width: '70dp',
 		left: '5dp',
@@ -152,7 +152,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	authorTimeView.add(date_label);
 	authorTimeView.add(authorLabel);
 	textView.add(authorTimeView);
-	content_view.add(thumbnail);
+	content_view.add(thumb);
 	content_view.add(textView);
 
 	var row = Ti.UI.createTableViewRow({
@@ -190,7 +190,6 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 			author: author,
 		})
 		win.addEventListener('close',function(){
-			console.log('closed');////////////////
 			Ti.UI.currentTab.fireEvent('focus');
 		})
 		win.open({
