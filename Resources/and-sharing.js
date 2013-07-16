@@ -58,7 +58,7 @@ var create_email_share = function(title, url){
 	return email_icon;
 };
 
-var create_bookmarks = function(title, url, author, content, date, id){
+var create_bookmarks = function(title, url, author, content, date, id, thumbnail){
 	
 	var image;
 	if (db.exists(id)){
@@ -76,15 +76,6 @@ var create_bookmarks = function(title, url, author, content, date, id){
 		url: url,
 		opacity: 1,
 		bubbleParent: false,
-	});
-	
-	bookmark.addEventListener('postlayout', function(){
-		if (db.exists(id)){
-			bookmark.image = 'images/Bookmarks-06.png';
-		}
-		else{
-			bookmark.image = 'images/Bookmarks-00.png';
-		}
 	});
 	
 	bookmark.addEventListener('click',function(e){
@@ -111,7 +102,15 @@ var create_bookmarks = function(title, url, author, content, date, id){
 				bookmark.image = 'images/Bookmarks-06.png'
 				bookmark.animate({opacity:1, duration: 350});
 			});
+			
 			db.insert(id, title, content, url, author, date);
+			if (thumbnail == 'images/default_thumb.png')
+				db.update(thumbnail, id);
+			else{
+				var thumbnail_ext = thumbnail.split('.');
+				var extension = '.' + thumbnail_ext[thumbnail_ext.length-1];
+				get_remote_file('thumb_' + id + extension, thumbnail, db.update, id);
+			}
 		}
 	});
 	
@@ -133,7 +132,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	icons.add(create_facebook_share(title,url));
 	icons.add(create_twitter_share(title,url));
 	icons.add(create_email_share(title,url));
-	icons.bookmark = create_bookmarks(title, url, author, content, date, id);
+	icons.bookmark = create_bookmarks(title, url, author, content, date, id, thumbnail);
 	icons.add(icons.bookmark);
 	return icons;
 };
@@ -160,3 +159,43 @@ var sharing_animation = function(e) {
 	});
 };
 
+var get_remote_file =  function(filename, url, fn_end, id) {
+	var file_obj = {file:filename, url:url, path: null};
+ 
+	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
+	if ( file.exists() ) {
+		file_obj.path = file.getNativePath();
+		fn_end(file_obj.path, id);
+	}
+	else {
+		if ( Titanium.Network.online ) {
+			var loader = Titanium.Network.createHTTPClient();
+ 
+			loader.setTimeout(10000);
+			loader.onload = function()
+			{
+	 
+				if (loader.status == 200 ) {
+					var f = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory,filename);
+					f.write(this.responseData);
+					file_obj.path = f.getNativePath();
+					fn_end(file_obj.path, id);
+				}
+				else {
+					file_obj.error = 'file not found'; // to set some errors codes
+				}
+            };
+			loader.error = function(e)
+			{
+				file_obj.error = e.error;
+				//fn_end(file_obj);
+			};
+			loader.open('GET',url);
+			loader.send();           
+		}
+		else {
+			file_obj.error = 'no internet';
+			//fn_end(file_obj);
+		} 
+	}
+};
