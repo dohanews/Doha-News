@@ -4,7 +4,7 @@ exports.createTable = function(){
 	Ti.App.bookmarksChanged = true;
 	var db = Ti.Database.open(DATABASE_NAME);
 	db.execute('CREATE TABLE IF NOT EXISTS bookmarks \
-        (id INTEGER PRIMARY KEY, title TEXT, content TEXT, url TEXT, author TEXT, date TEXT)');
+        (id INTEGER PRIMARY KEY, title TEXT, content TEXT, url TEXT, author TEXT, date TEXT, thumbnail TEXT)');
     db.close();
     
 };
@@ -34,7 +34,8 @@ exports.getAll = function() {
 			content: resultSet.fieldByName('content'),
 			url: resultSet.fieldByName('url'),
 			author: resultSet.fieldByName('author'),
-			date: resultSet.fieldByName('date')
+			date: resultSet.fieldByName('date'),
+			thumbnail: resultSet.fieldByName('thumbnail'),
 		});
 		resultSet.next();
 	}
@@ -59,9 +60,27 @@ exports.deleteAll = function(){
 
 exports.deleteId = function(id){
 	Ti.App.bookmarksChanged = true;
-	var db = Ti.Database.open(DATABASE_NAME); 
+	var db = Ti.Database.open(DATABASE_NAME);
+	
+	var resultSet = db.execute('SELECT thumbnail FROM bookmarks where id=?',id);
+	var thumbnail;
+	while (resultSet.isValidRow()) {
+		thumbnail = resultSet.fieldByName('thumbnail');
+		resultSet.next();
+	}
+	resultSet.close();
+
+	var path = thumbnail.split(Titanium.Filesystem.separator);
+	var filename = path[path.length - 1];
+	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);
+	alert(filename);
+	if (file.exists()){
+		file.deleteFile();
+	}
+	
     db.execute('DELETE FROM bookmarks WHERE id=(?)', id);
     db.close();
+	
 };
 
 exports.remove = function(id){
@@ -82,5 +101,12 @@ exports.insert = function(id, title, content, url, author, date){
     Ti.App.bookmarksChanged = true;
 	return lastInsertRowId;
 };
+
+exports.update = function(thumbnail, id){
+	var db = Ti.Database.open(DATABASE_NAME);
+	db.execute('UPDATE bookmarks SET thumbnail=? WHERE id=?',thumbnail, id);
+	Ti.App.bookmarksChanged = true;
+	db.close();
+}
 
 
