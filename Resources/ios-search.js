@@ -116,7 +116,7 @@ var getSearchResults = function(e){
 			if (searchResults.posts[i].attachments.length > 0)
 				thumbnail = searchResults.posts[i].attachments[0].images.small.url
 			else 
-				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
+				thumbnail = 'images/default_thumb.png';
 
 			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 
@@ -249,7 +249,7 @@ var load_older_results = function() {
 			if (searchResults.posts[i].attachments.length > 0)
 				thumbnail = searchResults.posts[i].attachments[0].images.small.url
 			else 
-				thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
+				thumbnail = 'images/default_thumb.png';
 	
 			// Create a row and set its height to auto
 			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
