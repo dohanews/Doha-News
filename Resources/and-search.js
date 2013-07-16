@@ -7,6 +7,7 @@ var query;
 var inSearchView = false;
 var infiniteScrolling = false;
 var searching = false;
+var searchOn = false;
 
 if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
     // Use action bar search view
@@ -14,11 +15,16 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
         hintText: "Table Search",
         right: '5dp',
         zIndex: 100,
+        top: 0,
+        iconifiedByDefault: false,
+        backgroundColor: '#f8f8f8',
+        width: Ti.UI.FILL,
+        height:'45dp',
     });
-    
+
 	var create_no_results_row = function(){
 		var row = Titanium.UI.createTableViewRow({
-			height: Ti.UI.SIZE,
+			height: '45dp',
 			backgroundColor:'transparent',
 			width: Ti.Platform.displayCaps.platformWidth,
 		});
@@ -37,7 +43,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	}
 	
 	var searchTable = create_table_view();
-
+	searchTable.top = '45dp';
 	searchTable.addEventListener('scroll', function(e) {
 		if(!!current_row){
 			current_row.articleRow.animate({
@@ -50,7 +56,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 
 	var create_searching_row = function(){
 		var row = Titanium.UI.createTableViewRow({
-			height: Ti.UI.SIZE,
+			height: '45dp',
 			backgroundColor:'transparent',
 			width: Ti.Platform.displayCaps.platformWidth,
 		});
@@ -82,14 +88,17 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			
 		searchBar.blur();
 		
+		if (!inSearchView){
+			inSearchView = true;
+			win.add(searchTable);
+			tbl.hide();	
+		}
+	
 		nextpage = 1;
 		searchData = [];
-		searchTable.setData([create_searching_row()]);	
-		
-		if (!inSearchView)
-			win.add(searchTable);
-	
-		tbl.hide();	
+		//searchTable.setData([create_searching_row()]);
+		searchTable.setData(null);
+		searchTable.appendRow(create_searching_row());
 		
 		query = searchBar.value.replace(' ','+');
 		
@@ -117,7 +126,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				if (searchResults.posts[i].attachments.length > 0)
 					thumbnail = searchResults.posts[i].attachments[0].images.small.url
 				else 
-					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
+					thumbnail = 'images/default_thumb.png';
 	
 				var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 	
@@ -193,7 +202,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				if (searchResults.posts[i].attachments.length > 0)
 					thumbnail = searchResults.posts[i].attachments[0].images.small.url
 				else 
-					thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";
+					thumbnail = 'images/default_thumb.png';
 		
 				// Create a row and set its height to auto
 				var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
@@ -223,7 +232,6 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	
 	
 	searchBar.addEventListener('submit', function(){
-		tbl.hide();
 		if (!searching){
 			searching = true;
 			getSearchResults();
@@ -231,24 +239,44 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			
 	});
 	
-	searchBar.addEventListener('cancel',function(){
-		if (searchBar.value == ''){
-			tbl.show();
-			win.remove(searchTable);
-			searchData = null;
-			inSearchView = false;
-		}
-    });
+	// searchBar.addEventListener('cancel',function(){
+		// if (searchBar.value == ''){
+			// alert('cancel');
+			// tbl.show();
+			// win.remove(searchTable);
+			// win.remove(searchBar);
+			// searchData = null;
+			// inSearchView = false;
+// 
+		// }
+    // });
 	
-	searchBar.addEventListener('change', function(e){
-		if (searchBar.value == ''){
+	var remove_searchBar = function(){
+	//	if (searchBar.value == ''){
 			tbl.show();
 			win.remove(searchTable);
+			searchTable.setData(null);
 			searchData = null;
+			Ti.UI.Android.hideSoftKeyboard();
+			//searchBar.removeEventListener('change', remove_searchbar);
+			win.remove(searchBar);
 			inSearchView = false;
+			searching = false;
+			searchOn = false;
+		//}
+	};
+	
+	var show_searchBar = function(){
+		if (!searchOn){
+			win.add(searchBar);
+			//searchBar.addEventListener('change', remove_searchbar);
+			searchBar.focus();
+			searchOn = true;
 		}
-	});
+		else{
+			remove_searchBar();
+		}
+		
+	}
+	
 }
-
-
-
