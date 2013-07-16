@@ -89,8 +89,8 @@ function loadBookmarks(){
 		var id = results[i].id;
 		var url = results[i].url;
 		var date = results[i].date;
-		var thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
-		lastID = id;		
+		var thumbnail = results[i].thumbnail;
+		lastID = id;	
 
 		var originalDate = date.split(' ');
 		var dateArray = originalDate[0].split('-');

@@ -23,16 +23,9 @@ win.backgroundColor='white';
 win.navBarHidden = true;
 
 var create_activity_indicator = function(){
-	var style;
-	if (Ti.Platform.name === 'iPhone OS'){
-		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	}
-	else {
-		style = Ti.UI.ActivityIndicatorStyle.DARK;
-	}
 
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: style,
+		style: Ti.UI.ActivityIndicatorStyle.DARK,
 		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
 			y:Ti.Platform.displayCaps.platformHeight/2},
 		height:Ti.UI.SIZE,
@@ -78,9 +71,9 @@ function loadBookmarks(){
 		var id = results[i].id;
 		var url = results[i].url;
 		var date = results[i].date;
-		var thumbnail = "http://www.the-brights.net/images/icons/brights_icon_50x50.gif";	
+		var thumbnail = results[i].thumbnail;
 		lastID = id;		
-		
+
 		var originalDate = date.split(' ');
 		var dateArray = originalDate[0].split('-');
 	
