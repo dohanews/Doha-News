@@ -68,7 +68,7 @@ var refresh = function(tbl){
 
 	var loader = Titanium.Network.createHTTPClient();
 
-	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_next_posts/?dev=1&id="+parseInt(recentID,10));
+	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
 	
 	loader.onload = function() 
 	{
@@ -94,7 +94,7 @@ var refresh = function(tbl){
 			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
-			
+			var modified = wordpress.posts[i].modified;
 			var thumbail;
 
 			if (wordpress.posts[i].attachments.length > 0)
@@ -103,7 +103,9 @@ var refresh = function(tbl){
 				thumbnail = 'images/default_thumb.png';
 
 			// Create a row and set its height to auto
-			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified);
+			table_rows[id] = articleRow;
+			
 			tbl.insertRowBefore(0, articleRow);
 		}
 		
@@ -136,15 +138,45 @@ var pull_to_refresh = function(e){
 };
 
 var change_date_labels = function(tbl){
-
-	for (i = 0; i < tbl.data[0].rows.length; i++){
-		if(tbl.data[0].rows[i].className == 'article'){
-			console.log((tbl.data[0].rows[i].date));
-			date = common.get_relative_time(tbl.data[0].rows[i].date);
-			tbl.data[0].rows[i].date_label.text = date;
-		}
+	for (id in table_rows){
+		date = common.get_relative_time(table_rows[id].date);
+		table_rows[id].date_label.text = date;
 	}
 };
+
+var update_content = function(){
+	var rows = {};
+	for (id in table_rows){
+		rows[id] = (table_rows[id].modified);
+	}
+	
+	var json_rows = JSON.stringify(rows);
+	
+	var loader = Ti.Network.createHTTPClient({Timeout: 10000});
+	loader.open('GET','http://dndev.staging.wpengine.com/api/refresh/check_date_modified/?outdated_posts=' + json_rows);
+	
+	loader.onload = function(){
+		var modified_posts = JSON.parse(this.responseText);
+		alert(modified_posts.posts.length);
+		for (i = 0; i < modified_posts.posts.length; i++){
+			var id = modified_posts.posts[i].id;
+			
+			table_rows[id].title_label.text = modified_posts.posts[i].title;
+			table_rows[id].url = modified_posts.posts[i].url;
+			table_rows[id].content = modified_posts.posts[i].content;
+			table_rows[id].articleTitle = modified_posts.posts[i].title;
+			table_rows[id].id = modified_posts.posts[i].id;
+			table_rows[id].date = modified_posts.posts[i].date;
+			table_rows[id].modified = modified_posts.posts[i].modified;
+			alert(table_rows[id].title + ' ' + table_rows[id].date);
+		}	
+	}
+	
+	loader.onerror = function(){
+	}
+	
+	loader.send();
+}
 
 var release_to_refresh = function(e){
     if (pulling && !reloading && offset < -80){
@@ -156,6 +188,7 @@ var release_to_refresh = function(e){
         e.source.setContentInsets({top:80}, {animated:true});
         refresh(tbl);
         change_date_labels(tbl);
+        update_content();
     }
 }
 

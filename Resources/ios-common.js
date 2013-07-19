@@ -1,3 +1,5 @@
+var cache  = require('cache.js');
+
 var get_relative_time = exports.get_relative_time = function(date){
 	var text;
 	var dateTime = date.split(' ');
@@ -80,7 +82,7 @@ var create_date_label = function(date){
 	return dateLabel;
 }
 
-exports.make_content_view = function(title, content, thumbnail, url, id, date, author) {
+exports.make_content_view = function(title, content, thumbnail, url, id, date, author, modified) {
 
 	var content_view = Ti.UI.createView({
 		height: Ti.UI.FILL,
@@ -167,7 +169,9 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		id: id,
 		author: author,
 		date: date,
+		modified: modified,
 		date_label: date_label,
+		title_label: titleLabel,
 	});
 
 	row.articleRow = content_view;

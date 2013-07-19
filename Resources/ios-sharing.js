@@ -10,7 +10,7 @@ sharekit.configure({
 	  // See documentation/configuration.html to configure the twitter module
 	twitter_consumer_key: 'FDgfEjNPwqLnZq7xlJuA',
 	twitter_consumer_secret: 'kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw',
-	twitter_callback_url: 'http://dev.dohanews.co',
+	twitter_callback_url: 'http://www.dohanews.co',
 	
 	bit_ly_login: 'dohanewstest',
 	bit_ly_key: 'f98deb953cd1959fc99f65da1dc88b355396e9ec',
