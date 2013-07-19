@@ -106,7 +106,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			timeout:10000
 		});
 		
-		loader.open("GET",'http://dev.dohanews.co/?json=1&count=10&s='+query);
+		loader.open("GET",'http://dndev.staging.wpengine.com/?json=1&count=10&s='+query);
 	
 		loader.onload = function() 
 		{
@@ -181,7 +181,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	    
 		var loader = Titanium.Network.createHTTPClient();
 	
-		loader.open("GET",'http://dev.dohanews.co/?json=1&count=10&s='+query+'&page='+nextpage);
+		loader.open("GET",'http://dndev.staging.wpengine.com/?json=1&count=10&s='+query+'&page='+nextpage);
 		
 		loader.onload = function() 
 		{
