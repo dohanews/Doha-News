@@ -1,5 +1,4 @@
 var db = require('database');
-db.dropTable();
 db.createTable();
 
 var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
