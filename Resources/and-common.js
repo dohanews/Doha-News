@@ -83,7 +83,7 @@ create_date_label = function(date){
 	return dateLabel;
 }
 
-make_content_view = function(title, content, thumbnail, url, id, date, author) {
+make_content_view = function(title, content, thumbnail, url, id, date, author, modified) {
 
 	var content_view = Ti.UI.createView({
 		height: Ti.UI.FILL,
@@ -122,9 +122,6 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 		text: title,
 		color:'#4A4A4A',
 		ellipsize: true,
-		// top: '0dp',
-		// left: '80dp',
-		// right: '20dp',
 		left: 0,
 		height: '60dp',
 		verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
@@ -169,9 +166,11 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 		id: id,
 		author: author,
 		date: date,
+		modified: modified,
 		date_label: date_label,
+		title_label: titleLabel,
 	});
-
+	
 	row.articleRow = content_view;
 	row.sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
 	row.add(row.sharing);
@@ -213,19 +212,6 @@ make_content_view = function(title, content, thumbnail, url, id, date, author) {
 	return row;
 }
 
-var create_table_view = function(){
-	var table = Ti.UI.createTableView({
-		backgroundColor:'white',
-		rowHeight: Ti.UI.SIZE,
-		left: '5dp',
-		right: '5dp',
-		bubbleParent: false,
-		selectionStyle: 'none',
-		separatorColor: '#e9e5df',
-	});
-	return table;
-}
-
 var create_header = function(){
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
@@ -253,6 +239,21 @@ var create_header = function(){
 	
 	return header;
 }
+
+
+var create_table_view = function(){
+	var table = Ti.UI.createTableView({
+		backgroundColor:'white',
+		rowHeight: Ti.UI.SIZE,
+		left: '5dp',
+		right: '5dp',
+		bubbleParent: false,
+		selectionStyle: 'none',
+		separatorColor: '#e9e5df',
+	});
+	return table;
+}
+
 
 var dialog = function(title, msg){
 	title = title || 'Couldn\'t fetch your articles';
