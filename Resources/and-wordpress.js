@@ -15,7 +15,7 @@ var twitter_client = Twitter({
   accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
 });
 
-
+var table_rows = {};
 var articleData = [];
 
 var firstAd = 0;
@@ -104,7 +104,7 @@ function loadWordpress()
 	var send_request = function(e){
 		if (e.online){
 			network.removeEventListener('change', send_request);
-			loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+			loader.open("GET","http://dndev.staging.wpengine.com/?json=1&count=10");
 			loading_indicator.show();
 			loader.send();
 		}
@@ -117,7 +117,7 @@ function loadWordpress()
 	});
 	// Sets the HTTP request method, and the URL to get data from
 
-	loader.open("GET","http://dev.dohanews.co/?json=1&count=10&dev=1");
+	loader.open("GET","http://dndev.staging.wpengine.com/?json=1&count=10");
 	// Runs the function when the data is ready for us to process
 
 	loader.onload = function() 
@@ -136,6 +136,7 @@ function loadWordpress()
 			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
+			var modified = wordpress.posts[i].modified;
 			lastID = id;
 
 			var thumbail;
@@ -145,7 +146,8 @@ function loadWordpress()
 			else 
 				thumbnail = 'images/default_thumb.png';
 
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified);
+			table_rows[id] = articleRow;
 
 			articleData.push(articleRow);
 
@@ -158,6 +160,8 @@ function loadWordpress()
 		tbl.setData(articleData);
 		loading_indicator.hide();
 		win.add(tbl);
+		win.add(refreshButton);
+
 	}
 
 	var loading_indicator = create_activity_indicator();	
@@ -191,7 +195,7 @@ setTimeout(function load_more_articles() {
 		timeout: 10000,
 	});
 
-	loader.open("GET","http://dev.dohanews.co/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
+	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
 
 	loader.onload = function() 
 	{
@@ -206,7 +210,8 @@ setTimeout(function load_more_articles() {
 			var id = wordpress.posts[i].id;
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
-
+			var modified = wordpress.posts[i].modified;
+			
 			lastID = id;
 
 			var thumbail;
@@ -217,7 +222,8 @@ setTimeout(function load_more_articles() {
 				thumbnail = 'images/default_thumb.png';
 				
 			// Create a row and set its height to auto
-			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
+			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified);
+			table_rows[id] = articleRow;
 			tbl.appendRow(articleRow);
 
 			if (lastAd%10 == 0 && lastAd != 0) {
