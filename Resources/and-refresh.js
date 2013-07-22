@@ -18,6 +18,7 @@ var border = Ti.UI.createView({
     height:2
 });
 
+
 tableHeader.add(border);
 
 var labelStatus = Ti.UI.createLabel({
@@ -56,13 +57,11 @@ var refresh = function(e){
 	if (refreshing){
 		return;
 	}
-	
+
 	labelStatus.text = 'Updating...';
 	tbl.insertRowBefore(0,tableHeaderRow);
 	actInd.show();
-	
-	refreshing = true;
-	
+
 	var loader = Titanium.Network.createHTTPClient();
 
 	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
@@ -92,7 +91,7 @@ var refresh = function(e){
 				var adMobRow = createAdMobView();
 				tbl.insertRowBefore(0, adMobRow);
 				firstAd = 10;
-			}c
+			}
 		
 			firstAd--;
 			var articleContent = wordpress.posts[i].content; // The tweet message
@@ -119,29 +118,20 @@ var refresh = function(e){
 		
 		articleData = tbl.data;
 		update_content();
-		refreshing = false;
 	}
 	
 	loader.onerror = function(e){
 		tbl.deleteRow(tableHeaderRow);
-		//change_date_labels();
-		update_content();
-		refreshing = false;
 	}
 	
 	loader.send();
-	
-    // and push this into our table.
-    // now we're done; reset the loadData flag and start the interval up again
 };
 
 var change_date_labels = function(){
-	refreshing = true;
 	for (id in table_rows){
 		date = get_relative_time(table_rows[id].date);
 		table_rows[id].date_label.text = date;
 	}
-	refreshing = false;
 };
 
 var update_content = function(){
@@ -168,26 +158,13 @@ var update_content = function(){
 			table_rows[id].id = modified_posts.posts[i].id;
 			table_rows[id].date = modified_posts.posts[i].date;
 			table_rows[id].modified = modified_posts.posts[i].modified;
-			alert(table_rows[id].title + ' ' + table_rows[id].date);
 		}	
+		refreshing = false;
 	}
 	
 	loader.onerror = function(){
+		refreshing = false;
 	}
 	
 	loader.send();
 }
-
-var refreshButton = Ti.UI.createButton({
-	title: 'R',
-	width: '40dp',
-	height: '40dp',
-});
-
-refreshButton.addEventListener('click', function(){
-	change_date_labels();
-	refresh();
-	//update_content();
-});
-
-header.add(refreshButton);
