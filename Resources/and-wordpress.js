@@ -42,7 +42,7 @@ var infinite_scroll = function(evt) {
 var create_activity_indicator = function(){
 	
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: Ti.UI.ActivityIndicatorStyle.DARK,
+		style: Ti.UI.ActivityIndicatorStyle.BIG_DARK,
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
@@ -83,19 +83,51 @@ Ti.include('and-refresh.js');
 Ti.include('and-sharing.js');
 Ti.include('and-search.js');
 
+var refresh_visible = true;
 
 win.activity.onCreateOptionsMenu = function(e) {
 	var menu = e.menu;
-	var menuItem = menu.add({
+	var searchItem = menu.add({
 		title: 'Search',
 		itemId: 1,
-		icon: Ti.Android.R.drawable.ic_menu_search,
+		icon: 'images/search.png',
 		showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS, 
 	});
 
-	menuItem.addEventListener('click',function(e){
+	searchItem.addEventListener('click',function(e){
 		show_searchBar();	
-	})
+	});
+	
+	var refreshItem = menu.add({
+		title: 'Refresh',
+		itemId: 2,
+		icon: 'images/refresh.png',
+		showAsAction: Ti.Android.SHOW_AS_ACTION_ALWAYS, 
+	});
+	
+	refreshItem.addEventListener('click', function(){
+		if (!refreshing){
+			win.activity.invalidateOptionsMenu();
+			alert('refreshing');
+			refreshing = true;
+			change_date_labels();
+			refresh();
+			update_content();
+		}
+	});
+	
+	win.activity.onPrepareOptionsMenu = function(e) {
+		var menu = e.menu;
+		if (refresh_visible){
+			menu.findItem(2).setIcon('images/search.png');
+			refresh_visible = false;
+		}
+		else{
+			menu.findItem(2).setIcon('images/refresh.png');
+			refresh_visible = true;
+		}
+	};
+		
 };
 
 function loadWordpress()
@@ -160,8 +192,6 @@ function loadWordpress()
 		tbl.setData(articleData);
 		loading_indicator.hide();
 		win.add(tbl);
-		win.add(refreshButton);
-
 	}
 
 	var loading_indicator = create_activity_indicator();	
