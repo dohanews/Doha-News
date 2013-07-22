@@ -1,5 +1,7 @@
+var cache = require('cache');
 var db = require('database');
 db.createTable();
+cache.createTable();
 
 var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
 Ti.App.bookmarksChanged = true;
