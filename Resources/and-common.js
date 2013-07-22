@@ -179,19 +179,20 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 	row.addEventListener('longclick', sharing_animation);
 
 	row.articleRow.addEventListener ('click', function(e){
+		
 		var win = Ti.UI.createWindow({
 			backgroundColor:'#fff',
 			url: 'detail.js',
 			modal: true,
-			content: content, 
+			//content: content, 
 			id: id,
 			articleUrl: url,
 			articleTitle: title,
 			thumbnail: thumbnail,
 			date: date,
 			author: author,
-		})
-		
+		});
+			
 		win.open({
 			animated:true,
 		});
