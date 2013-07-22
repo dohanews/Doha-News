@@ -64,7 +64,7 @@ var localWebview = Titanium.UI.createWebView({
 win.add(header);
 
 var loadDetail = function(){
-	var bookmark = create_bookmarks(title, url, author, content, date, articleId);
+	var bookmark = create_bookmarks(title, url, author, content, date, articleId, thumbnail);
 	bookmark.center = null;
 	bookmark.right = 0;
 	bookmark.top = '0dp';
