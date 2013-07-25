@@ -143,7 +143,7 @@ else{
 	Ti.App.tabgroup.addEventListener('open', function(e) {
 		var actionBar = Ti.App.tabgroup.getActivity().actionBar;
 			if (actionBar){
-				actionBar.icon = "images/photos.png";
+				actionBar.icon = "images/header-logo.png";
 				actionBar.title = "";
 				actionBar.onHomeIconItemSelected = function() {
 					alert("Home icon clicked!");
