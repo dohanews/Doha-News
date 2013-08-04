@@ -376,7 +376,7 @@ win.addEventListener('focus', function() {
 var load_photos = function(){
 	var loader = Ti.Network.createHTTPClient({timeout: 15000});
 	
-	loader.open('GET','http://dndev.staging.wpengine.com/tag/photos/?json=1&count=40');
+	loader.open('GET','http://dev.dohanews.co/category/photos/?json=1');
 	
 	loader.onload = function(){
 		var photos = [];
