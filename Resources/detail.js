@@ -26,12 +26,11 @@ if (osname != 'android'){
 	
 	options = Ti.UI.createView({
 		backgroundColor: 'black',
-		opacity: 0.7,
-		width: '108dp',
+		opacity: 0.9,
+		width: '104dp',
 		height: '32dp',		
 		bottom: '10dp',
 		borderRadius: '5dp',
-		layout: 'horizontal',
 	});
 	
 }
@@ -251,8 +250,8 @@ var loadDetail = function(){
 		});
 		
 		textsize.left = 0;
-		contrast.left ='4dp';
-		share.left = '4dp';
+		contrast.left ='36dp';
+		share.left = '72dp';
 		options.add(textsize);
 		options.add(contrast); 
 		options.add(share);
