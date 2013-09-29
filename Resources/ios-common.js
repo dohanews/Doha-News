@@ -209,10 +209,10 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 				date: date,
 				author: author,
 			});
-		win.addEventListener('close',function(){
+		articleWindow.addEventListener('close',function(){
 			Ti.UI.currentTab.fireEvent('focus');
 		});
-		win.open({
+		articleWindow.open({
 			animated:true,
 		});
 		

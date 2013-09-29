@@ -100,6 +100,7 @@ var refresh = function(tbl){
 			tbl.insertRowBefore(0, articleRow);
 		}
 		articleData = tbl.data;
+		resetPullHeader(tbl);
 	};
 	
 	
