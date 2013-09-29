@@ -756,7 +756,7 @@ Ti.App.load_new_photos = function(){
 	
 	var loader = Ti.Network.createHTTPClient({timeout: 15000});
 	
-	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/adjacent/get_next_posts/?category=photos&count=20&id=' + recentID);
+
 	
 	loader.onload = function(){
 
