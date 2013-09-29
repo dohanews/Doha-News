@@ -1,6 +1,3 @@
-Ti.include('twitter.js');
-Ti.include('jsOAuth-1.3.1.js');
-Ti.include('admob-android.js');
 Ti.include('and-common.js');
 var db = require('database');
 

@@ -229,7 +229,7 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 	icons.add(icons.facebook);
 	icons.add(icons.twitter);
 	icons.add(icons.email);
-	icons.add(email.bookmark);
+	icons.add(icons.bookmark);
 
 	return icons;
 };

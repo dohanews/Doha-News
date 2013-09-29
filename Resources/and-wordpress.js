@@ -1,4 +1,3 @@
-Ti.include('admob-android.js');
 Ti.include('and-common.js');
 
 var win = Ti.UI.currentWindow;

@@ -1,4 +1,3 @@
-Ti.include('admob-android.js');
 Ti.include('ios-refresh.js');
 var common = require('ios-common');
 var db = require('database');
