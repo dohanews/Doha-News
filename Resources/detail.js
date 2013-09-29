@@ -29,6 +29,7 @@ if (osname != 'android'){
 		opacity: 0.7,
 		width: '108dp',
 		height: '32dp',		
+		bottom: '10dp',
 		borderRadius: '5dp',
 		layout: 'horizontal',
 	});
@@ -264,6 +265,9 @@ loadDetail();
 activityIndicator.hide();
 win.add(localWebview);
 
+if (osname != 'android'){
+	win.add(options);
+}
 // if (cache.exists(articleId)){
 	// content = cache.getContent(articleId);
 	// loadDetail();
