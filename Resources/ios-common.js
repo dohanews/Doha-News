@@ -228,7 +228,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	return row;
 };
 
-exports.create_header = function(){
+exports.create_header = function(showInfo){
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
 		top: 0,
@@ -280,6 +280,28 @@ exports.create_header = function(){
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
 	header.add(submit);
+	if (showInfo){
+		header.add(info);
+		var info = Ti.UI.createImageView({
+			image: 'images/info_inactive.png',
+			height: '30dp',
+			width: '30dp',
+			left: '5dp',
+		});
+		
+		info.addEventListener('click', function(){
+			var aboutWindow = Ti.UI.createWindow({
+				backgroundColor:'white',
+				url: 'about.js',
+				modal: false,
+				navBarHidden: true,
+			});
+			
+			aboutWindow.open({
+				animated:true,
+			});	
+		});
+	}
 	return header;
 };
 
