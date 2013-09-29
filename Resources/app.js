@@ -17,7 +17,7 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 // });
 
 var articlesWin = Titanium.UI.createWindow ({
-   url: prefix + "and-wordpress.js",
+   url: prefix + "-wordpress.js",
    id: 'articles',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
