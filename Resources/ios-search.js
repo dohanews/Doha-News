@@ -18,7 +18,7 @@ var searchBar = Ti.UI.createSearchBar({
 
 var create_no_results_row = function(){
 	var row = Titanium.UI.createTableViewRow({
-		height: '50dp',
+		height: '45dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
@@ -38,6 +38,48 @@ var create_no_results_row = function(){
 
 var searchTable = common.create_table_view();
 
+var reComputeSearchTableRowsSize = function(){
+	
+	var tableData = tbl.data[0];
+
+	if (Ti.Gesture.landscape){
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '110dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '110dp';
+			tableData.rows[i].text_view.left = '105dp';
+			tableData.rows[i].text_view.height = '90dp';
+			tableData.rows[i].title_label.font = {fontSize: '18dp', fontFamily: 'Helvetica-Bold'};
+			tableData.rows[i].thumb.width = '90dp';
+			tableData.rows[i].thumb.height = '90dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+	else{
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '90dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '90dp';
+			tableData.rows[i].text_view.left = '85dp';
+			tableData.rows[i].text_view.height = '90dp';  
+			tableData.rows[i].title_label.font = {fontSize: '15dp', fontFamily: 'Helvetica-bold'};
+			tableData.rows[i].thumb.width = '70dp';
+			tableData.rows[i].thumb.height = '70dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+};
+
 searchTable.addEventListener('scroll', toggle_tab_search);
 searchTable.addEventListener('scroll', function(e) {
 	if(!!current_row){
@@ -51,7 +93,7 @@ searchTable.addEventListener('scroll', function(e) {
 
 var create_searching_row = function(){
 	var row = Titanium.UI.createTableViewRow({
-		height: '50dp',
+		height: '45dp',
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
@@ -93,10 +135,10 @@ var getSearchResults = function(e){
 	query = searchBar.value.replace(' ','+');
 	
 	var loader = Titanium.Network.createHTTPClient({
-		timeout: 10000,
+		timeout: 15000,
 	});
 	
-	loader.open("GET",'http://dndev.staging.wpengine.com/?json=1&count=10&s='+query);
+	loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query);
 
 	loader.onload = function() 
 	{
@@ -134,6 +176,7 @@ var getSearchResults = function(e){
 			infiniteScrolling = true;
 		}
 		
+		Ti.Gesture.addEventListener('orientationchange', reComputeSearchTableRowsSize);
 		searchTable.setData(searchData);
 		searching = false;
 	};
@@ -207,7 +250,6 @@ setTimeout(function load_more_results() {
 
 
 var search_infinite_scroll = function(evt) {
-	console.log('scrolling infinite');
 	if (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height){
 		load_older_results();
 	}
@@ -228,7 +270,7 @@ var load_older_results = function() {
     
 	var loader = Titanium.Network.createHTTPClient();
 
-	loader.open("GET",'http://dndev.staging.wpengine.com?json=1&count=10&s='+query+'&page='+nextpage);
+	loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query+'&page='+nextpage);
 	
 	loader.onload = function() 
 	{
@@ -270,7 +312,8 @@ var load_older_results = function() {
 	
 	loader.onerror = function(e){
 		loadMoreResults = false;
-		return;
+		tbl.deleteRow(tbl.data[0].rows.length-1);
+		tbl.addEventListener('scroll',search_infinite_scroll);
 	};
 	
 	loader.send();
@@ -278,6 +321,7 @@ var load_older_results = function() {
 
 searchBar.addEventListener('return', function(){
 	if (!searching){
+		Ti.Gesture.removeEventListener('orientationchange',	reComputeSearchTableRowsSize);
 		searching = true;
 		getSearchResults();
 	}
@@ -288,6 +332,7 @@ searchBar.addEventListener('change', function(e){
 	if (searchBar.value == ''){
 		tbl.show();
 		win.remove(searchTable);
+		Ti.Gesture.removeEventListener('orientationchange', reComputeSearchTableRowsSize);
 		searchData = null;
 		inSearchView = false;
 		searching = false;

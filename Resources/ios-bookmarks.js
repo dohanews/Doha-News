@@ -70,6 +70,48 @@ var create_no_bookmarks_row = function(){
 var header = common.create_header();
 var tbl = common.create_table_view('45dp');
 
+var reComputeTableRowsSize = function(){
+	
+	var tableData = tbl.data[0];
+
+	if (Ti.Gesture.landscape){
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '110dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '110dp';
+			tableData.rows[i].text_view.left = '105dp';
+			tableData.rows[i].text_view.height = '90dp';
+			tableData.rows[i].title_label.font = {fontSize: '18dp', fontFamily: 'Helvetica-Bold'};
+			tableData.rows[i].thumb.width = '90dp';
+			tableData.rows[i].thumb.height = '90dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+	else{
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '90dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '90dp';
+			tableData.rows[i].text_view.left = '85dp';
+			tableData.rows[i].text_view.height = '90dp';  
+			tableData.rows[i].title_label.font = {fontSize: '15dp', fontFamily: 'Helvetica-bold'};
+			tableData.rows[i].thumb.width = '70dp';
+			tableData.rows[i].thumb.height = '70dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+};
+
 Ti.include('ios-sharing.js');
 
 function loadBookmarks(){
@@ -159,6 +201,11 @@ Ti.UI.currentTab.addEventListener('focus', function(){
 		loadBookmarks();
 		Ti.App.bookmarksChanged = false;
 	}
+	
+	if (tbl.data[0]){
+		reComputeTableRowsSize();
+		Ti.Gesture.addEventListener('orientationchange', reComputeTableRowsSize);
+	}
 });
 
 Ti.UI.currentTab.addEventListener('blur', function(){
@@ -169,4 +216,6 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 		});
 		current_row = null;
 	}
+	
+	Ti.Gesture.removeEventListener('orientationchange', reComputeTableRowsSize);
 });

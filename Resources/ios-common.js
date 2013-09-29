@@ -83,33 +83,34 @@ var create_date_label = function(date){
 	return dateLabel;
 };
 
-exports.make_content_view = function(title, content, thumbnail, url, id, date, author, modified) {
+exports.make_content_view = function(title, content, thumbnail, url, id, date, author, modified, loadFromDictionary) {
 
 	var content_view = Ti.UI.createView({
-		height: Ti.UI.FILL,
+		height: Ti.Gesture.landscape? '110dp': '90dp',
 		width: Titanium.Platform.displayCaps.platformWidth,
 		left: 0,
 		backgroundColor: 'white',
+		zIndex: 500,
 	});
 	
 	var thumb = Ti.UI.createImageView({
-		height: '70dp',
-		width: '70dp',
+		height: Ti.Gesture.landscape? '90dp': '70dp',
+		width: Ti.Gesture.landscape? '90dp': '70dp',
 		left: '5dp',
 		image: thumbnail,
 	});
 
 	var textView = Ti.UI.createView({
 		//top: '0dp',
-		left: '85dp',
+		left: Ti.Gesture.landscape? '105dp': '85dp',
 		right: '20dp',
-		height: Ti.UI.SIZE,
+		height: Ti.Gesture.landscape? '90dp':'70dp',
 		backgroundColor:'transparent',
 		layout: 'vertical',
 	});
 	
 	var authorTimeView = Ti.UI.createView({
-		top: '2dp',
+		//top: '2dp',
 		// left: '80dp',
 		// right: '20dp',
 		left: 0,
@@ -123,10 +124,10 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		color:'#4A4A4A',
 		ellipsize: true,
 		left: 0,
-		height: '60dp',
+		height: '64dp',
 		verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 		font: {
-			fontSize: '15dp',
+			fontSize: Ti.Gesture.landscape? '18dp': '15dp',
 			fontFamily: 'Helvetica-Bold',
 		},
 		backgroundColor:'transparent',
@@ -142,7 +143,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		height: Ti.UI.SIZE,
 		font: {
 			fontSize: '12dp',
-			fontFamily: 'Helvetica-Bold',
+			fontFamily: 'Helvetica',
 		},
 		backgroundColor:'transparent',
 	});
@@ -156,11 +157,10 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	content_view.add(textView);
 
 	var row = Ti.UI.createTableViewRow({
-		height: '90dp',
+		height: Ti.Gesture.landscape? '110dp' : '90dp',
 		width: Ti.Platform.displayCaps.platformWidth,
 		backgroundColor:'#fff',
 		className: 'article',
-		leftImage:'images/bar.png',
 		url: url,
 		content: content,
 		articleTitle: title,
@@ -170,28 +170,46 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		modified: modified,
 		date_label: date_label,
 		title_label: titleLabel,
+		text_view: textView,
+		content_view: content_view,
+		thumb: thumb,
 	});
 
 	row.articleRow = content_view;
-	var sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
-	row.add(sharing);
+	row.sharing = create_sharing_options_view(url, title, content, thumbnail, id, date, author);
+	row.add(row.sharing);
 	row.add(row.articleRow);
 	
 	row.addEventListener('swipe', sharing_animation);
 	
 	row.articleRow.addEventListener ('click', function(e){
-		var win = Ti.UI.createWindow({
-			backgroundColor:'#fff',
-			url: 'detail.js',
-			modal: true,
-			//content: content, 
-			id: id,
-			articleUrl: url,
-			articleTitle: title,
-			thumbnail: thumbnail,
-			date: date,
-			author: author,
-		});
+		var articleWindow;
+		if (loadFromDictionary)
+			articleWindow = Ti.UI.createWindow({
+				backgroundColor:'#fff',
+				url: 'detail.js',
+				modal: true,
+				content: table_rows[id].content, 
+				id: table_rows[id].id,
+				articleUrl: table_rows[id].url,
+				articleTitle: table_rows[id].articleTitle,
+				thumbnail: table_rows[id].thumb.image,
+				date: table_rows[id].date,
+				author: table_rows[id].author,
+			});
+		else
+			articleWindow = Ti.UI.createWindow({
+				backgroundColor:'#fff',
+				url: 'detail.js',
+				modal: true,
+				content: content, 
+				id: id,
+				articleUrl: url,
+				articleTitle: title,
+				thumbnail: thumbnail,
+				date: date,
+				author: author,
+			});
 		win.addEventListener('close',function(){
 			Ti.UI.currentTab.fireEvent('focus');
 		});

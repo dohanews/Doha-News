@@ -46,11 +46,18 @@ var create_loading_row = function(){
 		backgroundColor:'transparent',
 		width: Ti.Platform.displayCaps.platformWidth,
 	});
-
-	var loading_indicator = create_activity_indicator();
-	loading_indicator.top = '35dp';
-	loading_row.add(loading_indicator);
-	loading_indicator.show();
+	
+	var label = Titanium.UI.createLabel({
+			text: 'Fetching older articles...',
+			color: 'darkgray',
+			font:{
+				fontSize: '14dp',
+				fontStyle: 'italic',
+				fontFamily: 'helvetica',
+			}
+	});
+	
+	loading_row.add(label);
 	
 	return loading_row;
 };
@@ -100,8 +107,51 @@ tbl.addEventListener('scroll', function(e) {
 		current_row = null;	
 	}	
 });
+
 tbl.addEventListener('scroll', infinite_scroll);
 add_pull_to_refresh(tbl);
+
+var reComputeTableRowsSize = function(){
+	
+	var tableData = tbl.data[0];
+
+	if (Ti.Gesture.landscape){
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '110dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '110dp';
+			tableData.rows[i].text_view.left = '105dp';
+			tableData.rows[i].text_view.height = '90dp';
+			tableData.rows[i].title_label.font = {fontSize: '18dp', fontFamily: 'Helvetica-Bold'};
+			tableData.rows[i].thumb.width = '90dp';
+			tableData.rows[i].thumb.height = '90dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+	else{
+		for (i = 0; i < tableData.rowCount; i++){
+			if (tableData.rows[i].className !== 'article')
+				continue;
+			tableData.rows[i].height = '90dp';
+			tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+			tableData.rows[i].content_view.height = '90dp';
+			tableData.rows[i].text_view.left = '85dp';
+			tableData.rows[i].text_view.height = '90dp';  
+			tableData.rows[i].title_label.font = {fontSize: '15dp', fontFamily: 'Helvetica-bold'};
+			tableData.rows[i].thumb.width = '70dp';
+			tableData.rows[i].thumb.height = '70dp';
+			tableData.rows[i].sharing.facebook.center = {x: 0.2 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.twitter.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.email.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			tableData.rows[i].sharing.bookmark.center = {x: 0.8 * Ti.Platform.displayCaps.platformWidth};
+		}
+	}
+};
 
 Ti.include('ios-search.js');
 Ti.include('ios-sharing.js');
@@ -113,7 +163,7 @@ function loadWordpress()
 	var send_request = function(e){
 		if (e.online){
 			network.removeEventListener('change', send_request);
-			loader.open("GET","http://dndev.staging.wpengine.com/?json=1&count=10");
+			loader.open("GET","http://s6062.p9.sites.pressdns.com/?json=1&count=10");
 			loading_indicator.show();
 			loader.send();
 		}
@@ -126,7 +176,7 @@ function loadWordpress()
 	});
 	// Sets the HTTP request method, and the URL to get data from
 
-	loader.open("GET","http://dndev.staging.wpengine.com/?json=1&count=10");
+	loader.open("GET","http://s6062.p9.sites.pressdns.com/?json=1&count=10");
 	// Runs the function when the data is ready for us to process
 	
 	loader.onload = function() 
@@ -146,7 +196,6 @@ function loadWordpress()
 			var url = wordpress.posts[i].url;
 			var date = wordpress.posts[i].date;
 			var modified = wordpress.posts[i].modified;
-			
 			lastID = id;
 			
 			var thumbail;
@@ -156,20 +205,17 @@ function loadWordpress()
 			else 
 				thumbnail = 'images/default_thumb.png';
 			
-			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified, true);
 			table_rows[id] = articleRow;
 			
-			articleData.push(articleRow);
-			
-			if (lastAd%10 == 0 && lastAd != 0) {
-				//var adMobRow = createAdMobView();
-				//articleData.push(adMobRow);
-			}
+			articleData.push(articleRow);			
 		}
 	
 		tbl.setData(articleData);
 		loading_indicator.hide();
 		win.add(tbl);
+		Ti.Gesture.addEventListener('orientationchange', reComputeTableRowsSize);
+		content_loaded = true;
 	};
 	
 	var loading_indicator = create_activity_indicator();	
@@ -203,7 +249,7 @@ setTimeout(function checkSync() {
 		timeout: 15000,
 	});
 
-	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
+	loader.open("GET","http://s6062.p9.sites.pressdns.com/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
 	
 	loader.onload = function() 
 	{
@@ -230,7 +276,7 @@ setTimeout(function checkSync() {
 				thumbnail = 'images/default_thumb.png';
 	
 			// Create a row and set its height to auto
-			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified);
+			var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified, true);
 			table_rows[id] = articleRow;
 			
 			tbl.appendRow(articleRow);
@@ -263,6 +309,17 @@ Ti.UI.currentTab.addEventListener('blur', function(){
 		});
 		current_row = null;
 	}
+});
+
+win.addEventListener('focus', function(){
+	if (content_loaded){
+		reComputeTableRowsSize();
+		Ti.Gesture.addEventListener('orientationchange', reComputeTableRowsSize);
+	}
+});
+
+win.addEventListener('blur', function(){
+	Ti.Gesture.removeEventListener('orientationchange', reComputeTableRowsSize);
 });
 
 win.add(header);

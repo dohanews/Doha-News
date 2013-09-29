@@ -222,10 +222,14 @@ var create_sharing_options_view = function(url, title, content, thumbnail, id, d
 		width: Ti.UI.FILL,
 	});
 	
-	icons.add(create_facebook_share(title,url));
-	icons.add(create_twitter_share(title,url));
-	icons.add(create_email_share(title,url));
-	icons.add(create_bookmarks(title, url, author, content, date, id, thumbnail));
+	icons.facebook = create_facebook_share(title,url);
+	icons.twitter = create_twitter_share(title,url);
+	icons.email = create_email_share(title,url);
+	icons.bookmark = create_bookmarks(title, url, author, content, date, id, thumbnail);
+	icons.add(icons.facebook);
+	icons.add(icons.twitter);
+	icons.add(icons.email);
+	icons.add(email.bookmark);
 
 	return icons;
 };
