@@ -280,8 +280,7 @@ exports.create_header = function(hideInfo){
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
 	header.add(submit);
-	if (!hideInfo){
-		header.add(info);
+	if (!hideInfo){		
 		var info = Ti.UI.createImageView({
 			image: 'images/info_inactive.png',
 			height: '30dp',
@@ -301,6 +300,7 @@ exports.create_header = function(hideInfo){
 				animated:true,
 			});	
 		});
+		header.add(info);
 	}
 	return header;
 };
