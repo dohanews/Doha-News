@@ -31,6 +31,7 @@ if (osname != 'android'){
 		height: '32dp',		
 		bottom: '10dp',
 		borderRadius: '5dp',
+		zIndex: 60,
 	});
 	options.addEventListener('click', function(){
 		alert('i got clicked');
@@ -264,11 +265,14 @@ var loadDetail = function(){
 
 loadDetail();
 activityIndicator.hide();
-win.add(localWebview);
 
 if (osname != 'android'){
 	win.add(options);
 }
+
+win.add(localWebview);
+
+
 // if (cache.exists(articleId)){
 	// content = cache.getContent(articleId);
 	// loadDetail();
