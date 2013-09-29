@@ -228,7 +228,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	return row;
 };
 
-exports.create_header = function(showInfo){
+exports.create_header = function(hideInfo){
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
 		top: 0,
@@ -280,7 +280,7 @@ exports.create_header = function(showInfo){
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
 	header.add(submit);
-	if (showInfo){
+	if (!hideInfo){
 		header.add(info);
 		var info = Ti.UI.createImageView({
 			image: 'images/info_inactive.png',
