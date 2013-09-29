@@ -1,5 +1,15 @@
 var win = Ti.UI.currentWindow;
+win.layout = 'vertical';
 win.backgroundColor = 'white';
+
+var common;
+
+if (Ti.Platform.osname != 'android'){
+	common = require('ios-common');
+	var header = common.create_header(true);
+	win.add(header);
+}
+
 
 var aboutView = Ti.UI.createView({
 	top: 0,
