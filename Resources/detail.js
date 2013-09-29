@@ -32,7 +32,9 @@ if (osname != 'android'){
 		bottom: '10dp',
 		borderRadius: '5dp',
 	});
-	
+	options.addEventListener('click', function(){
+		alert('i got clicked');
+	});
 }
 else{
 	Ti.include('and-sharing.js');
