@@ -4,8 +4,6 @@ var db = require('database');
 db.createTable();
 cache.createTable();
 
-console.log("Table Created");
-
 var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
 Ti.App.bookmarksChanged = true;
 Ti.App.tabgroup = Titanium.UI.createTabGroup({
@@ -19,7 +17,7 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 // });
 
 var articlesWin = Titanium.UI.createWindow ({
-   url: "and-wordpress.js",
+   url: prefix + "and-wordpress.js",
    id: 'articles',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
