@@ -27,7 +27,7 @@ if (osname != 'android'){
 	options = Ti.UI.createView({
 		backgroundColor: 'black',
 		opacity: 0.9,
-		width: '104dp',
+		width: '112dp',
 		height: '32dp',		
 		bottom: '10dp',
 		borderRadius: '5dp',
@@ -249,9 +249,9 @@ var loadDetail = function(){
 			dialog.show();
 		});
 		
-		textsize.left = 0;
-		contrast.left ='36dp';
-		share.left = '72dp';
+		textsize.left = '4dp';
+		contrast.left ='40dp';
+		share.left = '76dp';
 		options.add(textsize);
 		options.add(contrast); 
 		options.add(share);
