@@ -118,7 +118,7 @@ var animate = function(imageView, images, duration, callback){
 				callback();
 		}
 	}, duration);
-}
+};
 
 var create_bookmarks = function(title, url, author, content, date, id, thumbnail){
 	
@@ -162,6 +162,9 @@ var create_bookmarks = function(title, url, author, content, date, id, thumbnail
 					Ti.App.tabgroup.animate({bottom: 0, duration: 250});
 					Ti.App.tabgroupVisible = true;
 				}
+				if (tbl.data[0].rowCount == 0){
+					tbl.setData([create_no_bookmarks_row()]);
+				}
 				current_row = null;
 			}
 
@@ -174,7 +177,7 @@ var create_bookmarks = function(title, url, author, content, date, id, thumbnail
 				'images/Bookmarks-01.png',]
 				, 30, function(){
 					bookmark.opacity = 0;
-					bookmark.image = 'images/Bookmarks-00.png'
+					bookmark.image = 'images/Bookmarks-00.png';
 					bookmark.animate({opacity:1, duration: 250});
 			});
 			db.deleteId(id);

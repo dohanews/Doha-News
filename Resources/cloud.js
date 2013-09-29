@@ -1,7 +1,7 @@
 var Cloud = require('ti.cloud');
 
 var win1 = Ti.UI.currentWindow;
-var height = Ti.Platform.displayCaps.platformHeight - 100
+var height = Ti.Platform.displayCaps.platformHeight - 100;
 
 
 //login as the cloud user....
@@ -32,10 +32,10 @@ function sendPiccy(_args, name, email, description, location) {
     			Ti.API.info('Please Wait, Uploading Photo '+(Math.floor(e.progress * 0.5*100)*2)+'% Complete');
 				};
 				var photo = e.photos[0];
-				alert('Photo Submitted' );
-				win1.close();
+				return true;
 			} else {
-				alert('Error:\\n' +((e.error && e.message) || JSON.stringify(e)));
+				alert('Sorry! Couldn\'t upload your photo. Please try again later.');
+				return false;
 			}
 		});
 }

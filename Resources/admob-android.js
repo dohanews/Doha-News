@@ -40,7 +40,7 @@ var createAdMobView = function()
 	
 	row.add(admobView);
 	return row;
-}
+};
 
 
 

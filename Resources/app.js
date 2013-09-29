@@ -1,7 +1,10 @@
 var cache = require('cache');
 var db = require('database');
+
 db.createTable();
 cache.createTable();
+
+console.log("Table Created");
 
 var prefix = Ti.Platform.osname == 'android'? 'and' : 'ios';
 Ti.App.bookmarksChanged = true;
@@ -9,8 +12,14 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 	bottom: 0,
 });
 
+// var articlesWin = Titanium.UI.createWindow ({
+   // url: prefix + "-wordpress.js",
+   // id: 'articles',
+   // orientationModes: [Titanium.UI.PORTRAIT],
+// });
+
 var articlesWin = Titanium.UI.createWindow ({
-   url: prefix + "-wordpress.js",
+   url: "and-wordpress.js",
    id: 'articles',
    orientationModes: [Titanium.UI.PORTRAIT],
 });
@@ -25,25 +34,27 @@ var photosWin = Titanium.UI.createWindow({
 	url: 'photos.js',
 	id: 'photos',
 	navBarHidden: true,
-})
+});
 
 if (Ti.Platform.osname != 'android'){
 	bookmarksWin.navBarHidden = true;
 	articlesWin.navBarHidden = true;
 }
 
-
 var bookmarks = Titanium.UI.createTab({
 	title: 'Bookmarks',
+	id: 0,
 	window: bookmarksWin,
 });
 
 var articles = Titanium.UI.createTab({
 	title: 'Articles',
+	id: 1,
 	window: articlesWin,
 });
 var photos = Titanium.UI.createTab({
 	title: 'Photos',
+	id: 2,
 	window: photosWin,
 });
 // var videos = Titanium.UI.createTab({
@@ -75,7 +86,7 @@ if (Ti.Platform.osname != 'android'){
 		height: '50dp',
 		bottom: 0,
 		touchEnabled: false,
-	})
+	});
 	
 	var tabgroupHeader = Ti.UI.createView({
 		backgroundColor: '#b2b2b2',
@@ -97,7 +108,8 @@ if (Ti.Platform.osname != 'android'){
 			bottom: '4dp',
 			center: {x:(tabWidth * (i + 0.5))},
 			touchEnabled: false,
-		})
+		});
+		
 		var selectedImage = Ti.UI.createImageView({
 			image: icons[i*2],
 			width: '25dp',
@@ -146,7 +158,30 @@ else{
 				actionBar.icon = "images/header-logo.png";
 				actionBar.title = "";
 				actionBar.onHomeIconItemSelected = function() {
-					alert("Home icon clicked!");
+					
+					var aboutWindow = Ti.UI.createWindow({
+						backgroundColor:'white',
+						url: 'about.js',
+						modal: false,
+						
+					});
+			
+					aboutWindow.addEventListener('open', function(e) {
+						setTimeout(function(){
+						var actionBar = aboutWindow.getActivity().actionBar;
+							if (actionBar){
+								actionBar.title = "About";
+								actionBar.displayHomeAsUp = true;
+								actionBar.onHomeIconItemSelected = function() {
+									aboutWindow.close();
+								};
+							}
+						}, 200);
+					});
+					
+					aboutWindow.open({
+						animated:true,
+					});	
 				};
 			}
 	});

@@ -2,12 +2,13 @@ var InfiniScroll = require('infini-scroll');
 var win = Titanium.UI.currentWindow;
 win.backgroundColor='white';
 
+var refreshing = false;
 var content_loaded = false;
 var inifiniscrollView = null;
 var thumbnailScrollView = null;
 var scrollableGalleryView = null;
 var galleryWindow = null;
-var thumbPadding = 0;
+var thumbPadding = 3;
 var thumbSize;
 var numberOfColumnLandscape = 8;
 var numberOfColumnPortrait = 4;
@@ -16,7 +17,7 @@ var dpi = (Ti.Platform.displayCaps.dpi / 160);
 var currentColumn = 0;
 var currentRow = 0;
 var yPosition = thumbPadding;
-var xPosition = thumbPadding;
+var xPosition = 0;
 var imageId = 0;
 var numOfImages = 0;
 var allThumbs = [];
@@ -24,16 +25,23 @@ var isUiHidden = false;
 //var buttonSize = { width : 25, height : 50};
 var galleryImageViews = [];
 var originalImages = [];
-var	descriptionLabel = null;
+var	descriptionHeader = null;
 var lastID = 0;
 var recentID = 0;
+var footerIcons;
 //var buttonLeft = null;
 //var buttonRight = null;
 
 var create_activity_indicator = function(){
-	
+	var style;
+	if (Ti.Platform.osname == 'android'){
+		style = Ti.UI.ActivityIndicatorStyle.BIG_DARK;
+	}
+	else
+		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+		
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: Ti.UI.ActivityIndicatorStyle.BIG_DARK,
+		style: style ,
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
@@ -41,19 +49,68 @@ var create_activity_indicator = function(){
 	return activityIndicator;
 };
 
-var dialog = function(title, msg){
-	title = title || 'Couldn\'t fetch your articles';
-	msg = msg || 'Please check internet connectivity';
+
+var fade = function(opacity, callback){
+
+	var animation = Ti.UI.createAnimation({
+			opacity: opacity,
+			duration: 200,
+	});
+
+	animation.addEventListener('complete', callback);
+	return animation;
+};
+		
+var create_loading_row = function(top){
+		
+	var loadingView = Ti.UI.createView({
+		height: thumbSize,
+		backgroundColor: 'black',
+		opacity: 0.7,
+	});	
 	
-	var notification = Titanium.UI.createNotification({
-		message: title + '\n' + msg,
-		duration: Ti.UI.NOTIFICATION_DURATION_LONG,
-	}) 
+	if (top)
+		loadingView.top = 0;
+	else
+		loadingView.bottom = 0;		
 	
-	notification.addEventListener('click',function(){
-		notification.hide();
-	})
+	var loadingIndicator = create_activity_indicator();
+	loadingView.add(loadingIndicator);
+	loadingIndicator.show();
+	return loadingView; 
+};
+
+var dialog;
+
+if (Ti.Platform.osname == 'andoird') {
+	dialog = function(title, msg){
+		title = title || 'Couldn\'t fetch your articles';
+		msg = msg || 'Please check internet connectivity';
+		
+		var notification = Titanium.UI.createNotification({
+			message: title + '\n' + msg,
+			duration: Ti.UI.NOTIFICATION_DURATION_LONG,
+		}); 
+		
+		notification.addEventListener('click',function(){
+			notification.hide();
+		});
 	notification.show();
+	};
+}
+else{
+	dialog = function(){
+		title = 'Couldn\'t fetch your articles';
+		msg = 'Please check internet connectivity';
+		
+		var dialog = Ti.UI.createAlertDialog({
+			message: msg,
+			title: title,
+			ok: 'Got it!',
+			cancel: -1,
+		});
+		dialog.show();
+	};
 }
 
 var computeSizesforThumbGallery = function() {
@@ -64,8 +121,86 @@ var computeSizesforThumbGallery = function() {
 		numberOfColumn = numberOfColumnPortrait;
 	}
 
-	thumbSize = (Ti.Platform.displayCaps.platformWidth - ((numberOfColumn + 1) * thumbPadding)) / numberOfColumn;
-}
+	thumbSize = (Ti.Platform.displayCaps.platformWidth - ((numberOfColumn - 1) * thumbPadding)) / numberOfColumn;
+};
+
+/**
+		 * Recompute the size of a given image size, in order to make it fit
+		 * into the screen.
+		 *
+		 * @param {Number} width
+		 *
+		 * @param {Number} height
+		 *
+		 * @returns {Object} new width and the new height.
+		 */
+var reComputeImageSize = function(width, height) {
+
+	var newWidth = width,
+		newHeight = height;
+
+	var margin = 100 * (Ti.Platform.displayCaps.dpi / 160);
+	var viewWidth = Ti.Platform.displayCaps.platformWidth;
+	var viewHeight = Ti.Platform.displayCaps.platformHeight;
+	
+	/*
+	 * By working ratios of image sizes and screen sizes we ensure that, we will always
+	 * start resizing the dimension (height or width) overflowing the screen. Thus, the resized image will
+	 * always be contained by the screen boundaries.
+	 */
+	if ((width / viewWidth) >= (height / viewHeight)) {
+
+		if (width > viewWidth) {
+			newHeight = (height * viewWidth) / width;
+			newWidth = viewWidth;
+
+		} else if (height > viewHeight) {
+			newWidth = (viewHeight) / height;
+			newHeight = viewHeight;
+		}
+
+	} else {
+
+		if (height > viewHeight) {
+			newWidth = (width * viewHeight) / height;
+			newHeight = viewHeight;
+
+		} else if (width > viewWidth) {
+			newHeight = (height * viewWidth) / width;
+			newWidth = viewWidth;
+		}
+
+	}
+
+	return {
+		width : newWidth,
+		height : newHeight
+	};
+
+};
+
+/**
+ * Recompute image size on orientation change.
+ */
+var reComputeImageSizeOnChange = function(index) {
+	newSize = reComputeImageSize(allThumbs[index].imageInfo.fullWidth, allThumbs[index].imageInfo.fullHeight);
+	
+	scrollableGalleryView.views[index].children[0].height = newSize.height;
+	scrollableGalleryView.views[index].children[0].width = newSize.width;
+	scrollableGalleryView.views[index].children[0].center = {y: Ti.Platform.displayCaps.platformHeight/2};
+	
+};
+
+/**
+ * Recompute images size on orientation change.
+ */
+var reComputeImagesSizeOnChange = function() {
+
+	// Iterating through gallery images.
+	for (var i = 0, length = allThumbs.length; i < length; i++) {
+		reComputeImageSizeOnChange(i);
+	}
+};
 
 var reComputeImageGalleryOnOrientationChange = function() {
 
@@ -74,12 +209,12 @@ var reComputeImageGalleryOnOrientationChange = function() {
 	currentColumn = 0;
 	currentRow = 0;
 	yPosition = thumbPadding;
-	xPosition = thumbPadding;
+	xPosition = 0;
 
 	for (var i = 0, b = allThumbs.length; i < b; i++) {
 	
 		if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
-			xPosition = thumbPadding;
+			xPosition = 0;
 			yPosition += thumbPadding + thumbSize;
 			currentRow++;
 		}
@@ -91,23 +226,30 @@ var reComputeImageGalleryOnOrientationChange = function() {
 	
 		currentThumb.left = xPosition;
 		currentThumb.top = yPosition;
-	
-		var dpifactor = dpi;
-		
-		currentThumb.children[0].imageId = imageId;
-		currentThumb.children[0].width = (thumbSize - (6 * dpifactor));
-		currentThumb.children[0].height = (thumbSize - (6 * dpifactor));
-	
-		currentThumb.children[0].top = (3 * dpifactor);
-		currentThumb.children[0].left = (3 * dpifactor);
-	
+
 		// Increments values (thumb layout)
 			currentColumn++;
 			xPosition += thumbSize + thumbPadding;
 			imageId++;
 	}
-}	
-	
+	if (thumbnailScrollView && thumbnailScrollView.indicator){
+		
+		var xloading = xPosition;
+		var yloading = yPosition;
+		
+		if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
+			xloading = 0;
+			yloading += thumbPadding + thumbSize;
+		}
+		
+		var indicator = thumbnailScrollView.indicator;
+		indicator.width = thumbSize;
+		indicator.height = thumbSize;
+		indicator.left = xloading;
+		indicator.top = yloading;
+	}
+};	
+
 var createGalleryWindow = function(imgId) {
 
 	scrollableGalleryView = Ti.UI.createScrollableView({
@@ -119,24 +261,41 @@ var createGalleryWindow = function(imgId) {
 	});
 	
 	// Create caption only when given by user.
-	var descriptionLabel = null;
+	var opacity = allThumbs[imgId].imageInfo.caption == ''? 0 : 0.7;
 	
-	descriptionLabel = Ti.UI.createLabel({
+	descriptionHeader = Titanium.UI.createView({
+		height: '50dp',
+		top: 0,
+		opacity: opacity,
+		backgroundColor: 'black',
+	});
+	
+	var descriptionLabel = Ti.UI.createLabel({
 		text: allThumbs[imgId].imageInfo.caption,
 		center: {y:'25dp'},
-		height: 'auto',
 		color: 'white',
 		font: {fontSize: '15dp'},
 		textAlign: 'center',
 		zIndex: 2,
 	});
 	
-	var openArticle = Titanium.UI.createImageView({
-		image : 'images/gallery-article.png',
-		left : '50dp',
+	descriptionHeader.add(descriptionLabel);
+	
+	// var openArticle = Titanium.UI.createImageView({
+		// image : 'images/gallery-article.png',
+		// left : '50dp',
+		// bottom: '10dp',
+		// width: '30dp',
+		// height: '30dp',
+	// });
+// 	
+	var openArticle = Titanium.UI.createLabel({
+		text: 'Read Article',
+		font: {fontSize: '16dp', fontFamily: 'droidsans'},
+		left : '60dp',
 		bottom: '10dp',
-		width: '30dp',
 		height: '30dp',
+		color: 'white',
 	});
 	
 	openArticle.addEventListener('click', function(){
@@ -150,17 +309,17 @@ var createGalleryWindow = function(imgId) {
 		width: '30dp',
 		height: '30dp',
 	});
-	
+
 	sharePhoto.addEventListener('click', function(){
 		share_photo(scrollableGalleryView.currentPage);
 	});
 	
-	var footerIcons = Titanium.UI.createView({
-		width: Ti.Platform.displayCaps.platformWidth,
+	footerIcons = Titanium.UI.createView({
 		height: '50dp',
 		bottom: 0,
-		backgroundColor: 'transparent'
-	})
+		opacity: 0.7,
+		backgroundColor: 'black',
+	});
 	
 	footerIcons.add(sharePhoto);
 	footerIcons.add(openArticle);
@@ -217,12 +376,15 @@ var createGalleryWindow = function(imgId) {
 
 			var animation = Titanium.UI.createAnimation();
 			animation.duration = 300;
-			animation.opacity = 1.0;
+			animation.opacity = 0.7;
 
-			if (descriptionLabel != null)
-				descriptionLabel.animate(animation);
+			if (descriptionHeader.children[0].text  != '')
+				descriptionHeader.animate(animation);
 			
+			//sharePhoto.animate(animation);
+			//openArticle.animate(animation);
 			footerIcons.animate(animation);
+			
 			// if (scrollableGalleryView.currentPage != (scrollableGalleryView.views.length - 1)) {
 				// buttonRight.animate(animation);
 			// }
@@ -237,8 +399,12 @@ var createGalleryWindow = function(imgId) {
 			animation.duration = 300;
 			animation.opacity = 0.0;
 
-			descriptionLabel.animate(animation);
+			if (descriptionHeader.children[0].text  != '')
+				descriptionHeader.animate(animation);
+				
 			footerIcons.animate(animation);
+			//sharePhoto.animate(animation);
+			//openArticle.animate(animation);
 // 
 			// if (scrollableGalleryView.currentPage != (scrollableGalleryView.views.length - 1)) {
 				// buttonRight.animate(animation);
@@ -250,15 +416,14 @@ var createGalleryWindow = function(imgId) {
 		}
 		
 		isUiHidden = !isUiHidden;
-	}
+	};
 	
 	if (Ti.Platform.osname == 'android') {
 	
 		for (var i = 0, b = allThumbs.length; i < b; i++) {
 			var enlarged_image = Ti.UI.createImageView({
 				image: allThumbs[i].imageInfo.path,
-				top: '50dp',
-				bottom: '50dp',
+				center: {y: Ti.Platform.displayCaps.platformHeight/2},
 			});
 
 			var view = Ti.UI.createView({
@@ -280,35 +445,25 @@ var createGalleryWindow = function(imgId) {
 	
 	} else {
 	
-		for (var i = 0, b = dictionary.images.length; i < b; i++) {
+		for (var i = 0, b = allThumbs.length; i < b; i++) {
 	
+			var enlarged_image = Ti.UI.createImageView({
+				image: allThumbs[i].imageInfo.path,
+				top: '50dp',
+				bottom: '50dp',
+			});
+
 			var view = Ti.UI.createView({
-				backgroundColor : '#000',
-				image: images[i].path,
-				height: 'auto',
-				width: 'auto',
-				index: i,
-				firstLoad: true
+				backgroundColor: 'black',
+				width: Ti.Platform.displayCaps.platformWidth,
+				image: enlarged_image,
 			});
 	
-			view.addEventListener('load', function (e) {
-				var blob = e.source.toBlob();
-				originalImages[e.source.index] = blob;
-	
-				if (blob.height > 0 && blob.width > 0) {
-					images[e.source.index].height = blob.height;
-					images[e.source.index].width = blob.width;
-	
-					e.source.firstLoad = false;
-				}
-			});
-	
-			images[i].height = view.size.height
-			images[i].width = view.size.width
-	
-			view.addEventListener('singletap', toggleUI);
-	
+			view.add(enlarged_image);
+			
 			galleryImageViews[i] = view;
+
+			view.addEventListener('singletap', toggleUI);
 		}
 	
 		scrollableGalleryView.views = galleryImageViews;
@@ -316,8 +471,11 @@ var createGalleryWindow = function(imgId) {
 		scrollableGalleryView.scrollToView(imgId);
 	}
 
-	galleryWindow.add(descriptionLabel);
+	galleryWindow.add(descriptionHeader);
 	galleryWindow.add(footerIcons);
+	//galleryWindow.add(sharePhoto);
+	//galleryWindow.add(openArticle);
+
 	//galleryWindow.add(closeButton);
 
 	//galleryWindow.add(buttonLeft);
@@ -334,11 +492,16 @@ var createGalleryWindow = function(imgId) {
 
 		galleryWindow.title = e.currentPage + 1 + ' of ' + numOfImages;
 
-		if (typeof allThumbs[e.currentPage].imageInfo.caption == 'undefined' || allThumbs[e.currentPage].imageInfo.caption == 'undefined') {
-			allThumbs[e.currentPage].imageInfo.caption = '';
+		if (!isUiHidden){
+			if(allThumbs[e.currentPage].imageInfo.caption == ''){
+				descriptionHeader.opacity = 0;
+			}
+			else{
+				descriptionHeader.opacity = 0.7;
+			}
 		}
 
-		descriptionLabel.text = allThumbs[e.currentPage].imageInfo.caption;
+		descriptionHeader.children[0].text = allThumbs[e.currentPage].imageInfo.caption;
 
 		// if (!isUiHidden) {
 			// if (e.currentPage == (scrollableGalleryView.views.length - 1)) {
@@ -354,7 +517,7 @@ var createGalleryWindow = function(imgId) {
 			// }
 		// }
 	});
-}
+};
 
 var createThumbGallery = function() {
 	
@@ -362,11 +525,12 @@ var createThumbGallery = function() {
 		top: 0,
 		contentWidth: 'auto',
 		contentHeight: 'auto',
+		cacheSize: 7,
 		showVerticalScrollIndicator: true,
 		showHorizontalScrollIndicator: false,
 	}, 
 	{
-  		triggerAt: '82%',
+  		triggerAt: '100%',
   		onScrollToEnd: function(){
 			load_previous_photos();
 		}
@@ -382,7 +546,7 @@ var createThumbGallery = function() {
 
 	computeSizesforThumbGallery();
 	win.add(thumbnailScrollView.view);
-}
+};
 
 var addThumbsToGallery = function(imgs){
 	numOfImages += imgs.length;
@@ -390,49 +554,37 @@ var addThumbsToGallery = function(imgs){
 	for (var i = 0, b = imgs.length; i < b; i++) {
 		
 		if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
-			xPosition = thumbPadding;
+			xPosition = 0;
 			yPosition += thumbPadding + thumbSize;
 			currentRow++;
 		}
 
-		// Border of the thumbnail (make the thumbnail look a bit like a real picture).
-		var thumbImageBorder = Ti.UI.createView({
+		var thumbPath = (typeof imgs[i].thumbPath == 'undefined') ?
+						 imgs[i].path :
+						 imgs[i].thumbPath;
+
+		var thumbImage = Ti.UI.createImageView({
+			image: thumbPath,
 			width: thumbSize,
 			height: thumbSize,
 			imageId: imageId,
 			left: xPosition,
 			top: yPosition,
 			backgroundColor: 'white',
-			borderColor:'black',
-			borderWidth: '1dp',
 			imageInfo: imgs[i],
 		});
 
-		var thumbPath = (typeof imgs[i].thumbPath == 'undefined') ?
-						 imgs[i].path :
-						 imgs[i].thumbPath;
-
-		var dpifactor = dpi;
-
-		var thumbImage = Ti.UI.createImageView({
-			image: thumbPath,
-			imageId : imageId,
-			width : (thumbSize - (6 * dpifactor)),
-			height : (thumbSize - (6 * dpifactor)),
-			top : (3 * dpifactor),
-			left : (3 * dpifactor),
-		});
-
-		thumbImageBorder.add(thumbImage);
-
-		thumbImageBorder.addEventListener('click', function(e) {
+		thumbImage.addEventListener('click', function(e) {
 			galleryWindow = Ti.UI.createWindow({
 				backgroundColor : '#000',
 				title : (e.source.imageId + 1) + ' of ' + numOfImages,
 				translucent : true
 			});
-
+			
+			Ti.Gesture.addEventListener('orientationchange', reComputeImagesSizeOnChange);
+					
 			galleryWindow.addEventListener('close', function() {
+				Ti.Gesture.removeEventListener('orientationchange', reComputeImagesSizeOnChange);
 				reComputeImageGalleryOnOrientationChange();
 			});
 	
@@ -444,62 +596,51 @@ var addThumbsToGallery = function(imgs){
 			});
 		});
 
-		thumbnailScrollView.add(thumbImageBorder);
-		allThumbs.push(thumbImageBorder);
+		thumbnailScrollView.add(thumbImage);
+		allThumbs.push(thumbImage);
 		// Increments values (thumb layout)
 		currentColumn++;
 		xPosition += thumbSize + thumbPadding;
 		imageId++;
 	}
-}
+	thumbnailScrollView.wrapper.backgroundColor = 'white';
+};
 
 var addNewThumbsToGallery = function(imgs){
 	numOfImages += imgs.length;
 	
 	currentColumn = 0;
 	currentRow = 0;
-	yPosition = thumbPadding;
+	yPosition = 0;
 	xPosition = thumbPadding;
 	
 	for (var i = 0, b = imgs.length; i < b; i++) {
 		
 		if (currentColumn % numberOfColumn === 0 && currentColumn > 0) {
-			xPosition = thumbPadding;
+			xPosition = 0;
 			yPosition += thumbPadding + thumbSize;
 			currentRow++;
 		}
-
-		// Border of the thumbnail (make the thumbnail look a bit like a real picture).
-		var thumbImageBorder = Ti.UI.createView({
+		
+		var thumbPath = (typeof imgs[i].thumbPath == 'undefined') ?
+						 imgs[i].path :
+						 imgs[i].thumbPath;
+						 
+		
+		var thumbImage = Ti.UI.createImageView({
+			image: thumbPath,
 			width: thumbSize,
 			height: thumbSize,
 			imageId: imageId,
 			left: xPosition,
 			top: yPosition,
 			backgroundColor: 'white',
-			borderColor:'black',
-			borderWidth: '1dp',
 			imageInfo: imgs[i],
 		});
 
-		var thumbPath = (typeof imgs[i].thumbPath == 'undefined') ?
-						 imgs[i].path :
-						 imgs[i].thumbPath;
+		thumbImage.add(thumbImage);
 
-		var dpifactor = dpi;
-
-		var thumbImage = Ti.UI.createImageView({
-			image: thumbPath,
-			imageId : imageId,
-			width : (thumbSize - (6 * dpifactor)),
-			height : (thumbSize - (6 * dpifactor)),
-			top : (3 * dpifactor),
-			left : (3 * dpifactor),
-		});
-
-		thumbImageBorder.add(thumbImage);
-
-		thumbImageBorder.addEventListener('click', function(e) {
+		thumbImage.addEventListener('click', function(e) {
 			galleryWindow = Ti.UI.createWindow({
 				backgroundColor : '#000',
 				title : (e.source.imageId + 1) + ' of ' + numOfImages,
@@ -518,8 +659,8 @@ var addNewThumbsToGallery = function(imgs){
 			});
 		});
 
-		thumbnailScrollView.add(thumbImageBorder);
-		allThumbs.unshift(thumbImageBorder);
+		thumbnailScrollView.add(thumbImage);
+		allThumbs.unshift(thumbImage);
 		// Increments values (thumb layout)
 		currentColumn++;
 		xPosition += thumbSize + thumbPadding;
@@ -527,7 +668,7 @@ var addNewThumbsToGallery = function(imgs){
 	}
 	
 	reComputeImageGalleryOnOrientationChange();
-}
+};
 
 var load_photos = function(){
 		
@@ -537,13 +678,13 @@ var load_photos = function(){
 	var send_request = function(e){
 		if (e.online){
 			network.removeEventListener('change', send_request);
-			loader.open('GET','http://dndev.staging.wpengine.com/category/photos/?json=1&count=20');
+			loader.open('GET','http://s6062.p9.sites.pressdns.com/category/photos/?json=1&count=20');
 			loading_indicator.show();
 			loader.send();
 		}
-	}
+	};
 	
-	loader.open('GET','http://dndev.staging.wpengine.com/category/photos/?json=1&count=20');
+	loader.open('GET','http://s6062.p9.sites.pressdns.com/category/photos/?json=1&count=20');
 	
 	loader.onload = function(){
 		var photos = [];
@@ -565,14 +706,17 @@ var load_photos = function(){
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
+						content : response.posts[i].content,
 						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.large.url,
+						path: attachment.images.full.url,
+						fullWidth: attachment.images.full.width,
+						fullHeight: attachment.images.full.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
-					}
+					};
 					
 					photos.push(photo);
 				}
@@ -584,7 +728,7 @@ var load_photos = function(){
 		content_loaded = true;
 		addThumbsToGallery(photos);
 	
-	}
+	};
 	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
@@ -602,13 +746,17 @@ var load_photos = function(){
 
 Ti.App.load_new_photos = function(){
 	
-	if (!content_loaded)
+	if (!content_loaded || refreshing)
 		return;
-
-	alert('fetching');
+	
+	refreshing = true;
+	
+	var loadingRow = create_loading_row(true);
+	win.add(loadingRow);
+	
 	var loader = Ti.Network.createHTTPClient({timeout: 15000});
 	
-	loader.open('GET','http://dndev.staging.wpengine.com/api/adjacent/get_next_posts/?category=photos&count=20&id=' + recentID);
+	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/adjacent/get_next_posts/?category=photos&count=20&id=' + recentID);
 	
 	loader.onload = function(){
 
@@ -629,31 +777,43 @@ Ti.App.load_new_photos = function(){
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
+						content : response.posts[i].content,
 						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.large.url,
+						path: attachment.images.full.url,
+						fullWidth: attachment.images.full.width,
+						fullHeight: attachment.images.full.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
-					}
+					};
 					
 					photos.unshift(photo);
 				}
 			}
 		}
 		
+		loadingRow.animate(fade(0, function(){win.remove(loadingRow);}));
 		addNewThumbsToGallery(photos);
+		refreshing = false;
+	};
 	
-	}
+	loader.onerror = function(){
+		loadingRow.animate(fade(0, function(){win.remove(loadingRow);}));
+		refreshing = false;
+	};
 	loader.send();
-}
+};
 
 var load_previous_photos = function(){
 
 	var loader = Ti.Network.createHTTPClient({timeout: 15000});
 	
-	loader.open('GET','http://dndev.staging.wpengine.com/api/adjacent/get_previous_posts/?category=photos&count=20&id=' + lastID);
+	var loadingRow = create_loading_row(false);
+	win.add(loadingRow);
+	
+	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/adjacent/get_previous_posts/?category=photos&count=20&id=' + lastID);
 	
 	loader.onload = function(){
 		var photos = [];
@@ -673,33 +833,42 @@ var load_previous_photos = function(){
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
+						content : response.posts[i].content,
 						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.large.url,
+						path: attachment.images.full.url,
+						fullWidth: attachment.images.full.width,
+						fullHeight: attachment.images.full.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
-					}
+
+					};
 					photos.push(photo);
 				}
 			}
 			lastID = response.posts[i].id;
 		}
+		loadingRow.animate(fade(0, function(){win.remove(loadingRow);}));
 		addThumbsToGallery(photos);
-		
-	}
+	};
+	
+	loader.onerror = function(){
+		loadingRow.animate(fade(0, function(){win.remove(loadingRow);}));
+	};
+	
 	loader.send();
 };
 
 var open_article = function(index){
 	
 	var image = allThumbs[index].imageInfo;
-	
-	var win = Ti.UI.createWindow({
+
+	var articleWindow = Ti.UI.createWindow({
 		backgroundColor:'#fff',
 		url: 'detail.js',
-		modal: true,
+		modal: false,
 		navBarHidden: true,
 		id: image.id,
 		articleUrl: image.url,
@@ -707,9 +876,24 @@ var open_article = function(index){
 		thumbnail: image.thumbnail,
 		date: image.date,
 		author: image.author,
+		content: image.content,
 	});
+	
+	// articleWindow.addEventListener('open', function(e) {
+		// setTimeout(function(){
+		// var actionBar = articleWindow.getActivity().actionBar;
+			// if (actionBar){
+				// actionBar.icon = "images/header-logo.png";
+				// actionBar.title = "";
+				// actionBar.displayHomeAsUp = true;
+				// actionBar.onHomeIconItemSelected = function() {
+					// articleWindow.close();
+				// };
+			// }
+		// }, 500);
+	// });
 		
-	win.open({
+	articleWindow.open({
 		animated:true,
 	});
 };
@@ -738,7 +922,7 @@ var download_photo = function(index){
 	var filename = image.imageTitle + '_' + image.imageId + '.' + ext;
 	
 	var file_obj = {file:filename, url:url, path: null};
-}
+};
 
 createThumbGallery();
 
@@ -749,16 +933,19 @@ win.addEventListener('blur', function() {
 });
 
 win.addEventListener('focus', function() {
+	reComputeImageGalleryOnOrientationChange();
 	Ti.Gesture.addEventListener('orientationchange', reComputeImageGalleryOnOrientationChange);
 	
-	Ti.App.tabgroup.getActivity().onPrepareOptionsMenu = function(e){
-		var menu = e.menu;
-		menu.findItem(1).visible = false;
-		if (Ti.App.refreshArticles)
-			menu.findItem(2).removeEventListener('click', Ti.App.refreshArticles);
-
-		menu.findItem(2).addEventListener('click', Ti.App.load_new_photos);
-	}
-	
-	Ti.App.tabgroup.activity.invalidateOptionsMenu();
+	// if (Ti.Platform.osname == 'android'){
+		// Ti.App.tabgroup.getActivity().onPrepareOptionsMenu = function(e){
+			// var menu = e.menu;
+			// menu.findItem(1).visible = false;
+			// if (Ti.App.refreshArticles)
+				// menu.findItem(2).removeEventListener('click', Ti.App.refreshArticles);
+// 	
+			// menu.findItem(2).addEventListener('click', Ti.App.load_new_photos);
+		// }
+// 		
+		// Ti.App.tabgroup.activity.invalidateOptionsMenu();
+	// }
 });

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ti:app xmlns:ti="http://ti.appcelerator.org">
+<?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
     <property name="acs-oauth-secret-production" type="string">X29pRLsPwI2usYgCqKcyAo6MKq26pogT</property>
     <property name="acs-oauth-key-production" type="string">rKePOor7CcYZwlC3UKNt4Jg0APaIlGme</property>
     <property name="acs-api-key-production" type="string">yk4recwu4t7RrpFcFo1o5YEGSQDdgnMy</property>
@@ -36,11 +35,11 @@
     </iphone>
     <property name="ti.android.fastdev" type="bool">false</property>
     <android xmlns:android="http://schemas.android.com/apk/res/android">
-    <manifest>
-     	<supports-screens android:anyDensity="false"/>
-        <uses-sdk android:maxSdkVersion="17" android:minSdkVersion="11" android:targetSdkVersion="14"/>
-        <application android:theme="@android:style/Theme.Holo.Light"/>
-    </manifest>
+        <manifest>
+            <supports-screens android:anyDensity="true"/>
+            <uses-sdk android:maxSdkVersion="18" android:minSdkVersion="14" android:targetSdkVersion="14"/>
+            <application android:theme="@android:style/Theme.Holo.Light"/>
+        </manifest>
         <tool-api-level>14</tool-api-level>
     </android>
     <mobileweb>
@@ -67,5 +66,6 @@
         <target device="mobileweb">true</target>
         <target device="tizen">false</target>
     </deployment-targets>
-    <sdk-version>3.1.0.GA</sdk-version>
+    <sdk-version>3.1.2.GA</sdk-version>
+    <property name="ti.deploytype">test</property>
 </ti:app>

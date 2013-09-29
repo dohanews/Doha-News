@@ -13,7 +13,7 @@ function FirstView() {
 	  top: 0 
 	});
 	
-	self.add(logo);
+	//self.add(logo);
 	
 	return self;
 }

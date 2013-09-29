@@ -22,6 +22,25 @@ exports.exists = function(id) {
 	return exists;	
 };
 
+exports.get = function(id) {
+	var db = Ti.Database.open('bookmarks'); 
+	var resultSet = db.execute('SELECT * FROM bookmarks WHERE id=(?)', id);
+	var result = {};
+	if (resultSet.isValidRow()){
+			result.id =  resultSet.fieldByName('id');
+			result.title = resultSet.fieldByName('title');
+			result.content = resultSet.fieldByName('content');
+			result.url = resultSet.fieldByName('url');
+			result.author = resultSet.fieldByName('author');
+			result.date = resultSet.fieldByName('date');
+			result.thumbnail = resultSet.fieldByName('thumbnail');
+	}
+	
+	resultSet.close();
+	db.close();
+	return result;	
+};
+
 exports.getAll = function() {
 	var db = Ti.Database.open('bookmarks'); 
 	var results = [];
@@ -69,13 +88,14 @@ exports.deleteId = function(id){
 		resultSet.next();
 	}
 	resultSet.close();
-
-	var path = thumbnail.split(Titanium.Filesystem.separator);
-	var filename = path[path.length - 1];
-	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);
-	alert(filename);
-	if (file.exists()){
-		file.deleteFile();
+	
+	if (thumbnail){
+		var path = thumbnail.split(Titanium.Filesystem.separator);
+		var filename = path[path.length - 1];
+		var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);
+		if (file.exists()){
+			file.deleteFile();
+		}
 	}
 	
     db.execute('DELETE FROM bookmarks WHERE id=(?)', id);

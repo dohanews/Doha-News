@@ -7,42 +7,20 @@ var db = require('database');
 
 var osname = Ti.Platform.osname;
 
-var twitter_client = Twitter({
-  consumerKey: "FDgfEjNPwqLnZq7xlJuA",
-  consumerSecret: "kZUixuFO4qgULmSPV3KofxAf8htLGFcBcUy4MS6rLw",
-  accessTokenKey: Ti.App.Properties.getString('twitterAccessTokenKey'),
-  accessTokenSecret: Ti.App.Properties.getString('twitterAccessTokenSecret'),
-});
-
 var win = Titanium.UI.currentWindow;
 
 var lastID = 0;
 var recentID = 0;
 
-var loadData = false;
 var offset = 0;
 
 win.backgroundColor='white';
 win.navBarHidden = true;
 
-var infinite_scroll = function(evt) {
-	    
-	if(evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height) {
-		loadData = true;       
-	}
-};
-
 var create_activity_indicator = function(){
-	var style;
-	if (Ti.Platform.name === 'iPhone OS'){
-		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-	}
-	else {
-		style = Ti.UI.ActivityIndicatorStyle.DARK;
-	}
 
 	var activityIndicator = Ti.UI.createActivityIndicator({
-		style: style,
+		style: Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
 		center:{x:Ti.Platform.displayCaps.platformWidth/2, 
 			y:Ti.Platform.displayCaps.platformHeight/2},
 		height:Ti.UI.SIZE,
@@ -68,6 +46,27 @@ var create_loading_row = function(){
 	return loading_row;
 };
 
+
+var create_no_bookmarks_row = function(){
+		var row = Titanium.UI.createTableViewRow({
+			height: '45dp',
+			backgroundColor:'transparent',
+			width: Ti.Platform.displayCaps.platformWidth,
+		});
+		
+		var label = Titanium.UI.createLabel({
+			text: 'You haven\'t bookmarked anything yet!',
+			color: 'darkgray',
+			font:{
+				fontSize: '14dp',
+				fontStyle: 'italic',
+				fontFamily: 'Helvetica',
+			}
+		});
+		row.add(label);
+		return row;
+};
+
 var header = common.create_header();
 var tbl = common.create_table_view('45dp');
 
@@ -80,20 +79,19 @@ function loadBookmarks(){
 	
 	if (results.length > 0)
 		recentID = results[0].id;
+	else
+		articleData.push(create_no_bookmarks_row());
 		
 	for (i = 0; i<results.length; i++)
 	{	
-		var articleContent = results[i].content; // The tweet message
-		var articleTitle = results[i].title; // The screen name of the user
+		var articleContent = results[i].content;
+		var articleTitle = results[i].title;
 		var author = results[i].author;
 		var id = results[i].id;
 		var url = results[i].url;
 		var date = results[i].date;
 		var thumbnail = results[i].thumbnail;
 		lastID = id;	
-
-		var originalDate = date.split(' ');
-		var dateArray = originalDate[0].split('-');
 	
 		var articleRow = common.make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 		articleData.push(articleRow);
@@ -148,8 +146,6 @@ function initialize_table()
 			current_row = null;
 		}
 	});
-
-	tbl.addEventListener('scroll', infinite_scroll);	
 	
 	win.add(tbl);
 	win.open();

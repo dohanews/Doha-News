@@ -1,5 +1,3 @@
-var cache  = require('cache.js');
-
 var get_relative_time = exports.get_relative_time = function(date){
 	var text;
 	var dateTime = date.split(' ');
@@ -65,10 +63,13 @@ var get_relative_time = exports.get_relative_time = function(date){
 	}
 	
 	return text;
-}
+};
+
 
 var create_date_label = function(date){
+	
 	var text = get_relative_time(date);
+	
 	var dateLabel = Ti.UI.createLabel({
 		text: text,
 		backgroundColor: 'transparent',
@@ -78,9 +79,9 @@ var create_date_label = function(date){
 		},
 		color: 'gray',
 		bottom: 0,
-	}) 
+	}); 
 	return dateLabel;
-}
+};
 
 exports.make_content_view = function(title, content, thumbnail, url, id, date, author, modified) {
 
@@ -89,7 +90,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		width: Titanium.Platform.displayCaps.platformWidth,
 		left: 0,
 		backgroundColor: 'white',
-	})
+	});
 	
 	var thumb = Ti.UI.createImageView({
 		height: '70dp',
@@ -105,7 +106,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		height: Ti.UI.SIZE,
 		backgroundColor:'transparent',
 		layout: 'vertical',
-	})
+	});
 	
 	var authorTimeView = Ti.UI.createView({
 		top: '2dp',
@@ -121,9 +122,6 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		text: title,
 		color:'#4A4A4A',
 		ellipsize: true,
-		// top: '0dp',
-		// left: '80dp',
-		// right: '20dp',
 		left: 0,
 		height: '60dp',
 		verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
@@ -186,16 +184,17 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 			backgroundColor:'#fff',
 			url: 'detail.js',
 			modal: true,
+			//content: content, 
 			id: id,
 			articleUrl: url,
 			articleTitle: title,
 			thumbnail: thumbnail,
 			date: date,
 			author: author,
-		})
+		});
 		win.addEventListener('close',function(){
 			Ti.UI.currentTab.fireEvent('focus');
-		})
+		});
 		win.open({
 			animated:true,
 		});
@@ -210,7 +209,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	});
 	
 	return row;
-}
+};
 
 exports.create_header = function(){
 	var header = Titanium.UI.createView({
@@ -225,8 +224,28 @@ exports.create_header = function(){
 		width: '150dp',
 		height: '20dp',
 		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 25},
-		
 	});
+	
+	var submit = Ti.UI.createImageView({
+		image: 'images/submit.png',
+		height: '30dp',
+		width: '30dp',
+		right: '5dp',
+	});
+	
+	submit.addEventListener('click', function(){
+		var win = Ti.UI.createWindow({
+			backgroundColor:'white',
+			url: 'upload_photo.js',
+			modal: false,
+			navBarHidden: true,
+		});
+			
+		win.open({
+			animated:true,
+		});	
+	});
+
 	var headerStrip = Titanium.UI.createView({
 		backgroundColor: '#70193c',
 		height: '5dp',
@@ -243,8 +262,9 @@ exports.create_header = function(){
 	header.add(headerStrip);
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
+	header.add(submit);
 	return header;
-}
+};
 
 exports.create_table_view = function(top){
 	top = top || '90dp';
@@ -260,7 +280,7 @@ exports.create_table_view = function(top){
 	});
 	
 	return table;
-}
+};
 
 exports.dialog = function(title, msg){
 	title = title || 'Couldn\'t fetch your articles';
@@ -271,6 +291,6 @@ exports.dialog = function(title, msg){
 		title: title,
 		ok: 'Got it!',
 		cancel: -1,
-	})
+	});
 	dialog.show();
-}
+};

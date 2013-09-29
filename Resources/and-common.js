@@ -63,10 +63,10 @@ var get_relative_time = function(date){
 	}
 	
 	return text;
-}
+};
 
 
-create_date_label = function(date){
+var create_date_label = function(date){
 	
 	var text = get_relative_time(date);
 	
@@ -75,46 +75,46 @@ create_date_label = function(date){
 		backgroundColor: 'transparent',
 		font:{
 			fontSize: '12dp',
-			fontFamily: 'Helvetica-Bold',
+			fontFamily: 'droidsans',
 		},
 		color: 'gray',
+		height: Ti.UI.SIZE,
 		bottom: 0,
-	}) 
+	});
 	return dateLabel;
-}
+};
 
-make_content_view = function(title, content, thumbnail, url, id, date, author, modified) {
+make_content_view = function(title, content, thumbnail, url, id, date, author, modified, loadFromDictionary) {
 
 	var content_view = Ti.UI.createView({
-		height: Ti.UI.FILL,
+		height: Ti.Gesture.landscape? '120dp': '100dp',
 		width: Titanium.Platform.displayCaps.platformWidth,
 		left: 0,
 		backgroundColor: 'white',
-	})
+		zIndex: 500,
+	});
 	
 	var thumb = Ti.UI.createImageView({
-		height: '70dp',
-		width: '70dp',
+		height: Ti.Gesture.landscape? '100dp': '80dp',
+		width: Ti.Gesture.landscape? '100dp': '80dp',
 		left: '5dp',
 		image: thumbnail,
 	});
 
 	var textView = Ti.UI.createView({
 		//top: '0dp',
-		left: '85dp',
+		left: Ti.Gesture.landscape? '115dp': '95dp',
 		right: '20dp',
-		height: Ti.UI.SIZE,
+		height: Ti.Gesture.landscape? '100dp':'80dp',
 		backgroundColor:'transparent',
 		layout: 'vertical',
-	})
+	});
 	
 	var authorTimeView = Ti.UI.createView({
-		top: '2dp',
 		// left: '80dp',
 		// right: '20dp',
 		left: 0,
 		height: Ti.UI.SIZE,
-		backgroundColor:'transparent',
 		layout: 'horizontal',
 	});
 	
@@ -123,11 +123,12 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 		color:'#4A4A4A',
 		ellipsize: true,
 		left: 0,
-		height: '60dp',
+		height: '64dp',
 		verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 		font: {
-			fontSize: '15dp',
-			fontFamily: 'Helvetica-Bold',
+			fontSize: Ti.Gesture.landscape? '20dp': '17dp',
+			fontFamily: 'droidsans',
+			fontWeight: 'bold',
 		},
 		backgroundColor:'transparent',
 	});
@@ -142,7 +143,7 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 		height: Ti.UI.SIZE,
 		font: {
 			fontSize: '12dp',
-			fontFamily: 'Helvetica-Bold',
+			fontFamily: 'droidsans',
 		},
 		backgroundColor:'transparent',
 	});
@@ -156,7 +157,7 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 	content_view.add(textView);
 	
 	var row = Ti.UI.createTableViewRow({
-		height: '90dp',
+		height: Ti.Gesture.landscape? '120dp' : '100dp',
 		width: Ti.Platform.displayCaps.platformWidth,
 		backgroundColor:'#fff',
 		className: 'article',
@@ -169,6 +170,9 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 		modified: modified,
 		date_label: date_label,
 		title_label: titleLabel,
+		text_view: textView,
+		content_view: content_view,
+		thumb: thumb,
 	});
 	
 	row.articleRow = content_view;
@@ -179,27 +183,57 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 	row.addEventListener('longclick', sharing_animation);
 
 	row.articleRow.addEventListener ('click', function(e){
+		var articleWindow;
+		if (loadFromDictionary)
+			articleWindow = Ti.UI.createWindow({
+				backgroundColor:'#fff',
+				url: 'detail.js',
+				modal: false,
+				content: table_rows[id].content, 
+				id: table_rows[id].id,
+				articleUrl: table_rows[id].url,
+				articleTitle: table_rows[id].articleTitle,
+				thumbnail: table_rows[id].thumb.image,
+				date: table_rows[id].date,
+				author: table_rows[id].author,
+				navBarHidden: true,
+			});
+		else
+			articleWindow = Ti.UI.createWindow({
+				backgroundColor:'#fff',
+				url: 'detail.js',
+				modal: false,
+				content: content, 
+				id: id,
+				articleUrl: url,
+				articleTitle: title,
+				thumbnail: thumbnail,
+				date: date,
+				author: author,
+				navBarHidden: true,
+			});
 		
-		var win = Ti.UI.createWindow({
-			backgroundColor:'#fff',
-			url: 'detail.js',
-			modal: true,
-			//content: content, 
-			id: id,
-			articleUrl: url,
-			articleTitle: title,
-			thumbnail: thumbnail,
-			date: date,
-			author: author,
+		articleWindow.addEventListener('open', function(e) {
+			setTimeout(function(){
+			var actionBar = win.getActivity().actionBar;
+				if (actionBar){
+					actionBar.icon = "images/header-logo.png";
+					actionBar.title = "";
+					actionBar.displayHomeAsUp = true;
+					actionBar.onHomeIconItemSelected = function() {
+						articleWindow.close();
+					};
+				}
+			}, 500);
 		});
-			
-		win.open({
+		
+		articleWindow.open({
 			animated:true,
 		});
 		
 		win.addEventListener('close',function(){
 			Ti.UI.currentTab.fireEvent('focus');
-		})
+		});
 
 		if (!!current_row) {
 			current_row.articleRow.animate({
@@ -211,35 +245,55 @@ make_content_view = function(title, content, thumbnail, url, id, date, author, m
 	});
 
 	return row;
-}
+};
 
 var create_header = function(){
 	var header = Titanium.UI.createView({
-		backgroundColor: '#f8f8f8',
+		backgroundColor: '#DDDDDD',
 		top: 0,
 		height: '45dp',
 		zIndex: 2
 	});
 	
 	var headerStrip = Titanium.UI.createView({
-		backgroundColor: '#70193c',
-		height: '5dp',
-		top: 0,
-	})
-	header.add(headerStrip);
-	
-	var topLogo = Titanium.UI.createLabel({
-		width: Ti.UI.SIZE,
-		text: 'Doha News',
-		color: '#70193c',
-		top: '5dp',
-		font: {fontSize: '18dp', fontFamily: 'Helvetica-Bold'}
+		backgroundColor: '#D2D2D2',
+		height: '3px',
+		bottom: 0,
 	});
 	
-	header.add(topLogo);
+	header.add(headerStrip);
+	
+	var headerStripDark = Titanium.UI.createView({
+		backgroundColor: '#BABABA',
+		height: '1px',
+		bottom: 0,
+	});
+	
+	header.add(headerStripDark);
+	
+	var headerLogo = Titanium.UI.createImageView({
+		width: '32dp',
+		height: '32dp',
+		image: 'images/header-logo.png',
+		left: '13dp',
+		top: '8dp',
+	});
+	
+	var headerBack = Titanium.UI.createImageView({
+		width: '15px',
+		height: '28px',
+		image: 'images/back-arrow.png',
+		left: '5dp',
+	});
+	header.add(headerBack);
+	headerLogo.addEventListener('click', function(){
+		win.close();
+	});
+	
+	header.add(headerLogo);
 	
 	return header;
-}
+};
 
 
 var create_table_view = function(){
@@ -253,7 +307,7 @@ var create_table_view = function(){
 		separatorColor: '#e9e5df',
 	});
 	return table;
-}
+};
 
 
 var dialog = function(title, msg){
@@ -263,10 +317,10 @@ var dialog = function(title, msg){
 	var notification = Titanium.UI.createNotification({
 		message: title + '\n' + msg,
 		duration: Ti.UI.NOTIFICATION_DURATION_LONG,
-	}) 
+	});
 	
 	notification.addEventListener('click',function(){
 		notification.hide();
-	})
+	});
 	notification.show();
-}
+};

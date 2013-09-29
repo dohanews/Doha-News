@@ -1,4 +1,4 @@
-Ti.include('and-common');
+Ti.include('and-common.js');
 
 var searchData = [];
 var nextpage = 1;
@@ -7,12 +7,12 @@ var query;
 var inSearchView = false;
 var infiniteScrolling = false;
 var searching = false;
-var searchOn = false;
+var searchBarVisible = false;
 
 if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
-    // Use action bar search view
+
     var searchBar = Ti.UI.Android.createSearchView({
-        hintText: "Table Search",
+        hintText: "Search",
         right: '5dp',
         zIndex: 100,
         top: 0,
@@ -20,6 +20,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
         backgroundColor: '#f8f8f8',
         width: Ti.UI.FILL,
         height:'45dp',
+        softKeyboardOnFocus: Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS,
     });
 
 	var create_no_results_row = function(){
@@ -37,12 +38,51 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				fontStyle: 'italic',
 				fontFamily: 'droidsans',
 			}
-		})
+		});
 		row.add(label);
 		return row;
-	}
+	};
 	
 	var searchTable = create_table_view();
+	
+	var reComputeSearchTableRowsSize = function(){
+	
+		var tableData = searchTable.data[0];
+
+		if (Ti.Gesture.landscape){
+			for (i = 0; i < tableData.rowCount; i++){
+				if (tableData.rows[i].className !== 'article')
+					continue;
+				tableData.rows[i].height = '120dp';
+				tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+				tableData.rows[i].content_view.height = '120dp';
+				tableData.rows[i].text_view.left = '115dp';
+				tableData.rows[i].text_view.height = '100dp';
+				tableData.rows[i].title_label.font = {fontSize: '20dp', fontFamily: 'droidsans', fontWeight: 'bold'};
+				tableData.rows[i].thumb.width = '100dp';
+				tableData.rows[i].thumb.height = '100dp';
+				tableData.rows[i].sharing.social.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+				tableData.rows[i].sharing.bookmark.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			}
+		}
+		else{
+			for (i = 0; i < tableData.rowCount; i++){
+				if (tableData.rows[i].className !== 'article')
+					continue;
+				tableData.rows[i].height = '100dp';
+				tableData.rows[i].content_view.width = Ti.Platform.displayCaps.platformWidth;
+				tableData.rows[i].content_view.height = '100dp';
+				tableData.rows[i].text_view.left = '95dp';
+				tableData.rows[i].text_view.height = '80dp';  
+				tableData.rows[i].title_label.font = {fontSize: '17dp', fontFamily: 'droidsans', fontWeight: 'bold'};
+				tableData.rows[i].thumb.width = '80dp';
+				tableData.rows[i].thumb.height = '80dp';
+				tableData.rows[i].sharing.social.center = {x: 0.4 * Ti.Platform.displayCaps.platformWidth};
+				tableData.rows[i].sharing.bookmark.center = {x: 0.6 * Ti.Platform.displayCaps.platformWidth};
+			}
+		}
+	};
+
 	searchTable.top = '45dp';
 	searchTable.addEventListener('scroll', function(e) {
 		if(!!current_row){
@@ -69,10 +109,10 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				fontStyle: 'italic',
 				fontFamily: 'Helvetica',
 			}
-		})
+		});
 		row.add(label);
 		return row;
-	}
+	};
 	
 	
 	var getSearchResults = function(e){
@@ -106,7 +146,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			timeout:10000
 		});
 		
-		loader.open("GET",'http://dndev.staging.wpengine.com/?json=1&count=10&s='+query);
+		loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query);
 	
 		loader.onload = function() 
 		{
@@ -124,7 +164,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				var thumbail;
 				
 				if (searchResults.posts[i].attachments.length > 0)
-					thumbnail = searchResults.posts[i].attachments[0].images.small.url
+					thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
 				else 
 					thumbnail = 'images/default_thumb.png';
 	
@@ -141,18 +181,19 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				searchTable.addEventListener('scroll', search_infinite_scroll);
 				infiniteScrolling = true;
 			}
-		
+			
+			Ti.Gesture.addEventListener('orientationchange', reComputeSearchTableRowsSize);
 			searchTable.data = searchData;
 			searching = false;
 
-		}
+		};
 		
 		loader.onerror = function(e){
 			common.dialog('Couldn\'t fetch your results');
 			searchData.push(create_no_results_row());
 			searchTable.setData(searchData);
 			searching = false;
-		}
+		};
 		
 		loader.send();
 	};
@@ -181,7 +222,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	    
 		var loader = Titanium.Network.createHTTPClient();
 	
-		loader.open("GET",'http://dndev.staging.wpengine.com/?json=1&count=10&s='+query+'&page='+nextpage);
+		loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query+'&page='+nextpage);
 		
 		loader.onload = function() 
 		{
@@ -200,7 +241,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				var thumbail;
 		
 				if (searchResults.posts[i].attachments.length > 0)
-					thumbnail = searchResults.posts[i].attachments[0].images.small.url
+					thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
 				else 
 					thumbnail = 'images/default_thumb.png';
 		
@@ -218,7 +259,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				searchTable.removeEventListener('scroll', search_infinite_scroll);
 				infiniteScrolling = false;
 			}
-		}
+		};
 		
 		loader.onerror = function(e){
 			tbl.deleteRow(tbl.data[0].rows.length-1);
@@ -233,50 +274,35 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	
 	searchBar.addEventListener('submit', function(){
 		if (!searching){
+			Ti.Gesture.removeEventListener('orientationchange', reComputeSearchTableRowsSize);
 			searching = true;
 			getSearchResults();
 		}
 			
 	});
 	
-	// searchBar.addEventListener('cancel',function(){
-		// if (searchBar.value == ''){
-			// alert('cancel');
-			// tbl.show();
-			// win.remove(searchTable);
-			// win.remove(searchBar);
-			// searchData = null;
-			// inSearchView = false;
-// 
-		// }
-    // });
-	
-	var remove_searchBar = function(){
-	//	if (searchBar.value == ''){
-			tbl.show();
+	var remove_searchView = function(){
+		tbl.show();
+		if (inSearchView)
 			win.remove(searchTable);
-			searchTable.setData(null);
-			searchData = null;
-			Ti.UI.Android.hideSoftKeyboard();
-			//searchBar.removeEventListener('change', remove_searchbar);
-			win.remove(searchBar);
-			inSearchView = false;
-			searching = false;
-			searchOn = false;
-		//}
+		searchTable.setData(null);
+		searchData = null;
+		Ti.UI.Android.hideSoftKeyboard();
+		win.remove(searchBar);
+		inSearchView = false;
+		searching = false;
+		searchBarVisible = false;
+		Ti.Gesture.removeEventListener('orientationchange', reComputeSearchTableRowsSize);
 	};
 	
-	var show_searchBar = function(){
-		if (!searchOn){
+	var toggle_searchView = function(){
+		if (!searchBarVisible){
 			win.add(searchBar);
-			//searchBar.addEventListener('change', remove_searchbar);
 			searchBar.focus();
-			searchOn = true;
+			searchBarVisible = true;
 		}
 		else{
-			remove_searchBar();
-		}
-		
-	}
-	
+			remove_searchView();
+		}	
+	};
 }

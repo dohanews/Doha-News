@@ -70,8 +70,7 @@ var refresh = function(tbl){
 
 	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
 	
-	loader.onload = function() 
-	{
+	loader.onload = function(){
 		var wordpress = JSON.parse(this.responseText);
 		
 		var wp_length = wordpress.posts.length;
@@ -82,9 +81,9 @@ var refresh = function(tbl){
 		for (i = 0; i < wp_length; i++)
 		{
 			if (firstAd == 0) {
-				var adMobRow = createAdMobView();
-				tbl.insertRowBefore(0, adMobRow);
-				firstAd = 10;
+				//var adMobRow = createAdMobView();
+				//tbl.insertRowBefore(0, adMobRow);
+				//firstAd = 10;
 			}
 		
 			firstAd--;
@@ -98,7 +97,7 @@ var refresh = function(tbl){
 			var thumbail;
 
 			if (wordpress.posts[i].attachments.length > 0)
-				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+				thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
 			else 
 				thumbnail = 'images/default_thumb.png';
 
@@ -110,12 +109,12 @@ var refresh = function(tbl){
 		}
 		
 		articleData = tbl.data;
-		resetPullHeader(tbl);
-	}
+		update_content(tbl);
+	};
 	
 	loader.onerror = function(e){
 		resetPullHeader(tbl);
-	}
+	};
 
 	loader.send();
     // and push this into our table.
@@ -137,14 +136,14 @@ var pull_to_refresh = function(e){
     }
 };
 
-var change_date_labels = function(tbl){
+var update_date_labels = function(tbl){
 	for (id in table_rows){
 		date = common.get_relative_time(table_rows[id].date);
 		table_rows[id].date_label.text = date;
 	}
 };
 
-var update_content = function(){
+var update_content = function(tbl){
 	var rows = {};
 	for (id in table_rows){
 		rows[id] = (table_rows[id].modified);
@@ -155,28 +154,14 @@ var update_content = function(){
 	var loader = Ti.Network.createHTTPClient({Timeout: 10000});
 	loader.open('GET','http://dndev.staging.wpengine.com/api/refresh/check_date_modified/?outdated_posts=' + json_rows);
 	
-	loader.onload = function(){
-		var modified_posts = JSON.parse(this.responseText);
-		alert(modified_posts.posts.length);
-		for (i = 0; i < modified_posts.posts.length; i++){
-			var id = modified_posts.posts[i].id;
-			
-			table_rows[id].title_label.text = modified_posts.posts[i].title;
-			table_rows[id].url = modified_posts.posts[i].url;
-			table_rows[id].content = modified_posts.posts[i].content;
-			table_rows[id].articleTitle = modified_posts.posts[i].title;
-			table_rows[id].id = modified_posts.posts[i].id;
-			table_rows[id].date = modified_posts.posts[i].date;
-			table_rows[id].modified = modified_posts.posts[i].modified;
-			alert(table_rows[id].title + ' ' + table_rows[id].date);
-		}	
-	}
+	;
 	
-	loader.onerror = function(){
-	}
+	loader.onerror = function(tbl){
+		resetPullHeader();
+	};
 	
 	loader.send();
-}
+};
 
 var release_to_refresh = function(e){
     if (pulling && !reloading && offset < -80){
@@ -186,22 +171,21 @@ var release_to_refresh = function(e){
         imageArrow.hide();
         actInd.show();
         e.source.setContentInsets({top:80}, {animated:true});
+		update_date_labels(tbl);
         refresh(tbl);
-        change_date_labels(tbl);
-        update_content();
     }
-}
+};
 
 var add_pull_to_refresh = function(table){
 	table.addEventListener('dragEnd',release_to_refresh);
 	table.addEventListener('scroll',pull_to_refresh);
 	table.headerPullView = tableHeader;
-}
+};
 
 var remove_pull_to_refresh = function(table){
 	table.removeEventListener('dragEnd',release_to_refresh);
 	table.removeEventListener('scroll',pull_to_refresh);
 	table.headerPullView = null;
-}
+};
 
 

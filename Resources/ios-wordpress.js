@@ -9,6 +9,7 @@ var win = Ti.UI.currentWindow;
 
 var table_rows = {};
 var articleData = [];
+var content_loaded = false;
 
 var firstAd = 0;
 var lastAd = 3;
@@ -21,7 +22,6 @@ var offset = 0;
 
 win.backgroundColor='white';
 win.navBarHidden = true;
-
 
 var infinite_scroll = function(evt) {
 	if (evt.contentOffset.y + evt.size.height + 100 > evt.contentSize.height){
@@ -48,7 +48,7 @@ var create_loading_row = function(){
 	});
 
 	var loading_indicator = create_activity_indicator();
-	loading_indicator.top = '35dp'
+	loading_indicator.top = '35dp';
 	loading_row.add(loading_indicator);
 	loading_indicator.show();
 	
@@ -117,10 +117,9 @@ function loadWordpress()
 			loading_indicator.show();
 			loader.send();
 		}
-	}
-	
+	};
 
-	
+	articleData = [];
 	// Create our HTTP Client and name it "loader"
 	var loader = Titanium.Network.createHTTPClient({
 		timeout: 10000,
@@ -148,12 +147,12 @@ function loadWordpress()
 			var date = wordpress.posts[i].date;
 			var modified = wordpress.posts[i].modified;
 			
-			lastID = id;		
+			lastID = id;
 			
 			var thumbail;
 			
 			if (wordpress.posts[i].attachments.length > 0)
-				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+				thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
 			else 
 				thumbnail = 'images/default_thumb.png';
 			
@@ -163,15 +162,15 @@ function loadWordpress()
 			articleData.push(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {
-				var adMobRow = createAdMobView();
-				articleData.push(adMobRow);
+				//var adMobRow = createAdMobView();
+				//articleData.push(adMobRow);
 			}
 		}
 	
 		tbl.setData(articleData);
 		loading_indicator.hide();
 		win.add(tbl);
-	}
+	};
 	
 	var loading_indicator = create_activity_indicator();	
 	win.add(loading_indicator);
@@ -179,7 +178,7 @@ function loadWordpress()
 	loading_indicator.show();
 	
 	loader.onerror = function(e){
-		network.removeEventListener('change', send_request);
+		network.addEventListener('change', send_request);
 		common.dialog('Couldn\'t fetch your articles', 'Please check internet connectivity');
 		loading_indicator.hide();
 	};
@@ -201,10 +200,10 @@ setTimeout(function checkSync() {
     loadOlderArticles = false;	
     
 	var loader = Titanium.Network.createHTTPClient({
-		timeout: 10000,
+		timeout: 15000,
 	});
 
-	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_previous_posts/?dev=1&id="+parseInt(lastID,10));
+	loader.open("GET","http://dndev.staging.wpengine.com/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
 	
 	loader.onload = function() 
 	{
@@ -226,7 +225,7 @@ setTimeout(function checkSync() {
 			var thumbail;
 	
 			if (wordpress.posts[i].attachments.length > 0)
-				thumbnail = wordpress.posts[i].attachments[0].images.small.url
+				thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
 			else 
 				thumbnail = 'images/default_thumb.png';
 	
@@ -237,14 +236,14 @@ setTimeout(function checkSync() {
 			tbl.appendRow(articleRow);
 			
 			if (lastAd%10 == 0 && lastAd != 0) {
-				var adMobRow = createAdMobView();
-				tbl.appendRow(adMobRow);
+				//var adMobRow = createAdMobView();
+				//tbl.appendRow(adMobRow);
 			}
 		}
 		
 		articleData = tbl.data;
 		tbl.addEventListener('scroll',infinite_scroll);
-	}
+	};
 	
 	loader.onerror = function(e){
 		tbl.deleteRow(tbl.data[0].rows.length-1);

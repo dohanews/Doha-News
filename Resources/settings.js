@@ -101,7 +101,7 @@ twitterLogin.addEventListener('click', function(e) {
 	//sharing_client.authorize();
 
 	
-})
+});
 
 var ifbutton = Titanium.UI.createButton({title:'Am I logged in?', top:400});
 	ifbutton.addEventListener('click', function()

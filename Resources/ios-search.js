@@ -31,10 +31,10 @@ var create_no_results_row = function(){
 			fontStyle: 'italic',
 			fontFamily: 'Helvetica',
 		}
-	})
+	});
 	row.add(label);
 	return row;
-}
+};
 
 var searchTable = common.create_table_view();
 
@@ -64,10 +64,10 @@ var create_searching_row = function(){
 			fontStyle: 'italic',
 			fontFamily: 'Helvetica',
 		}
-	})
+	});
 	row.add(label);
 	return row;
-}
+};
 
 
 var getSearchResults = function(e){
@@ -114,7 +114,7 @@ var getSearchResults = function(e){
 			var thumbail;
 			
 			if (searchResults.posts[i].attachments.length > 0)
-				thumbnail = searchResults.posts[i].attachments[0].images.small.url
+				thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
 			else 
 				thumbnail = 'images/default_thumb.png';
 
@@ -136,14 +136,14 @@ var getSearchResults = function(e){
 		
 		searchTable.setData(searchData);
 		searching = false;
-	}
+	};
 	
 	loader.onerror = function(e){
 		common.dialog('Couldn\'t fetch your results');
 		searchData.push(create_no_results_row());
 		searchTable.setData(searchData);
 		searching = false;
-	}
+	};
 	loader.send();
 };
 
@@ -247,7 +247,7 @@ var load_older_results = function() {
 			var thumbail;
 	
 			if (searchResults.posts[i].attachments.length > 0)
-				thumbnail = searchResults.posts[i].attachments[0].images.small.url
+				thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
 			else 
 				thumbnail = 'images/default_thumb.png';
 	
@@ -266,7 +266,7 @@ var load_older_results = function() {
 			infiniteScrolling = false;
 		}
 		loadMoreResults = false;
-	}
+	};
 	
 	loader.onerror = function(e){
 		loadMoreResults = false;
@@ -292,5 +292,5 @@ searchBar.addEventListener('change', function(e){
 		inSearchView = false;
 		searching = false;
 	}
-})
+});
 

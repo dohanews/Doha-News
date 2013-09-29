@@ -52,11 +52,11 @@ exports.OAuth = (function (global) {
              
             return arr; 
         },
-        shift: function(){throw 'not implimented'},
-        unshift: function(){throw 'not implimented'},
-        push: function(){throw 'not implimented'},
-        pop: function(){throw 'not implimented'},
-        sort: function(){throw 'not implimented'},
+        shift: function(){throw 'not implimented';},
+        unshift: function(){throw 'not implimented';},
+        push: function(){throw 'not implimented';},
+        pop: function(){throw 'not implimented';},
+        sort: function(){throw 'not implimented';},
          
         ksort: function(func){
             var self = this, keys = self.keys(), i, value, key;
@@ -96,7 +96,7 @@ exports.OAuth = (function (global) {
     function URI(url) {
         var args = arguments, args_callee = args.callee,
             parsed_uri, scheme, host, port, path, query, anchor,
-            parser = /^([^:\/?#]+?:\/\/)*([^\/:?#]*)?(:[^\/?#]*)*([^?#]*)(\?[^#]*)?(#(.*))*/
+            parser = /^([^:\/?#]+?:\/\/)*([^\/:?#]*)?(:[^\/?#]*)*([^?#]*)(\?[^#]*)?(#(.*))*/;
             uri = this;
 
         if (!(this instanceof args_callee)) {
@@ -961,7 +961,7 @@ exports.OAuth = (function (global) {
      * Base64 encode a string
      * @param string {string} the string to be base64 encoded
      */
-    if (global.btoa) { Ti.API.debug('btoa defined!') }
+    if (global.btoa) { Ti.API.debug('btoa defined!'); }
     global.btoa = global.btoa || function (string) {
         var i = 0, length = string.length, ascii, index, output = '';
 
