@@ -247,11 +247,6 @@ function loadWordpress()
 			table_rows[id] = articleRow;
 
 			articleData.push(articleRow);
-
-			if (lastAd%10 == 0 && lastAd != 0) {
-				//var adMobRow = createAdMobView();
-				//articleData.push(adMobRow);
-			}
 		}
 
 		tbl.setData(articleData);

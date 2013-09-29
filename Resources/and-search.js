@@ -143,7 +143,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 		query = searchBar.value.replace(' ','+');
 		
 		var loader = Titanium.Network.createHTTPClient({
-			timeout:10000
+			timeout:15000
 		});
 		
 		loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query);

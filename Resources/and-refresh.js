@@ -94,8 +94,7 @@ var refresh = function(e){
 
 	loader.open("GET","http://s6062.p9.sites.pressdns.com/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
 	
-	loader.onload = function() 
-	{
+	loader.onload = function() {
 		var wordpress = JSON.parse(this.responseText);
 		
 		var wp_length = wordpress.posts.length;
@@ -113,15 +112,6 @@ var refresh = function(e){
 		
 			for (i = 0; i < wp_length; i++)
 			{
-				//tbl.deleteRow(tableHeaderRow);
-				
-				if (firstAd == 0) {
-					//var adMobRow = createAdMobView();
-					//tbl.insertRowBefore(0, adMobRow);
-					//firstAd = 10;
-				}
-			
-				firstAd--;
 				var articleContent = wordpress.posts[i].content; // The tweet message
 				var articleTitle = wordpress.posts[i].title; // The screen name of the user
 				var author = wordpress.posts[i].author.name;
