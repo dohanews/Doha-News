@@ -114,7 +114,6 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		// left: '80dp',
 		// right: '20dp',
 		left: 0,
-		height: Ti.UI.SIZE,
 		backgroundColor:'transparent',
 		layout: 'horizontal',
 	});
