@@ -123,7 +123,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		color:'#4A4A4A',
 		ellipsize: true,
 		left: 0,
-		height: '60dp',
+		height: '57dp',
 		verticalAlign: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 		font: {
 			fontSize: Ti.Gesture.landscape? '18dp': '15dp',
