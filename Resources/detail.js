@@ -8,6 +8,7 @@ var daytime = true;
 
 var header;
 var common;
+var options;
 
 var pinches = 0;
 
@@ -22,6 +23,16 @@ if (osname != 'android'){
 		width:Ti.UI.SIZE
 	});
 	header.addEventListener('click', function(){win.close();});
+	
+	options = Ti.UI.createView({
+		backgroundColor: 'black',
+		opacity: 0.7,
+		width: '108dp',
+		height: '32dp',		
+		borderRadius: '5dp',
+		layout: 'horizontal',
+	});
+	
 }
 else{
 	Ti.include('and-sharing.js');
@@ -181,6 +192,10 @@ var loadDetail = function(){
 			intent.putExtra(Ti.Android.EXTRA_SUBJECT, title);
 			activity.startActivity(Ti.Android.createIntentChooser(intent,'Share via'));	
 		});
+		
+		header.add(share);
+		header.add(textsize);
+		header.add(contrast);
 	}
 	else{
 		share.addEventListener('click', function(){
@@ -233,10 +248,16 @@ var loadDetail = function(){
 			
 			dialog.show();
 		});
+		
+		textsize.left = 0;
+		contrast.left ='4dp';
+		share.left = '4dp';
+		options.add(textsize);
+		options.add(contrast); 
+		options.add(share);
+		
 	}
-	header.add(share);
-	header.add(textsize);
-	header.add(contrast);
+
 };
 
 loadDetail();
