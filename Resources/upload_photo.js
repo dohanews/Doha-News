@@ -4,6 +4,16 @@ var Cloud = require('ti.cloud');
 Ti.include('and-common.js');
 
 var win = Ti.UI.currentWindow;
+win.layout = 'vertical';
+
+if (Ti.Platform.osname != 'android')
+{
+	var common = require('ios-common');
+	var header = common.create_header(false, true);
+	win.add(header);
+}
+
+
 	// var actionBar = win.getActivity().actionBar;
 				// if (actionBar){
 					// actionBar.icon = "images/header-logo.png";
