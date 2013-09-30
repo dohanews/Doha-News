@@ -4,8 +4,10 @@ win.backgroundColor = 'white';
 
 var common;
 var font, boldFont = 'droidsans';
+var versionNumber = '1.0.0';
 
 if (Ti.Platform.osname != 'android'){
+	versionNumber = '0.1.0';
 	common = require('ios-common');
 	var header = common.create_header(true, true);
 	
@@ -166,7 +168,7 @@ var version = Ti.UI.createLabel({
 });
 
 var number = Ti.UI.createLabel({
-	text: '1.0.0',
+	text: versionNumber,
 	font: {
 		fontSize: '17dp',
 		fontFamily: font,
