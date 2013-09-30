@@ -409,20 +409,6 @@ var createGalleryWindow = function(imgId) {
 		}
 
 		descriptionHeader.children[0].text = allThumbs[e.currentPage].imageInfo.caption;
-
-		// if (!isUiHidden) {
-			// if (e.currentPage == (scrollableGalleryView.views.length - 1)) {
-				// buttonRight.visible = false;
-			// } else {
-				// buttonRight.visible = true;
-			// }
-// 
-			// if (e.currentPage == 0) {
-				// buttonLeft.visible = false;
-			// } else {
-				// buttonLeft.visible = true;
-			// }
-		// }
 	});
 };
 
@@ -442,14 +428,6 @@ var createThumbGallery = function() {
 			load_previous_photos();
 		}
 	});
-
-	// thumbnailScrollView = Ti.UI.createScrollView({
-		// top: 0,
-		// contentWidth: 'auto',
-		// contentHeight: 'auto',
-		// showVerticalScrollIndicator: true,
-		// showHorizontalScrollIndicator: false,
-	// });
 
 	computeSizesforThumbGallery();
 	win.add(thumbnailScrollView.view);
@@ -807,17 +785,70 @@ var open_article = function(index){
 
 var share_photo = function(index){
 	
-	var image = allThumbs[index].imageInfo;
-	
-	var activity = Ti.Android.currentActivity;
-	var intent = Ti.Android.createIntent({
-		action: Ti.Android.ACTION_SEND,
-		type: 'text/plain'
-	});
+	if(Ti.Platform.osname == 'android'){	
+		var image = allThumbs[index].imageInfo;
 		
-	intent.putExtra(Ti.Android.EXTRA_TEXT, image.path);
-	intent.putExtra(Ti.Android.EXTRA_SUBJECT, image.caption);
-	activity.startActivity(Ti.Android.createIntentChooser(intent,'Share'));	
+		var activity = Ti.Android.currentActivity;
+		var intent = Ti.Android.createIntent({
+			action: Ti.Android.ACTION_SEND,
+			type: 'text/plain'
+		});
+			
+		intent.putExtra(Ti.Android.EXTRA_TEXT, image.path);
+		intent.putExtra(Ti.Android.EXTRA_SUBJECT, image.caption);
+		activity.startActivity(Ti.Android.createIntentChooser(intent,'Share'));
+	}
+	else{		
+		Ti.include('ios-sharing.js');
+			
+		var dialog = Ti.UI.createOptionDialog({
+			title: "Share",
+			options: ['Twitter', 'Facebook', 'Mail', 'Cancel'],
+			cancel: 3,
+		});
+	 
+		dialog.addEventListener('click', function(e) {
+			if(e.index == e.cancel) { 
+				return; 
+			}
+			
+			var sharer = null;
+			var shareTitle;
+	
+			switch(e.index) {
+				case 0:
+					sharer = 'Twitter';
+					shareTitle = '@dohanews ' + image.caption;
+					break;
+				case 1:
+					sharer = 'Facebook';
+					shareTitle = image.caption;
+					break;
+				case 2:
+					sharer = 'Mail';
+					shareTitle = image.caption;
+					break;
+			}
+		 
+			if (sharer == 'Mail'){
+				var emailDialog = Ti.UI.createEmailDialog({
+					subject: shareTitle,
+					messageBody: image.path,
+				});
+				emailDialog.open();
+			}
+			else{
+				sharekit.share({
+					title: shareTitle,
+					link: image.path,
+					sharer: sharer,
+					view: share
+				});
+			}
+		});
+		
+		dialog.show();
+	}	
 };
 
 var download_photo = function(index){
