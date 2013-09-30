@@ -10,7 +10,7 @@ function getFormattedDate(){
  
 var tableHeader = Ti.UI.createView({
     backgroundColor:'white',
-    width:320, height:'45dp',
+    width:320, height:'35dp',
 });
  
 var border = Ti.UI.createView({
@@ -49,8 +49,11 @@ var labelLastUpdated = Ti.UI.createLabel({
 tableHeader.add(labelLastUpdated);
  
 var actInd = Ti.UI.createActivityIndicator({
-    left:20, bottom:15,
-    width:30, height:30
+    left:20, 
+    bottom:15,
+    width:30,
+    height:30,
+    style: Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
 });
 
 tableHeader.add(actInd);
