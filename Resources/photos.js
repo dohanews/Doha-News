@@ -34,7 +34,7 @@ var footerIcons;
 
 if (Ti.Platform.osname != 'android')
 {
-	win.layout = 'horizontal';
+	win.layout = 'vertical';
 	var common = require('ios-common');
 	var header = common.create_header();
 	win.add(header);
