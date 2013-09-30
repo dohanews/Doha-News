@@ -9,26 +9,27 @@ function getFormattedDate(){
 }
  
 var tableHeader = Ti.UI.createView({
-    backgroundColor:'#e2e7ed',
-    width:320, height:60
+    backgroundColor:'white',
+    width:320, height:'45dp',
 });
  
 var border = Ti.UI.createView({
-    backgroundColor:'#576c89',
+    backgroundColor:'#b2b2b2',
     bottom:0,
     height:2
 });
 tableHeader.add(border);
  
 var imageArrow = Ti.UI.createImageView({
-    image:'https://github.com/appcelerator/titanium_mobile/raw/master/demos/KitchenSink/Resources/images/whiteArrow.png',
-    left:20, bottom:10,
-    width:23, height:60
+    image:'images/arrow.png',
+    left:20,
+    bottom:10,
+    height:30,
 });
 tableHeader.add(imageArrow);
  
 var labelStatus = Ti.UI.createLabel({
-    color:'#576c89',
+    color:'#70193c',
     font:{fontSize:13, fontWeight:'bold'},
     text:'Pull down to refresh...',
     textAlign:'center',
@@ -38,7 +39,7 @@ var labelStatus = Ti.UI.createLabel({
 tableHeader.add(labelStatus);
  
 var labelLastUpdated = Ti.UI.createLabel({
-    color:'#576c89',
+    color:'black',
     font:{fontSize:12},
     text:'Last Updated: ' + getFormattedDate(),
     textAlign:'center',
