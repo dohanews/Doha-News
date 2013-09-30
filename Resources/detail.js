@@ -17,12 +17,20 @@ if (osname != 'android'){
 	Ti.include('ios-sharing.js');
 	common = require('ios-common');
 	header = common.create_header();
+	
+	var back = Ti.UI.createImageView({
+		image: 'images/backarrow.png',
+		height: '20dp',
+	});
+	
+	back.addEventListener('click', function(){win.close();});
+	header.add(back);
+	
 	activityIndicator = Ti.UI.createActivityIndicator({
 		style: Ti.UI.iPhone.ActivityIndicatorStyle.DARK,
 		height:Ti.UI.SIZE,
 		width:Ti.UI.SIZE
 	});
-	header.addEventListener('click', function(){win.close();});
 }
 else{
 	Ti.include('and-sharing.js');

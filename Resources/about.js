@@ -8,8 +8,15 @@ var font, boldFont = 'droidsans';
 if (Ti.Platform.osname != 'android'){
 	common = require('ios-common');
 	var header = common.create_header(true, true);
-	header.addEventListener('click', function(){win.close();});
-	win.add(header);
+	
+	var back = Ti.UI.createImageView({
+		image: 'images/backarrow.png',
+		height: '20dp',
+	});
+	
+	back.addEventListener('click', function(){win.close();});
+	header.add(back);
+	
 	font = 'Helvetica';
 	boldFont = 'Helvetica-Bold';
 }
