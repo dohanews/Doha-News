@@ -16,11 +16,12 @@ var activityIndicator;
 if (osname != 'android'){
 	Ti.include('ios-sharing.js');
 	common = require('ios-common');
-	header = common.create_header();
+	header = common.create_header(true, true);
 
 	var back = Ti.UI.createImageView({
 		image: 'images/backarrow.png',
 		height: '20dp',
+		left: 0,
 	});
 	
 	back.addEventListener('click', function(){win.close();});

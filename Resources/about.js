@@ -12,6 +12,7 @@ if (Ti.Platform.osname != 'android'){
 	var back = Ti.UI.createImageView({
 		image: 'images/backarrow.png',
 		height: '20dp',
+		left: 0,
 	});
 	
 	back.addEventListener('click', function(){win.close();});
