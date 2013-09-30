@@ -7,7 +7,7 @@ var font, boldFont = 'droidsans';
 
 if (Ti.Platform.osname != 'android'){
 	common = require('ios-common');
-	var header = common.create_header(true);
+	var header = common.create_header(true, true);
 	header.addEventListener('click', function(){win.close();});
 	win.add(header);
 	font = 'Helvetica';
