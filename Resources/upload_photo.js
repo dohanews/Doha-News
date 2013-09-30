@@ -10,20 +10,17 @@ if (Ti.Platform.osname != 'android')
 {
 	var common = require('ios-common');
 	var header = common.create_header(true, true);
+	
+	var back = Ti.UI.createImageView({
+		image: 'images/backarrow.png',
+		width: '20dp',
+		left: '8dp',
+	});
+	
 	header.addEventListener('click', function(){win.close();});
 	win.add(header);
 }
 
-
-	// var actionBar = win.getActivity().actionBar;
-				// if (actionBar){
-					// actionBar.icon = "images/header-logo.png";
-					// actionBar.title = "";
-					// actionBar.displayHomeAsUp = true;
-					// actionBar.onHomeIconItemSelected = function() {
-						// win.close();
-					// };
-				// }
 win.backgroundColor = 'white';
 
 var emailRegex = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
@@ -117,14 +114,6 @@ var clear_fields = function(){
 	if (attachButton.children[0])
 		attachButton.remove(attachButton.children[0]);
 };
-
-// var button = Titanium.UI.createButton({title:'Close'});
-// 
-// win.leftNavButton = button;
-// 
-// button.addEventListener('click', function(){
-	// win.close();
-// });
 
 var create_gallery_menu = function(){
 	var optionsArray;
