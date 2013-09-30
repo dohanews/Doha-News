@@ -844,7 +844,7 @@ var share_photo = function(index){
 					title: shareTitle,
 					link: image.path,
 					sharer: sharer,
-					view: share
+					view: Ti.UI.createView(),
 				});
 			}
 		});
