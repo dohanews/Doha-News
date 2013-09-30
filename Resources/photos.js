@@ -463,7 +463,6 @@ var addThumbsToGallery = function(imgs){
 			galleryWindow = Ti.UI.createWindow({
 				backgroundColor : '#000',
 				title : (e.source.imageId + 1) + ' of ' + numOfImages,
-				orientationModes: [Ti.UI.PORTRAIT, Ti.UI.UPSIDE_PORTRAIT, Ti.UI.LANDSCAPE_LEFT, Ti.UI.LANDSCAPE_RIGHT],
 				translucent : true,
 			});
 			
