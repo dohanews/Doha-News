@@ -23,16 +23,6 @@ if (osname != 'android'){
 		width:Ti.UI.SIZE
 	});
 	header.addEventListener('click', function(){win.close();});
-	
-	options = Ti.UI.createView({
-		backgroundColor: 'black',
-		opacity: 0.9,
-		width: '112dp',
-		height: '32dp',		
-		bottom: '10dp',
-		borderRadius: '5dp',
-		zIndex: 60,
-	});
 }
 else{
 	Ti.include('and-sharing.js');
@@ -252,6 +242,25 @@ var loadDetail = function(){
 		textsize.left = '4dp';
 		contrast.left ='40dp';
 		share.left = '76dp';
+		
+		options = Ti.UI.createView({
+			backgroundColor: 'black',
+			opacity: 0.9,
+			width: '112dp',
+			height: '32dp',		
+			bottom: '10dp',
+			borderRadius: '5dp',
+			zIndex: 60,
+			isVisible: true,
+		});
+		
+		win.addEventListener('singletap', function(){
+			if (options.isVisible)
+				options.animate({opacity: 0, duration: 1000}, function(){options.isVisible = false;});
+			else
+				options.animate({opacity: 0.9, duration: 1000}, function(){options.isVisible = true;});
+		});
+		
 		options.add(textsize);
 		options.add(contrast); 
 		options.add(share);
