@@ -270,6 +270,7 @@ var nameField = Ti.UI.createTextField({
 	verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 	width: Ti.UI.FILL,
 	height: height*0.08,
+	top: '3dp',
 	hintText : 'Name (Required)',
 });
 
@@ -290,6 +291,7 @@ var emailField = Ti.UI.createTextField({
 	verticalAlign: Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP,
 	width: Ti.UI.FILL,
 	height: height*0.08,
+	top: '3dp',
 	hintText : 'Email (Required)',
 });
 
@@ -298,6 +300,7 @@ var descriptionField = Ti.UI.createTextField({
 	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
 	width: Ti.UI.FILL,
 	height: height*0.25,
+	top: '3dp',
 	hintText : 'Description',
 });
 
@@ -305,7 +308,7 @@ var descriptionField = Ti.UI.createTextField({
 var geoSwitch = Ti.UI.createImageView({
 	image: 'images/location_active.png',
 	value: true,
-	height: height*0.08,
+	height:  '25dp',
 	left: 0
 });
 
