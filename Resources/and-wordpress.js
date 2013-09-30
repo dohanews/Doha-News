@@ -361,20 +361,3 @@ win.addEventListener('focus', function(){
 win.addEventListener('blur', function(){
 	Ti.Gesture.removeEventListener('orientationchange', reComputeTableRowsSize);
 });
-
-//win.open();
-// win.addEventListener('focus', function(){
-// 	
-	// Ti.App.tabgroup.activity.onPrepareOptionsMenu = function(e){
-		// var menu = e.menu;
-		// menu.findItem(1).visible = true;
-		// menu.findItem(2).visible = true;
-		// if (Ti.App.load_new_photos)
-			// menu.findItem(2).removeEventListener('click', Ti.App.load_new_photos);
-// 			
-		// menu.findItem(2).addEventListener('click', Ti.App.refreshArticles);
-// 		
-	// }		
-// 	
-	// Ti.App.tabgroup.activity.invalidateOptionsMenu();
-// });
