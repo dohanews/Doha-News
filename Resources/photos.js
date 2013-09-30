@@ -288,14 +288,21 @@ var createGalleryWindow = function(imgId) {
 	
 	descriptionHeader.add(descriptionLabel);
 	
-	// var openArticle = Titanium.UI.createImageView({
-		// image : 'images/gallery-article.png',
-		// left : '50dp',
-		// bottom: '10dp',
-		// width: '30dp',
-		// height: '30dp',
-	// });
-// 	
+	if (Ti.Platform.osname != 'android'){
+		var closeButton = Titanium.UI.createImageView({
+			image : 'images/gallery-exit.png',
+			right: '10dp',
+			top: '10dp',
+			width: '30dp',
+			height: '30dp',
+		});
+		
+		closeButton.addEventListener('click', function(){
+			win.close();
+		});	
+	}
+	
+	
 	var openArticle = Titanium.UI.createLabel({
 		text: 'Read Article',
 		font: {fontSize: '16dp', fontFamily: 'droidsans'},
@@ -331,52 +338,6 @@ var createGalleryWindow = function(imgId) {
 	footerIcons.add(sharePhoto);
 	footerIcons.add(openArticle);
 	
-	// var closeButton = Titanium.UI.createImageView({
-		// image : 'images/gallery-exit.png',
-		// right : '10dp',
-		// center: {y: '25dp'},
-		// width: '30dp',
-		// height: '30dp',
-	// });
-// 	
-	// closeButton.addEventListener('click', function(){
-		// win.close();
-	// });
-	
-	// buttonLeft = Titanium.UI.createButton({
-		// image : 'images/left_arrow.png',
-		// backgroundImage : 'images/invisible_hack.png',
-		// left : 10,
-		// //width : buttonSize.width * dpi,
-		// //height : buttonSize.height * dpi,
-		// center: {y: Ti.Platform.displayCaps.platformHeight / 2},
-	// });
-// 	
-	// buttonRight = Titanium.UI.createButton({
-		// image : 'images/right_arrow.png',
-		// backgroundImage : 'images/invisible_hack.png',
-		// right : 10,
-		// //width : buttonSize.width * dpi,
-		// //height : buttonSize.height * dpi,
-		// center: {y: Ti.Platform.displayCaps.platformHeight / 2},
-	// });
-// 	
-	// buttonLeft.addEventListener('click', function(e) {
-		// var i = scrollableGalleryView.currentPage;
-		// if (i == 0) {
-			// return;
-		// }
-		// scrollableGalleryView.scrollToView(++i);
-	// });
-// 
-	// buttonRight.addEventListener('click', function(e) {
-		// var i = scrollableGalleryView.currentPage;
-		// if (i == (scrollableGalleryView.views.length - 1)) {
-			// return;
-		// }
-		// scrollableGalleryView.scrollToView(++i);
-	// });
-	
 	var toggleUI = function() {
 
 		if (isUiHidden) {
@@ -388,17 +349,7 @@ var createGalleryWindow = function(imgId) {
 			if (descriptionHeader.children[0].text  != '')
 				descriptionHeader.animate(animation);
 			
-			//sharePhoto.animate(animation);
-			//openArticle.animate(animation);
 			footerIcons.animate(animation);
-			
-			// if (scrollableGalleryView.currentPage != (scrollableGalleryView.views.length - 1)) {
-				// buttonRight.animate(animation);
-			// }
-// 
-			// if (scrollableGalleryView.currentPage != 0) {
-				// buttonLeft.animate(animation);
-			// }
 				
 		} else {
 
@@ -410,90 +361,40 @@ var createGalleryWindow = function(imgId) {
 				descriptionHeader.animate(animation);
 				
 			footerIcons.animate(animation);
-			//sharePhoto.animate(animation);
-			//openArticle.animate(animation);
-// 
-			// if (scrollableGalleryView.currentPage != (scrollableGalleryView.views.length - 1)) {
-				// buttonRight.animate(animation);
-			// }
-// 
-			// if (scrollableGalleryView.currentPage != 0) {
-				// buttonLeft.animate(animation);
-			// }
 		}
 		
 		isUiHidden = !isUiHidden;
 	};
 	
-	if (Ti.Platform.osname == 'android') {
-	
-		for (var i = 0, b = allThumbs.length; i < b; i++) {
-			var enlarged_image = Ti.UI.createImageView({
-				image: allThumbs[i].imageInfo.path,
-				center: {y: Ti.Platform.displayCaps.platformHeight/2},
-			});
+	for (var i = 0, b = allThumbs.length; i < b; i++) {
+		var enlarged_image = Ti.UI.createImageView({
+			image: allThumbs[i].imageInfo.path,
+			center: {y: Ti.Platform.displayCaps.platformHeight/2},
+		});
 
-			var view = Ti.UI.createView({
-				backgroundColor: 'black',
-				width: Ti.Platform.displayCaps.platformWidth,
-				image: enlarged_image,
-			});
-			
-			view.add(enlarged_image);
-			
-			galleryImageViews[i] = view;
+		var view = Ti.UI.createView({
+			backgroundColor: 'black',
+			width: Ti.Platform.displayCaps.platformWidth,
+			image: enlarged_image,
+		});
+		
+		view.add(enlarged_image);
+		
+		galleryImageViews[i] = view;
 
-			view.addEventListener('singletap', toggleUI);
-		}
-	
-		scrollableGalleryView.views = galleryImageViews;
-		galleryWindow.add(scrollableGalleryView);
-		scrollableGalleryView.scrollToView(imgId);
-	
-	} else {
-	
-		for (var i = 0, b = allThumbs.length; i < b; i++) {
-	
-			var enlarged_image = Ti.UI.createImageView({
-				image: allThumbs[i].imageInfo.path,
-				center: {y: Ti.Platform.displayCaps.platformHeight/2},
-			});
-
-			var view = Ti.UI.createView({
-				backgroundColor: 'black',
-				width: Ti.Platform.displayCaps.platformWidth,
-				image: enlarged_image,
-			});
-	
-			view.add(enlarged_image);
-			
-			galleryImageViews[i] = view;
-
-			view.addEventListener('singletap', toggleUI);
-		}
-	
-		scrollableGalleryView.views = galleryImageViews;
-		galleryWindow.add(scrollableGalleryView);
-		scrollableGalleryView.scrollToView(imgId);
+		view.addEventListener('singletap', toggleUI);
 	}
+
+	scrollableGalleryView.views = galleryImageViews;
+	galleryWindow.add(scrollableGalleryView);
+	scrollableGalleryView.scrollToView(imgId);
 
 	galleryWindow.add(descriptionHeader);
 	galleryWindow.add(footerIcons);
-	//galleryWindow.add(sharePhoto);
-	//galleryWindow.add(openArticle);
-
-	//galleryWindow.add(closeButton);
-
-	//galleryWindow.add(buttonLeft);
-	//galleryWindow.add(buttonRight);
-
-	// if (scrollableGalleryView.currentPage == (scrollableGalleryView.views.length - 1)) {
-		// buttonRight.visible = false;
-	// }
-	// if (scrollableGalleryView.currentPage == 0) {
-		// buttonLeft.visible = false;
-	// }
-
+	
+	if (Ti.Platform.osname != 'android')
+		galleryWindow.add(closeButton);
+	
 	scrollableGalleryView.addEventListener('scroll', function(e) {
 
 		galleryWindow.title = e.currentPage + 1 + ' of ' + numOfImages;
