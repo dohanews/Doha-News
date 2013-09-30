@@ -9,7 +9,7 @@ function getFormattedDate(){
 }
  
 var tableHeader = Ti.UI.createView({
-    backgroundColor:'#E2E2E2',
+    backgroundColor:'white',
     width:320, height:'35dp',
 });
  
