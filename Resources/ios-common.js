@@ -281,8 +281,10 @@ exports.create_header = function(hideInfo, hideSubmit){
 				animated:true,
 			});	
 		});
+		
+		header.add(submit);
 	}
-	header.add(submit);
+	
 	if (!hideInfo){		
 		var info = Ti.UI.createImageView({
 			image: 'images/info_inactive.png',
