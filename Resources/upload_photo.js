@@ -17,7 +17,8 @@ if (Ti.Platform.osname != 'android')
 		left: '8dp',
 	});
 	
-	header.addEventListener('click', function(){win.close();});
+	back.addEventListener('click', function(){win.close();});
+	header.add(back);
 	win.add(header);
 }
 
