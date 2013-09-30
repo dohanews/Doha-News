@@ -800,7 +800,9 @@ var share_photo = function(index){
 	}
 	else{		
 		Ti.include('ios-sharing.js');
-			
+		
+		var image = allThumbs[index].imageInfo;
+		
 		var dialog = Ti.UI.createOptionDialog({
 			title: "Share",
 			options: ['Twitter', 'Facebook', 'Mail', 'Cancel'],
