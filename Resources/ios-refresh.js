@@ -104,12 +104,12 @@ var refresh = function(tbl){
 			tbl.insertRowBefore(0, articleRow);
 		}
 		articleData = tbl.data;
-		//resetPullHeader(tbl);
+		resetPullHeader(tbl);
 	};
 	
 	
 	loader.onerror = function(e){
-		//resetPullHeader(tbl);
+		resetPullHeader(tbl);
 	};
 
 	loader.send();
