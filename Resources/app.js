@@ -19,13 +19,13 @@ Ti.App.tabgroup = Titanium.UI.createTabGroup({
 var articlesWin = Titanium.UI.createWindow ({
    url: prefix + "-wordpress.js",
    id: 'articles',
-   orientationModes: [Titanium.UI.PORTRAIT],
+   //orientationModes: [Titanium.UI.PORTRAIT],
 });
 
 var bookmarksWin = Titanium.UI.createWindow ({
    url: prefix + "-bookmarks.js",
    id: 'bookmarks',
-   orientationModes: [Titanium.UI.PORTRAIT],
+   //orientationModes: [Titanium.UI.PORTRAIT],
 });
 
 var photosWin = Titanium.UI.createWindow({
