@@ -8,6 +8,7 @@ var font, boldFont = 'droidsans';
 if (Ti.Platform.osname != 'android'){
 	common = require('ios-common');
 	var header = common.create_header(true);
+	header.addEventListener('click', function(){win.close();});
 	win.add(header);
 	font = 'Helvetica';
 	boldFont = 'Helvetica-Bold';
@@ -23,7 +24,7 @@ var aboutView = Ti.UI.createView({
 
 var scrollView = Ti.UI.createScrollView({
   contentWidth: Ti.Platform.displayCaps.platformWidth,
-  contentHeight: 'auto',
+  contentHeight: Ti.UI.SIZE,
   width: Ti.Platform.displayCaps.platformWidth,
   height: '100%',
 });

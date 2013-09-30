@@ -10,6 +10,7 @@ if (Ti.Platform.osname != 'android')
 {
 	var common = require('ios-common');
 	var header = common.create_header(false, true);
+	header.addEventListener('click', function(){win.close();});
 	win.add(header);
 }
 
