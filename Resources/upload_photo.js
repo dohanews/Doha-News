@@ -308,7 +308,7 @@ var descriptionField = Ti.UI.createTextField({
 var geoSwitch = Ti.UI.createImageView({
 	image: 'images/location_active.png',
 	value: true,
-	height:  '25dp',
+	height: Ti.Platform.osname == 'android'? height*0.08 : '25dp',
 	left: 0
 });
 

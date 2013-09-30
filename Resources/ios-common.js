@@ -105,6 +105,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		left: Ti.Gesture.landscape? '105dp': '85dp',
 		right: '20dp',
 		height: Ti.Gesture.landscape? '90dp':'70dp',
+		top: '20dp',
 		backgroundColor:'transparent',
 		layout: 'vertical',
 	});
