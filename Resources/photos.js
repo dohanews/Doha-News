@@ -32,11 +32,18 @@ var footerIcons;
 //var buttonLeft = null;
 //var buttonRight = null;
 
+if (Ti.Platform.osname != 'android')
+{
+	win.layout = 'horizontal';
+	var common = require('ios-common');
+	var header = common.create_header();
+	win.add(header);
+}
+
 var create_activity_indicator = function(){
 	var style;
-	if (Ti.Platform.osname == 'android'){
+	if (Ti.Platform.osname == 'android')
 		style = Ti.UI.ActivityIndicatorStyle.BIG_DARK;
-	}
 	else
 		style = Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
 		
@@ -449,8 +456,7 @@ var createGalleryWindow = function(imgId) {
 	
 			var enlarged_image = Ti.UI.createImageView({
 				image: allThumbs[i].imageInfo.path,
-				top: '50dp',
-				bottom: '50dp',
+				center: {y: Ti.Platform.displayCaps.platformHeight/2},
 			});
 
 			var view = Ti.UI.createView({
