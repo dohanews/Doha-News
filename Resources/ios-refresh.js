@@ -9,7 +9,7 @@ function getFormattedDate(){
 }
  
 var tableHeader = Ti.UI.createView({
-    backgroundColor:'white',
+    backgroundColor:'blue',
     width:320, height:'35dp',
 });
  
@@ -119,12 +119,12 @@ var refresh = function(tbl){
 
 var pull_to_refresh = function(e){
     offset = e.contentOffset.y;
-    if (pulling && !reloading && offset > -80 && offset < 0){
+    if (pulling && !reloading && offset > -60 && offset < 0){
         pulling = false;
         var unrotate = Ti.UI.create2DMatrix();
         imageArrow.animate({transform:unrotate, duration:180});
         labelStatus.text = 'Pull down to refresh...';
-    } else if (!pulling && !reloading && offset < -80){
+    } else if (!pulling && !reloading && offset < -60){
         pulling = true;
         var rotate = Ti.UI.create2DMatrix().rotate(180);
         imageArrow.animate({transform:rotate, duration:180});
@@ -173,13 +173,13 @@ var update_content = function(tbl){
 };
 
 var release_to_refresh = function(e){
-    if (pulling && !reloading && offset < -80){
+    if (pulling && !reloading && offset < -60){
         pulling = false;
         reloading = true;
         labelStatus.text = 'Updating...';
         imageArrow.hide();
         actInd.show();
-        e.source.setContentInsets({top:80}, {animated:true});
+        e.source.setContentInsets({top:60}, {animated:true});
 		update_date_labels(tbl);
         update_content(tbl);
     }
