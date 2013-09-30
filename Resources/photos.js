@@ -38,6 +38,18 @@ if (Ti.Platform.osname != 'android')
 	var common = require('ios-common');
 	var header = common.create_header();
 	win.add(header);
+	
+	var refresh = Ti.UI.createImageView({
+			image: 'images/refresh.png',
+			height: '30dp',
+			width: '30dp',
+			right: '40dp',
+			bubbleParent: false,
+		});
+		
+		refresh.addEventListener('click', Ti.App.load_new_photos);
+		
+		header.add(refresh);
 }
 
 var create_activity_indicator = function(){
