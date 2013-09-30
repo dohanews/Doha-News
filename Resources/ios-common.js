@@ -106,7 +106,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 		right: '20dp',
 		height: Ti.Gesture.landscape? '90dp':'70dp',
 		top: '20dp',
-		backgroundColor:'transparent',
+		backgroundColor:'blue',
 		layout: 'vertical',
 	});
 	
@@ -121,6 +121,8 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	
 	var titleLabel = Ti.UI.createLabel({
 		text: title,
+		backgroundColor: 'red',
+		top: 0,
 		color:'#4A4A4A',
 		ellipsize: true,
 		left: 0,
