@@ -15,7 +15,9 @@ if (Ti.Platform.osname != 'android'){
 	});
 	
 	back.addEventListener('click', function(){win.close();});
+	
 	header.add(back);
+	win.add(header);
 	
 	font = 'Helvetica';
 	boldFont = 'Helvetica-Bold';
