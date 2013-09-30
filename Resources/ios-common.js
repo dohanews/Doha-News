@@ -267,6 +267,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 			height: '30dp',
 			width: '30dp',
 			right: '5dp',
+			bubbleParent: false,
 		});
 		
 		submit.addEventListener('click', function(){
@@ -291,6 +292,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 			height: '30dp',
 			width: '30dp',
 			left: '5dp',
+			bubbleParent: false,
 		});
 		
 		info.addEventListener('click', function(){
