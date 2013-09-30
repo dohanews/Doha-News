@@ -23,7 +23,7 @@ tableHeader.add(border);
 var imageArrow = Ti.UI.createImageView({
     image:'images/arrow.png',
     left:20,
-    bottom:10,
+    bottom:15,
     height:30,
 });
 tableHeader.add(imageArrow);
@@ -49,7 +49,7 @@ var labelLastUpdated = Ti.UI.createLabel({
 tableHeader.add(labelLastUpdated);
  
 var actInd = Ti.UI.createActivityIndicator({
-    left:20, bottom:13,
+    left:20, bottom:15,
     width:30, height:30
 });
 
@@ -101,12 +101,12 @@ var refresh = function(tbl){
 			tbl.insertRowBefore(0, articleRow);
 		}
 		articleData = tbl.data;
-		resetPullHeader(tbl);
+		//resetPullHeader(tbl);
 	};
 	
 	
 	loader.onerror = function(e){
-		resetPullHeader(tbl);
+		//resetPullHeader(tbl);
 	};
 
 	loader.send();
