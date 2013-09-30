@@ -228,7 +228,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	return row;
 };
 
-exports.create_header = function(hideInfo){
+exports.create_header = function(hideInfo, hideSubmit){
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
 		top: 0,
@@ -241,26 +241,6 @@ exports.create_header = function(hideInfo){
 		width: '150dp',
 		height: '20dp',
 		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 25},
-	});
-	
-	var submit = Ti.UI.createImageView({
-		image: 'images/submit.png',
-		height: '30dp',
-		width: '30dp',
-		right: '5dp',
-	});
-	
-	submit.addEventListener('click', function(){
-		var win = Ti.UI.createWindow({
-			backgroundColor:'white',
-			url: 'upload_photo.js',
-			modal: false,
-			navBarHidden: true,
-		});
-			
-		win.open({
-			animated:true,
-		});	
 	});
 
 	var headerStrip = Titanium.UI.createView({
@@ -279,6 +259,29 @@ exports.create_header = function(hideInfo){
 	header.add(headerStrip);
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
+	
+	if (!hideSubmit)
+	{
+		var submit = Ti.UI.createImageView({
+			image: 'images/submit.png',
+			height: '30dp',
+			width: '30dp',
+			right: '5dp',
+		});
+		
+		submit.addEventListener('click', function(){
+			var win = Ti.UI.createWindow({
+				backgroundColor:'white',
+				url: 'upload_photo.js',
+				modal: false,
+				navBarHidden: true,
+			});
+				
+			win.open({
+				animated:true,
+			});	
+		});
+	}
 	header.add(submit);
 	if (!hideInfo){		
 		var info = Ti.UI.createImageView({
