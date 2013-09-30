@@ -47,7 +47,7 @@ if (Ti.Platform.osname != 'android')
 			bubbleParent: false,
 		});
 		
-		refresh.addEventListener('click', Ti.App.load_new_photos);
+		refresh.addEventListener('click', function(){Ti.App.load_new_photos();});
 		
 		header.add(refresh);
 }
