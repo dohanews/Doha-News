@@ -298,7 +298,7 @@ var createGalleryWindow = function(imgId) {
 		});
 		
 		closeButton.addEventListener('click', function(){
-			win.close();
+			galleryWindow.close();
 		});	
 	}
 	
