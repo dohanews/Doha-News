@@ -66,8 +66,27 @@ var rate = Ti.UI.createButton({
 	width: '50%',
 });
 
+
 rate.addEventListener('click', function(){
 	Ti.Platform.openURL('https://play.google.com/store/apps/details?id=com.dohanews');
+});
+
+var feedback = Ti.UI.createButton({
+	title: 'Feedback',
+	top: '10dp',
+	width: '50%',
+});
+
+feedback.addEventListener('click', function(){
+	
+	var emailDialog = Ti.UI.createEmailDialog();
+	if (Ti.Platform.osname == 'android')
+		emailDialog.subject = "Android App Feedback";
+	else
+		emailDialog.subject = "iOS App Feedback";
+		
+	emailDialog.toRecipients = ['anas@dohanews.co'];
+	emailDialog.open();
 });
 
 var createMember = function(name, position){
@@ -128,7 +147,7 @@ var appTeam = Ti.UI.createLabel({
 	textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER,
 });
 
-var anas = createMember('Anas Halbawi', 'Project Manager & Lead Develper');
+var anas = createMember('Anas Halbawi', 'Project Manager & Lead Developer');
 var ali = createMember('Ali Naqi', 'Product Manager & Developer');
 var noshin = createMember('Noshin Nisa', 'User Interface Lead');
 var zaid = createMember('Zaid Haque', 'User Experience Consultant');
@@ -198,6 +217,7 @@ aboutView.add(victoria);
 aboutView.add(versionView);
 
 aboutView.add(rate);
+aboutView.add(feedback);
 
 scrollView.add(aboutView);
 win.add(scrollView);
