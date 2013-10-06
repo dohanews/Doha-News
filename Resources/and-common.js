@@ -12,11 +12,13 @@ var get_relative_time = function(date){
 	pMin = parseInt(pTime[1],10);
 	
 	var currentTime = new Date();
-	var hours = parseInt(currentTime.getUTCHours(),10);
-	var minutes = parseInt(currentTime.getUTCMinutes(),10);
-	var year = parseInt(currentTime.getUTCFullYear(),10);
-	var month = parseInt(currentTime.getUTCMonth()+1,10);
-	var day = parseInt(currentTime.getUTCDate(),10);
+	var zone = (currentTime.getTimezoneOffset())/60;
+	currentTime = new Date(new Date()*1 + (1000*3600*(3+zone)));
+	var hours = parseInt(currentTime.getHours(),10);
+	var minutes = parseInt(currentTime.getMinutes(),10);
+	var year = parseInt(currentTime.getFullYear(),10);
+	var month = parseInt(currentTime.getMonth()+1,10);
+	var day = parseInt(currentTime.getDate(),10);
 
 	if (year == pYear && month == pMonth && day == pDay){
 		
