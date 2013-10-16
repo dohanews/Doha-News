@@ -575,13 +575,13 @@ var load_photos = function(){
 	var send_request = function(e){
 		if (e.online){
 			network.removeEventListener('change', send_request);
-			loader.open('GET','http://s6062.p9.sites.pressdns.com/category/photos/?json=1&count=20');
+			loader.open('GET','http://dohanews.co/category/photos/?json=1&count=20');
 			loading_indicator.show();
 			loader.send();
 		}
 	};
 	
-	loader.open('GET','http://s6062.p9.sites.pressdns.com/category/photos/?json=1&count=20');
+	loader.open('GET','http://dohanews.co/category/photos/?json=1&count=20');
 	
 	loader.onload = function(){
 		var photos = [];
@@ -597,20 +597,28 @@ var load_photos = function(){
 			
 			for (var y = 0; y < response.posts[i].attachments.length; y++){
 				var attachment = response.posts[i].attachments[y];
+				var thumb;
 				
-				if (imageMime.test(attachment.mime_type)){
+				if (response.posts[i].thumbnail_images && response.posts[i].thumbnail_images.thumbnail)
+					thumb = response.posts[i].thumbnail_images.thumbnail.url;
+				else if (response.posts[i].attachments.length > 0 && response.posts[i].attachments[0].images && response.posts[i].attachments[0].images.thumbnail)
+					thumb = response.posts[i].attachments[0].images.thumbnail.url;
+				else
+					thumb = 'images/default_thumb.png';
+				
+				if (imageMime.test(attachment.mime_type) && attachment.images && attachment.images.large && attachment.images.thumbnail){
 					var photo = {
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
 						content : response.posts[i].content,
-						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
+						thumbnail : thumb,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.full.url,
-						fullWidth: attachment.images.full.width,
-						fullHeight: attachment.images.full.height,
+						path: attachment.images.large.url,
+						fullWidth: attachment.images.large.width,
+						fullHeight: attachment.images.large.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
 					};
@@ -653,7 +661,7 @@ Ti.App.load_new_photos = function(){
 	
 	var loader = Ti.Network.createHTTPClient({timeout: 15000});
 	
-	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/adjacent/get_next_posts/?category=photos&count=20&id=' + recentID);
+	loader.open('GET','http://dohanews.co/api/adjacent/get_next_posts/?category=photos&count=20&id=' + recentID);
 	
 	loader.onload = function(){
 
@@ -668,20 +676,28 @@ Ti.App.load_new_photos = function(){
 			
 			for (var y = 0; y < response.posts[i].attachments.length; y++){
 				var attachment = response.posts[i].attachments[y];
+				var thumb;
 				
-				if (imageMime.test(attachment.mime_type)){
+				if (response.posts[i].thumbnail_images && response.posts[i].thumbnail_images.thumbnail)
+					thumb = response.posts[i].thumbnail_images.thumbnail.url;
+				else if (response.posts[i].attachments.length > 0 && response.posts[i].attachments[0].images && response.posts[i].attachments[0].images.thumbnail)
+					thumb = response.posts[i].attachments[0].images.thumbnail.url;
+				else
+					thumb = 'images/default_thumb.png';
+				
+				if (imageMime.test(attachment.mime_type) && attachment.images && attachment.images.large && attachment.images.thumbnail){
 					var photo = {
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
 						content : response.posts[i].content,
-						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
+						thumbnail : thumb,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.full.url,
-						fullWidth: attachment.images.full.width,
-						fullHeight: attachment.images.full.height,
+						path: attachment.images.large.url,
+						fullWidth: attachment.images.large.width,
+						fullHeight: attachment.images.large.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
 					};
@@ -710,7 +726,7 @@ var load_previous_photos = function(){
 	var loadingRow = create_loading_row(false);
 	win.add(loadingRow);
 	
-	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/adjacent/get_previous_posts/?category=photos&count=20&id=' + lastID);
+	loader.open('GET','http://dohanews.co/api/adjacent/get_previous_posts/?category=photos&count=20&id=' + lastID);
 	
 	loader.onload = function(){
 		var photos = [];
@@ -724,20 +740,28 @@ var load_previous_photos = function(){
 			
 			for (var y = 0; y < response.posts[i].attachments.length; y++){
 				var attachment = response.posts[i].attachments[y];
+				var thumb;
 				
-				if (imageMime.test(attachment.mime_type)){
+				if (response.posts[i].thumbnail_images && response.posts[i].thumbnail_images.thumbnail)
+					thumb = response.posts[i].thumbnail_images.thumbnail.url;
+				else if (response.posts[i].attachments.length > 0 && response.posts[i].attachments[0].images && response.posts[i].attachments[0].images.thumbnail)
+					thumb = response.posts[i].attachments[0].images.thumbnail.url;
+				else
+					thumb = 'images/default_thumb.png';
+				
+				if (imageMime.test(attachment.mime_type) && attachment.images && attachment.images.large && attachment.images.thumbnail){
 					var photo = {
 						id: response.posts[i].id,				
 						url : response.posts[i].url,
 						caption : response.posts[i].title,
 						content : response.posts[i].content,
-						thumbnail : response.posts[i].attachments[0].images.thumbnail.url,
+						thumbnail : thumb,
 						date : response.posts[i].date,
 						author :  response.posts[i].author.name,
 						thumbPath: attachment.images.thumbnail.url,
-						path: attachment.images.full.url,
-						fullWidth: attachment.images.full.width,
-						fullHeight: attachment.images.full.height,
+						path: attachment.images.large.url,
+						fullWidth: attachment.images.large.width,
+						fullHeight: attachment.images.large.height,
 						imageTitle: attachment.title,
 						imageId: attachment.id,
 
