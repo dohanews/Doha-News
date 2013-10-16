@@ -4,7 +4,7 @@ win.backgroundColor = 'white';
 
 var common;
 var font, boldFont = 'droidsans';
-var versionNumber = '1.0.0';
+var versionNumber = '1.1.1';
 
 if (Ti.Platform.osname != 'android'){
 	versionNumber = '0.1.0';

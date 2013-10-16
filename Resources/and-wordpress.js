@@ -200,7 +200,7 @@ function loadWordpress()
 	var send_request = function(e){
 		if (e.online){
 			network.removeEventListener('change', send_request);
-			loader.open("GET","http://s6062.p9.sites.pressdns.com/?json=1&count=10");
+			loader.open("GET","http://dohanews.co/?json=1&count=10");
 			loading_indicator.show();
 			loader.send();
 		}
@@ -213,7 +213,7 @@ function loadWordpress()
 	});
 	// Sets the HTTP request method, and the URL to get data from
 
-	loader.open("GET","http://s6062.p9.sites.pressdns.com/?json=1&count=10");
+	loader.open("GET","http://dohanews.co/?json=1&count=9");
 	// Runs the function when the data is ready for us to process
 
 	loader.onload = function() 
@@ -237,9 +237,11 @@ function loadWordpress()
 			
 			var thumbail;
 
-			if (wordpress.posts[i].attachments.length > 0)
+			if (wordpress.posts[i].thumbnail_images && wordpress.posts[i].thumbnail_images.thumbnail)
+				thumbnail = wordpress.posts[i].thumbnail_images.thumbnail.url;
+			else if (wordpress.posts[i].attachments.length > 0 && wordpress.posts[i].attachments[0].images && wordpress.posts[i].attachments[0].images.thumbnail)
 				thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
-			else 
+			else
 				thumbnail = 'images/default_thumb.png';
 
 			var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author, modified, true);
@@ -287,7 +289,7 @@ setTimeout(function load_more_articles() {
 		timeout: 15000,
 	});
 
-	loader.open("GET","http://s6062.p9.sites.pressdns.com/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
+	loader.open("GET","http://dohanews.co/api/adjacent/get_previous_posts/?id="+parseInt(lastID,10));
 	
 	loader.onload = function() 
 	{
@@ -309,9 +311,11 @@ setTimeout(function load_more_articles() {
 
 			var thumbail;
 
-			if (wordpress.posts[i].attachments.length > 0)
+			if (wordpress.posts[i].thumbnail_images && wordpress.posts[i].thumbnail_images.thumbnail)
+				thumbnail = wordpress.posts[i].thumbnail_images.thumbnail.url;
+			else if (wordpress.posts[i].attachments.length > 0 && wordpress.posts[i].attachments[0].images && wordpress.posts[i].attachments[0].images.thumbnail)
 				thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
-			else 
+			else
 				thumbnail = 'images/default_thumb.png';
 				
 			// Create a row and set its height to auto

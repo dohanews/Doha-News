@@ -92,7 +92,7 @@ var create_loading_background = function(){
 var refresh = function(e){
 	var loader = Titanium.Network.createHTTPClient();
 
-	loader.open("GET","http://s6062.p9.sites.pressdns.com/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
+	loader.open("GET","http://dohanews.co/api/adjacent/get_next_posts/?id="+parseInt(recentID,10));
 	
 	loader.onload = function() {
 		var wordpress = JSON.parse(this.responseText);
@@ -121,9 +121,11 @@ var refresh = function(e){
 				var modified = wordpress.posts[i].modified;
 				var thumbail;
 	
-				if (wordpress.posts[i].attachments.length > 0)
+				if (wordpress.posts[i].thumbnail_images && wordpress.posts[i].thumbnail_images.thumbnail)
+					thumbnail = wordpress.posts[i].thumbnail_images.thumbnail.url;
+				else if (wordpress.posts[i].attachments.length > 0 && wordpress.posts[i].attachments[0].images && wordpress.posts[i].attachments[0].images.thumbnail)
 					thumbnail = wordpress.posts[i].attachments[0].images.thumbnail.url;
-				else 
+				else
 					thumbnail = 'images/default_thumb.png';
 	
 			
@@ -164,7 +166,7 @@ var update_content = function(){
 	var json_rows = JSON.stringify(rows);
 	
 	var loader = Ti.Network.createHTTPClient({Timeout: 10000});
-	loader.open('GET','http://s6062.p9.sites.pressdns.com/api/refresh/check_date_modified/?outdated_posts=' + json_rows);
+	loader.open('GET','http://dohanews.co/api/refresh/check_date_modified/?outdated_posts=' + json_rows);
 	
 	loader.onload = function(){
 		var modified_posts = JSON.parse(this.responseText);
