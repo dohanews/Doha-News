@@ -1,4 +1,13 @@
 eclipse.preferences.version=1
-provisioning_profiles/development/44B38C2D-96C6-4722-9CFF-8B59CE7148D5/appid=*
-provisioning_profiles/development/44B38C2D-96C6-4722-9CFF-8B59CE7148D5/name=390303917
-provisioning_profiles/development/44B38C2D-96C6-4722-9CFF-8B59CE7148D5/uuid=44B38C2D-96C6-4722-9CFF-8B59CE7148D5
+provisioning_profiles/distribution/01CAC344-A740-47A4-A833-D85D5E605889/appid=com.dohanews
+provisioning_profiles/distribution/01CAC344-A740-47A4-A833-D85D5E605889/filepath=/Users/user3435/Library/MobileDevice/Provisioning Profiles/01CAC344-A740-47A4-A833-D85D5E605889.mobileprovision
+provisioning_profiles/distribution/01CAC344-A740-47A4-A833-D85D5E605889/name=Dist App Store
+provisioning_profiles/distribution/01CAC344-A740-47A4-A833-D85D5E605889/uuid=01CAC344-A740-47A4-A833-D85D5E605889
+provisioning_profiles/distribution/79906E48-AEF2-4075-B4A4-253684DC0A63/appid=com.dohanews.app
+provisioning_profiles/distribution/79906E48-AEF2-4075-B4A4-253684DC0A63/filepath=/Users/user3435/Library/MobileDevice/Provisioning Profiles/79906E48-AEF2-4075-B4A4-253684DC0A63.mobileprovision
+provisioning_profiles/distribution/79906E48-AEF2-4075-B4A4-253684DC0A63/name=Doha News Dist App Store
+provisioning_profiles/distribution/79906E48-AEF2-4075-B4A4-253684DC0A63/uuid=79906E48-AEF2-4075-B4A4-253684DC0A63
+provisioning_profiles/distribution/E3F2E918-FE8E-4A89-A567-302EADA6A12D/appid=com.dohanews
+provisioning_profiles/distribution/E3F2E918-FE8E-4A89-A567-302EADA6A12D/filepath=/Users/user3435/Library/MobileDevice/Provisioning Profiles/E3F2E918-FE8E-4A89-A567-302EADA6A12D.mobileprovision
+provisioning_profiles/distribution/E3F2E918-FE8E-4A89-A567-302EADA6A12D/name=DN Distribution Provisioning Profile
+provisioning_profiles/distribution/E3F2E918-FE8E-4A89-A567-302EADA6A12D/uuid=E3F2E918-FE8E-4A89-A567-302EADA6A12D

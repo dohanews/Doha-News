@@ -1,11 +1,15 @@
 android/ATTR_MINIFY=true
 android/ATTR_PROJECT_NAME=Doha-News
 android/abi=armeabi
+android/alias=
 android/distribute_path=C\:\\Users\\Anas\\Desktop\\DohaNews\\15
+android/keystore=
 android/keystore_alias=DohaNews12
 android/keystore_password=Ronaldinho[12
 android/keystore_path=C\:\\Users\\Anas\\Desktop\\DohaNews\\key
-android/recent_output=C\:\\Users\\Anas\\Desktop\\DohaNews\\15
+android/output_location=
+android/recent_output=,C\:\\Users\\Anas\\Desktop\\DohaNews\\15
+android/sdk=
 android/sdk_version=Android 2.2
 eclipse.preferences.version=1
 iosLaunchConfigurationAttributes/ATTR_MINIFY=true
