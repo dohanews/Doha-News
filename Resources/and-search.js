@@ -146,7 +146,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 			timeout:15000
 		});
 		
-		loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query);
+		loader.open("GET",'http://dohanews.co/?json=1&count=10&s='+query);
 	
 		loader.onload = function() 
 		{
@@ -163,11 +163,13 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	
 				var thumbail;
 				
-				if (searchResults.posts[i].attachments.length > 0)
+				if (searchResults.posts[i].thumbnail_images && searchResults.posts[i].thumbnail_images.thumbnail)
+					thumbnail = searchResults.posts[i].thumbnail_images.thumbnail.url;
+				else if (wordpress.posts[i].attachments.length > 0 && wordpress.posts[i].attachments[0].images && wordpress.posts[i].attachments[0].images.thumbnail)
 					thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
-				else 
+				else
 					thumbnail = 'images/default_thumb.png';
-	
+				
 				var articleRow = make_content_view(articleTitle, articleContent, thumbnail, url, id, date, author);
 	
 				searchData.push(articleRow);
@@ -222,7 +224,7 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 	    
 		var loader = Titanium.Network.createHTTPClient();
 	
-		loader.open("GET",'http://s6062.p9.sites.pressdns.com/?json=1&count=10&s='+query+'&page='+nextpage);
+		loader.open("GET",'http://dohanews.co/?json=1&count=10&s='+query+'&page='+nextpage);
 		
 		loader.onload = function() 
 		{
@@ -240,9 +242,11 @@ if (Ti.Platform.name == 'android' && Ti.Platform.Android.API_LEVEL > 11) {
 				
 				var thumbail;
 		
-				if (searchResults.posts[i].attachments.length > 0)
+				if (searchResults.posts[i].thumbnail_images && searchResults.posts[i].thumbnail_images.thumbnail)
+					thumbnail = searchResults.posts[i].thumbnail_images.thumbnail.url;
+				else if (searchResults.posts[i].attachments.length > 0 && searchResults.posts[i].attachments[0].images && searchResults.posts[i].attachments[0].images.thumbnail)
 					thumbnail = searchResults.posts[i].attachments[0].images.thumbnail.url;
-				else 
+				else
 					thumbnail = 'images/default_thumb.png';
 		
 				// Create a row and set its height to auto

@@ -50,8 +50,7 @@ var create_social_share = function(title, url){
 		            type: 'text/plain'
 		        });
 		
-		intent.putExtra(Ti.Android.EXTRA_TEXT, url);
-		intent.putExtra(Ti.Android.EXTRA_SUBJECT, title);
+		intent.putExtra(Ti.Android.EXTRA_TEXT, title + ' - ' + url);
 		activity.startActivity(Ti.Android.createIntentChooser(intent,'Share'));	
 	});
 

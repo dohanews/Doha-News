@@ -8,13 +8,13 @@ var height = Ti.Platform.displayCaps.platformHeight - 100;
 function init(_args) {
 	if (!Cloud.sessionId) {
 		Cloud.Users.login({
-		login: 'doha',
+		login: 'doha1',
 		password: 'dohanews'
 	}, function (e) {
 		if (e.success) {
 			// _args.success({user : e.users[0]});
 		} else {
-			_args.error({error: e.error});
+			//_args.error({error: e.error});
 		}
 	});
 	}
