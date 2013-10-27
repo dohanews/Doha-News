@@ -3,25 +3,36 @@ var db = require('database');
 var cache = require('cache');
 
 var win = Ti.UI.currentWindow;
-//win.navBarHidden = true;
+win.bubbleParent = true;
+
 var daytime = true;
 
 var header;
 var common;
 var options;
-
+var overlay;
 var pinches = 0;
 
 var activityIndicator;
 if (osname != 'android'){
 	Ti.include('ios-sharing.js');
 	common = require('ios-common');
+	
+	overlay = Ti.UI.createView({
+		backgroundColor: 'black',
+		opacity: 0.5,
+		width: Ti.Platform.displayCaps.platformWidth,
+		height: Ti.Platform.displayCaps.platformHeight,
+		bubbleParent: true,
+	});
+	
 	header = common.create_header(true, true);
 
 	var back = Ti.UI.createImageView({
 		image: 'images/backarrow.png',
 		height: '20dp',
 		left: 0,
+		center: {y: common.isiOS7? '45dp': '25dp'},
 	});
 	
 	back.addEventListener('click', function(){win.close();});
@@ -56,7 +67,7 @@ var date = win.date;
 var author =  win.author;
 
 var localWebview = Titanium.UI.createWebView({
-		top:'45dp',
+		top: common.isiOS7? '65dp':'45dp',
 	    backgroundColor:'transparent',
 		enableZoomControls: false,
 		textSize: 1,
@@ -85,7 +96,7 @@ var changeTextSize = function(e){
 	}
 };
 
-win.addEventListener('pinch', changeTextSize);
+overlay.addEventListener('pinch', changeTextSize);
 
 win.add(header);
 
@@ -93,7 +104,7 @@ var loadDetail = function(){
 	var bookmark = create_bookmarks(title, url, author, content, date, articleId, thumbnail);
 	bookmark.center = null;
 	bookmark.right = 0;
-	bookmark.top = '45dp';
+	bookmark.top = common.isiOS7? '65dp':'45dp';
 	bookmark.zIndex = 50;
 	win.add(bookmark);
 	
@@ -263,7 +274,8 @@ var loadDetail = function(){
 			isVisible: true,
 		});
 		
-		win.addEventListener('singletap', function(){
+		overlay.addEventListener('singletap', function(){
+			alert('tapped');
 			if (options.isVisible)
 				options.animate({opacity: 0, duration: 1000}, function(){options.isVisible = false;});
 			else
@@ -343,3 +355,5 @@ win.add(localWebview);
 	// }
 	// loader.send();
 // }
+
+win.add(overlay);

@@ -1,13 +1,15 @@
 var upload = require('/cloud');
 upload.init();
 var Cloud = require('ti.cloud');
-Ti.include('and-common.js');
+
 
 var win = Ti.UI.currentWindow;
 win.layout = 'vertical';
 
-if (Ti.Platform.osname != 'android')
-{
+if (Ti.Platform.osname == 'android'){
+	Ti.include('and-common.js');
+}
+else{
 	var common = require('ios-common');
 	var header = common.create_header(true, true);
 	
@@ -15,6 +17,7 @@ if (Ti.Platform.osname != 'android')
 		image: 'images/backarrow.png',
 		height: '20dp',
 		left: 0,
+		center: {y: common.isiOS7? '45dp': '25dp'},
 	});
 	
 	back.addEventListener('click', function(){win.close();});
@@ -76,6 +79,7 @@ Titanium.Geolocation.getCurrentPosition(function(e){
     var accuracy = e.coords.accuracy;
     var speed = e.coords.speed;
     var timestamp = e.coords.timestamp;
+    
     var altitudeAccuracy = e.coords.altitudeAccuracy;
 });
 

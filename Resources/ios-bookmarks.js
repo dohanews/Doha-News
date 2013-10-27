@@ -64,7 +64,7 @@ var create_no_bookmarks_row = function(){
 };
 
 var header = common.create_header();
-var tbl = common.create_table_view('45dp');
+var tbl = common.create_table_view(common.isiOS7? '65dp' : '45dp');
 
 var reComputeTableRowsSize = function(){
 	

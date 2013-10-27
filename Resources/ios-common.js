@@ -1,3 +1,20 @@
+var isiOS7 = exports.isiOS7 = function()
+{
+	// iOS-specific test
+	if (Titanium.Platform.osname != 'android')
+	{
+		var version = Titanium.Platform.version.split(".");
+		var major = parseInt(version[0],10);
+
+		// Can only test this support on a 3.2+ device
+		if (major >= 7)
+		{
+			return true;
+		}
+	}
+	return false;
+};
+
 var get_relative_time = exports.get_relative_time = function(date){
 	var text;
 	var dateTime = date.split(' ');
@@ -12,11 +29,13 @@ var get_relative_time = exports.get_relative_time = function(date){
 	pMin = parseInt(pTime[1],10);
 	
 	var currentTime = new Date();
-	var hours = parseInt(currentTime.getUTCHours(),10);
-	var minutes = parseInt(currentTime.getUTCMinutes(),10);
-	var year = parseInt(currentTime.getUTCFullYear(),10);
-	var month = parseInt(currentTime.getUTCMonth()+1,10);
-	var day = parseInt(currentTime.getUTCDate(),10);
+	var zone = (currentTime.getTimezoneOffset())/60;
+	currentTime = new Date(new Date()*1 + (1000*3600*(3+zone)));
+	var hours = parseInt(currentTime.getHours(),10);
+	var minutes = parseInt(currentTime.getMinutes(),10);
+	var year = parseInt(currentTime.getFullYear(),10);
+	var month = parseInt(currentTime.getMonth()+1,10);
+	var day = parseInt(currentTime.getDate(),10);
 
 	if (year == pYear && month == pMonth && day == pDay){
 		
@@ -229,10 +248,11 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 };
 
 exports.create_header = function(hideInfo, hideSubmit){
+	
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
 		top: 0,
-		height: '45dp',
+		height: isiOS7()? '65dp' : '45dp',
 		zIndex: 2,
 	});
 	
@@ -240,7 +260,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 		image: 'images/ios-header.png',
 		width: '150dp',
 		height: '20dp',
-		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: 25},
+		center: {x:Ti.Platform.displayCaps.platformWidth/2, y: isiOS7()? '45dp' : '25dp'},
 	});
 
 	var headerStrip = Titanium.UI.createView({
@@ -256,7 +276,9 @@ exports.create_header = function(hideInfo, hideSubmit){
 		bottom: 0,
 	});
 	
-	header.add(headerStrip);
+	if (isiOS7())
+		header.add(headerStrip);
+		
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
 	
@@ -267,6 +289,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 			height: '30dp',
 			width: '30dp',
 			right: '5dp',
+			center: {y:isiOS7()? '45dp' : '25dp'},
 			bubbleParent: false,
 		});
 		
@@ -292,6 +315,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 			height: '30dp',
 			width: '30dp',
 			left: '5dp',
+			center: {y:isiOS7()? '45dp' : '25dp'},
 			bubbleParent: false,
 		});
 		
@@ -313,7 +337,7 @@ exports.create_header = function(hideInfo, hideSubmit){
 };
 
 exports.create_table_view = function(top){
-	top = top || '90dp';
+	top = top || (common.isiOS7? '110dp' : '90dp');
 	var table = Ti.UI.createTableView({
 		backgroundColor:'white',
 		rowHeight: Ti.UI.SIZE,
