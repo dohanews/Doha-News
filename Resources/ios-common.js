@@ -1,4 +1,4 @@
-var isiOS7 = exports.isiOS7 = function()
+	var isiOS7 = exports.isiOS7 = function()
 {
 	// iOS-specific test
 	if (Titanium.Platform.osname != 'android')
@@ -247,7 +247,7 @@ exports.make_content_view = function(title, content, thumbnail, url, id, date, a
 	return row;
 };
 
-exports.create_header = function(hideInfo, hideSubmit){
+exports.create_header = function(hideInfo, hideSubmit, hideLogo){
 	
 	var header = Titanium.UI.createView({
 		backgroundColor: '#f8f8f8',
@@ -276,9 +276,10 @@ exports.create_header = function(hideInfo, hideSubmit){
 		bottom: 0,
 	});
 	
-	if (isiOS7())
+	if (!isiOS7())
 		header.add(headerStrip);
-		
+	
+	if(!hideLogo)
 	header.add(headerlogo);
 	header.add(headerBottomBorder);
 	
