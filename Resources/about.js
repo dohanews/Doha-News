@@ -39,7 +39,7 @@ var scrollView = Ti.UI.createScrollView({
   contentWidth: Ti.Platform.displayCaps.platformWidth,
   contentHeight: Ti.UI.SIZE,
   width: Ti.Platform.displayCaps.platformWidth,
-  height: '100%',
+  height: Ti.Platform.displayCaps.platformHeight - 65,
 });
 
 var logo = Ti.UI.createImageView({
@@ -69,12 +69,12 @@ var rate = Ti.UI.createButton({
 
 
 rate.addEventListener('click', function(){
-	Ti.Platform.openURL('https://play.google.com/store/apps/details?id=com.dohanews');
+	Ti.Platform.openURL('http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id=721088782&pageNumber=0&sortOrdering=1&type=Purple+Software&mt=8');
 });
 
 var feedback = Ti.UI.createButton({
 	title: 'Feedback',
-	top: '10dp',
+	top: '5dp',
 	width: '50%',
 });
 
