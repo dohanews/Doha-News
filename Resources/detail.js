@@ -69,7 +69,7 @@ var author =  win.author;
 
 var localWebview = Titanium.UI.createWebView({
 		top: common.isiOS7? '65dp':'45dp',
-	    backgroundColor:'w',
+	    backgroundColor:'white',
 		enableZoomControls: false,
 		textSize: 1,
 		pinching: 15,
