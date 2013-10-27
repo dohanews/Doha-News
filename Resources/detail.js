@@ -9,7 +9,7 @@ var daytime = true;
 
 var header;
 var common;
-var options;
+//var options;
 var overlay;
 var pinches = 0;
 
@@ -19,14 +19,15 @@ if (osname != 'android'){
 	common = require('ios-common');
 	
 	overlay = Ti.UI.createView({
-		backgroundColor: 'black',
+		backgroundColor: 'red',
 		opacity: 0.5,
 		width: Ti.Platform.displayCaps.platformWidth,
 		height: Ti.Platform.displayCaps.platformHeight,
 		bubbleParent: true,
+		zIndex: 2,
 	});
 	
-	header = common.create_header(true, true);
+	header = common.create_header(true, true, true);
 
 	var back = Ti.UI.createImageView({
 		image: 'images/backarrow.png',
@@ -68,7 +69,7 @@ var author =  win.author;
 
 var localWebview = Titanium.UI.createWebView({
 		top: common.isiOS7? '65dp':'45dp',
-	    backgroundColor:'transparent',
+	    backgroundColor:'w',
 		enableZoomControls: false,
 		textSize: 1,
 		pinching: 15,
@@ -76,6 +77,8 @@ var localWebview = Titanium.UI.createWebView({
 		touchEnabled: true,
 		zIndex: 5,
 		html: content,
+		bubbleParent: true,
+		willHandleTouches: false,
 });
 
 var changeTextSize = function(e){
@@ -96,7 +99,7 @@ var changeTextSize = function(e){
 	}
 };
 
-overlay.addEventListener('pinch', changeTextSize);
+win.addEventListener('pinch', changeTextSize);
 
 win.add(header);
 
@@ -259,11 +262,16 @@ var loadDetail = function(){
 			dialog.show();
 		});
 		
-		textsize.left = '4dp';
-		contrast.left ='40dp';
-		share.left = '76dp';
+		textsize.right = '47dp';
+		textsize.center = {y: common.isiOS7()? '45dp':'25dp'};
+		contrast.right ='92dp';
+		contrast.center = {y: common.isiOS7()? '45dp':'25dp'};
+		share.right = '4dp';
+		share.center = {y: common.isiOS7()? '45dp':'25dp'};
+
 		
-		options = Ti.UI.createView({
+		
+		/*options = Ti.UI.createView({
 			backgroundColor: 'black',
 			opacity: 0.9,
 			width: '112dp',
@@ -273,18 +281,18 @@ var loadDetail = function(){
 			zIndex: 60,
 			isVisible: true,
 		});
-		
-		overlay.addEventListener('singletap', function(){
+		*/
+		/*win.addEventListener('click', function(){
 			alert('tapped');
 			if (options.isVisible)
 				options.animate({opacity: 0, duration: 1000}, function(){options.isVisible = false;});
 			else
 				options.animate({opacity: 0.9, duration: 1000}, function(){options.isVisible = true;});
-		});
+		});*/
 		
-		options.add(textsize);
-		options.add(contrast); 
-		options.add(share);
+		header.add(textsize);
+		header.add(contrast); 
+		header.add(share);
 		
 	}
 
@@ -293,12 +301,11 @@ var loadDetail = function(){
 loadDetail();
 activityIndicator.hide();
 
-if (osname != 'android'){
+/*if (osname != 'android'){
 	win.add(options);
-}
-
+}*/
+//overlay.add(localWebview);
 win.add(localWebview);
-
 
 // if (cache.exists(articleId)){
 	// content = cache.getContent(articleId);
@@ -356,4 +363,3 @@ win.add(localWebview);
 	// loader.send();
 // }
 
-win.add(overlay);
