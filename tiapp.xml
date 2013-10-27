@@ -8,7 +8,7 @@
     <property name="acs-api-key-development" type="string">RM7XCaJ2aRqfeDKcUJgM5KlnMmoldSNc</property>
     <id>com.dohanews</id>
     <name>Doha News</name>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
     <publisher>Doha News</publisher>
     <url>http://dohanews.co</url>
     <description>not specified</description>
